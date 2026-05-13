@@ -254,8 +254,8 @@ html, body {
 .mobile-drawer {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  max-height: 65vh;
-  border-radius: 20px 20px 0 0;
+  max-height: 55vh;
+  border-radius: 16px 16px 0 0;
   overflow-y: auto;
   z-index: 400;
   transform: translateY(100%);
@@ -270,38 +270,47 @@ html, body {
   width: 36px; height: 4px;
   background: rgba(212, 175, 55, 0.3);
   border-radius: 4px;
-  margin: 8px auto 12px;
+  margin: 8px auto 8px;
 }
 
 /* ── Mobile Bottom Nav ── */
 .mobile-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  z-index: 350;
+  z-index: 450;
   display: none;
-  padding: 0 8px env(safe-area-inset-bottom, 8px);
+  padding: 0 4px;
+  padding-bottom: env(safe-area-inset-bottom, 4px);
+  background: linear-gradient(180deg, transparent 0%, rgba(4,4,10,0.95) 30%);
 }
 
 .mobile-nav-inner {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 4px;
-  gap: 2px;
+  padding: 6px 2px 4px;
+  gap: 0;
 }
 
 .mobile-nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 10px; border-radius: 10px;
-  font-family: var(--font-hud); font-size: 7px; letter-spacing: 0.1em;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 5px 6px; border-radius: 8px;
+  font-family: var(--font-hud); font-size: 6px; letter-spacing: 0.08em;
   color: var(--text-muted); background: transparent;
   border: none; cursor: pointer; transition: all 0.2s ease;
   text-transform: uppercase;
+  min-width: 0;
+  flex: 1;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-nav-btn.active {
   color: var(--gold-primary);
-  background: rgba(212, 175, 55, 0.08);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.mobile-nav-btn svg {
+  width: 16px; height: 16px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -328,23 +337,46 @@ html, body {
   .desktop-panel { display: none !important; }
 
   /* Adjust map popups for touch */
-  .maplibregl-popup { max-width: 280px !important; }
-  .maplibregl-popup-content { max-width: 280px !important; }
+  .maplibregl-popup { max-width: 260px !important; font-size: 10px !important; }
+  .maplibregl-popup-content { max-width: 260px !important; padding: 8px !important; }
+  .maplibregl-popup-close-button { font-size: 18px !important; padding: 4px 8px !important; }
 
   /* Glass panel mobile tweaks */
   .glass-panel { border-radius: 12px; }
 
   /* Status bar mobile */
   .status-bar-desktop { display: none !important; }
+
+  /* Prevent body scroll when drawer is open */
+  body.drawer-open { overflow: hidden; }
 }
 
 /* Small phones */
 @media (max-width: 390px) {
-  :root { --edge-pad: 6px; }
-  .mobile-nav-btn { padding: 5px 6px; font-size: 6px; }
+  :root { --edge-pad: 4px; }
+  .mobile-nav-btn { padding: 4px 3px; font-size: 5px; }
+  .mobile-nav-btn svg { width: 14px; height: 14px; }
+}
+
+/* ── Landscape mobile ── */
+@media (max-height: 500px) and (max-width: 1024px) {
+  .desktop-only { display: none !important; }
+  .desktop-panel { display: none !important; }
+  .status-bar-desktop { display: none !important; }
+  .mobile-nav { display: block; }
+  .mobile-nav-inner { padding: 4px 2px 2px; }
+  .mobile-nav-btn { padding: 3px 4px; font-size: 5px; }
+  .mobile-nav-btn svg { width: 14px; height: 14px; }
+  .mobile-nav-btn span { display: none; }
+  .mobile-drawer-handle { margin: 4px auto 4px; }
 }
 
 /* Safe area for notched phones */
 @supports (padding: env(safe-area-inset-bottom)) {
   .mobile-nav { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Safe area for horizontal notch (landscape) */
+@supports (padding: env(safe-area-inset-left)) {
+  .mobile-nav { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
 }

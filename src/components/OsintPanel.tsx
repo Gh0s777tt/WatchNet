@@ -143,7 +143,7 @@ export default function OsintPanel({ isOpen, onClose, isMobile = false }: OsintP
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed right-0 top-0 bottom-0 w-[420px] z-[500] flex flex-col"
+          className="fixed right-0 top-0 bottom-0 w-full md:w-[420px] z-[500] flex flex-col"
           style={{ background: 'linear-gradient(180deg, rgba(4,4,10,0.98) 0%, rgba(8,8,18,0.98) 100%)', borderLeft: '1px solid rgba(212,175,55,0.15)' }}
         >
           {/* Header */}

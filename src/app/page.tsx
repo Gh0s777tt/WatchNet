@@ -22,10 +22,19 @@ const OsirisMap = dynamic(() => import('@/components/OsirisMap'), { ssr: false }
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Mobile if narrow, OR landscape phone (short height + moderate width)
+      setIsMobile(w < 768 || (h < 500 && w < 1024));
+    };
     check();
     window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+    window.addEventListener('orientationchange', check);
+    return () => {
+      window.removeEventListener('resize', check);
+      window.removeEventListener('orientationchange', check);
+    };
   }, []);
   return isMobile;
 }
@@ -361,7 +370,7 @@ export default function Dashboard() {
       <motion.button
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.5 }}
         onClick={() => setMapProjection(p => p === 'globe' ? 'mercator' : 'globe')}
-        className="absolute bottom-20 md:bottom-24 left-3 md:left-5 z-[200] glass-panel p-2 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors group"
+        className="absolute bottom-[75px] md:bottom-24 left-3 md:left-5 z-[200] glass-panel p-2 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors group"
         title={mapProjection === 'globe' ? 'Switch to 2D Map' : 'Switch to 3D Globe'}
       >
         {mapProjection === 'globe' ? (
@@ -378,7 +387,7 @@ export default function Dashboard() {
       <motion.button
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.7 }}
         onClick={() => setMapStyle(s => s === 'dark' ? 'satellite' : 'dark')}
-        className="absolute bottom-20 md:bottom-36 left-3 md:left-5 z-[200] glass-panel p-2 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors group"
+        className="absolute bottom-[120px] md:bottom-36 left-3 md:left-5 z-[200] glass-panel p-2 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors group"
         title={mapStyle === 'dark' ? 'Satellite View' : 'Night View'}
       >
         {mapStyle === 'dark' ? (
@@ -493,8 +502,8 @@ export default function Dashboard() {
               <motion.div
                 initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="fixed bottom-[60px] left-0 right-0 max-h-[60vh] z-[400] glass-panel rounded-b-none overflow-y-auto styled-scrollbar"
-                style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}
+                className="fixed bottom-[52px] left-0 right-0 z-[400] glass-panel rounded-b-none overflow-y-auto styled-scrollbar"
+                style={{ maxHeight: 'min(55vh, calc(100dvh - 100px))', paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}
               >
                 <div className="mobile-drawer-handle" />
                 <div className="px-3 pb-3">
