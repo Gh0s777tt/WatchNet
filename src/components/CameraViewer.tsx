@@ -11,7 +11,7 @@ interface CameraViewerProps {
 }
 
 export default function CameraViewer({ camera, onClose, onLocate }: CameraViewerProps) {
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -101,7 +101,7 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : imageUrl ? (
               <img
                 key={refreshKey}
                 src={imageUrl}
@@ -110,7 +110,7 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
                 onLoad={() => setLoading(false)}
                 onError={() => { setLoading(false); setError(true); }}
               />
-            )}
+            ) : null}
 
             {/* Live indicator */}
             {!error && !loading && (
