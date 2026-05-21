@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Radar, Globe, Shield, FileText, Radio,
   ChevronDown, ChevronUp, Loader2, AlertTriangle, Server,
   Wifi, Lock, MapPin, Bug, Code, Layers, Network, Fingerprint,
   CheckCircle, XCircle, Clock, ExternalLink, Crosshair,
+  Maximize2, Minimize2
 } from 'lucide-react';
 
 const TABS = [
@@ -28,6 +29,7 @@ interface OsintPanelProps { isOpen?: boolean; onClose?: () => void; isMobile?: b
 
 function OsintPanelInner({ isMobile, onSweepVisualize }: OsintPanelProps) {
   const [activeTab, setActiveTab] = useState('scanner');
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,33 @@ function OsintPanelInner({ isMobile, onSweepVisualize }: OsintPanelProps) {
   const [sweepResult, setSweepResult] = useState<any>(null);
   const [sweepProgress, setSweepProgress] = useState<{ current: number; total: number } | null>(null);
   const [sweepCidr, setSweepCidr] = useState(24);
+  const [cveCache, setCveCache] = useState<Record<string, any>>({});
+  const [expandedDevice, setExpandedDevice] = useState<string | null>(null);
+
+  // Fetch CVE details when a device is expanded in full-screen mode
+  const fetchCveDetails = useCallback(async (cveIds: string[]) => {
+    const missing = cveIds.filter(id => !cveCache[id]);
+    if (missing.length === 0) return;
+    // Mark as loading
+    setCveCache(prev => {
+      const next = { ...prev };
+      for (const id of missing) next[id] = { loading: true };
+      return next;
+    });
+    // Fetch in parallel
+    const results = await Promise.allSettled(
+      missing.map(id => fetch(`/api/osint/cve?cve=${encodeURIComponent(id)}`).then(r => r.json()).then(data => ({ id, data })))
+    );
+    setCveCache(prev => {
+      const next = { ...prev };
+      for (const r of results) {
+        if (r.status === 'fulfilled') {
+          next[r.value.id] = r.value.data;
+        }
+      }
+      return next;
+    });
+  }, [cveCache]);
 
   const runLookup = useCallback(async () => {
     if (!query.trim() || loading) return;
@@ -469,23 +498,163 @@ function OsintPanelInner({ isMobile, onSweepVisualize }: OsintPanelProps) {
             </button>
           </div>
           {/* Device List */}
-          <div className="divide-y divide-[#2A2A28]">
-            {sweepResult.devices.map((device: any) => (
-              <div key={device.ip} className="px-3 py-2.5 hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: device.device_color }} />
-                    <span className="text-[11px] font-mono text-[#E8E6E0]">{device.ip}</span>
+          <div className={isFullScreen ? "flex flex-col gap-3 p-4" : "divide-y divide-[#2A2A28]"}>
+            {sweepResult.devices.map((device: any) => {
+              const isExpanded = expandedDevice === device.ip;
+              return (
+              <div key={device.ip} className={isFullScreen
+                ? "bg-[#0D0D0C] border border-[#2A2A28] rounded-lg overflow-hidden hover:border-[#3A3A38] transition-colors"
+                : "px-3 py-2.5 hover:bg-[rgba(255,255,255,0.02)] transition-colors"
+              }>
+                {/* Device Header */}
+                <div
+                  className={isFullScreen
+                    ? "flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[#151514] transition-colors"
+                    : "flex items-center justify-between mb-1"
+                  }
+                  onClick={() => {
+                    if (!isFullScreen) return;
+                    const next = isExpanded ? null : device.ip;
+                    setExpandedDevice(next);
+                    if (next && device.vulns.length > 0) fetchCveDetails(device.vulns);
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: device.device_color }} />
+                    <span className={isFullScreen ? "text-[14px] font-mono font-bold text-[#E8E6E0]" : "text-[11px] font-mono text-[#E8E6E0]"}>{device.ip}</span>
+                    {device.hostnames.length > 0 && (
+                      <span className={`${isFullScreen ? "text-[11px]" : "text-[9px]"} font-mono text-[#5C5A54]`}>{device.hostnames[0]}</span>
+                    )}
                   </div>
-                  <span className="text-[8px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: device.device_color + '20', color: device.device_color, border: `1px solid ${device.device_color}40` }}>{device.device_type}</span>
+                  <div className="flex items-center gap-2">
+                    {device.vulns.length > 0 && (
+                      <span className={`${isFullScreen ? "text-[10px]" : "text-[8px]"} font-mono px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/30`}>
+                        {device.vulns.length} CVEs
+                      </span>
+                    )}
+                    <span className={`${isFullScreen ? "text-[10px]" : "text-[8px]"} font-mono px-1.5 py-0.5 rounded`} style={{ backgroundColor: device.device_color + '20', color: device.device_color, border: `1px solid ${device.device_color}40` }}>{device.device_type}</span>
+                    {isFullScreen && (
+                      <ChevronDown className={`w-4 h-4 text-[#5C5A54] transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-[9px] font-mono text-[#5C5A54]">
-                  <span>Ports: {device.ports.slice(0, 8).join(', ')}{device.ports.length > 8 ? ` +${device.ports.length - 8}` : ''}</span>
-                  {device.vulns.length > 0 && <span className="text-[#FF3D3D] flex items-center gap-1"><AlertTriangle className="w-2.5 h-2.5" /> {device.vulns.length} CVEs</span>}
-                </div>
-                {device.hostnames.length > 0 && <div className="text-[9px] font-mono text-[#8A8880] mt-0.5 truncate">{device.hostnames[0]}</div>}
+
+                {/* Compact info (sidebar mode) */}
+                {!isFullScreen && (
+                  <>
+                    <div className="flex items-center gap-2 text-[9px] font-mono text-[#5C5A54]">
+                      <span>Ports: {device.ports.slice(0, 8).join(', ')}{device.ports.length > 8 ? ` +${device.ports.length - 8}` : ''}</span>
+                      {device.vulns.length > 0 && (
+                        <div className="group relative flex items-center gap-1 cursor-help">
+                          <span className="text-[#FF3D3D] flex items-center gap-1">
+                            <AlertTriangle className="w-2.5 h-2.5" /> {device.vulns.length} CVEs
+                          </span>
+                          <div className="absolute bottom-full left-0 mb-1 hidden group-hover:block z-50 p-2 bg-[#1A1A18] border border-[#FF3D3D50] rounded-md shadow-xl min-w-[140px] max-w-[220px] max-h-[150px] overflow-y-auto styled-scrollbar">
+                            <div className="text-[8px] font-mono text-[#FF3D3D] mb-1 tracking-wider uppercase border-b border-[#FF3D3D30] pb-1">Identified Vulnerabilities</div>
+                            <div className="flex flex-col gap-0.5">
+                              {device.vulns.map((cve: string) => (
+                                <a key={cve} href={`https://nvd.nist.gov/vuln/detail/${cve}`} target="_blank" rel="noreferrer" className="text-[9px] font-mono text-[#E8E6E0] hover:text-[#FF3D3D] transition-colors truncate">
+                                  {cve}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {device.hostnames.length > 0 && <div className="text-[9px] font-mono text-[#8A8880] mt-0.5 truncate">{device.hostnames[0]}</div>}
+                  </>
+                )}
+
+                {/* Full-Screen Expanded Detail */}
+                {isFullScreen && isExpanded && (
+                  <div className="border-t border-[#2A2A28]">
+                    {/* Ports + Hostnames Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#2A2A28]">
+                      <div className="bg-[#0D0D0C] p-4">
+                        <div className="text-[10px] font-mono text-[#5C5A54] tracking-widest uppercase mb-2">Open Ports</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {device.ports.map((port: number) => (
+                            <span key={port} className="px-2 py-1 bg-[#1A1A18] border border-[#2A2A28] rounded text-[11px] font-mono text-[var(--cyan-primary)]">{port}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="bg-[#0D0D0C] p-4">
+                        <div className="text-[10px] font-mono text-[#5C5A54] tracking-widest uppercase mb-2">Hostnames</div>
+                        {device.hostnames.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {device.hostnames.map((h: string) => (
+                              <span key={h} className="text-[11px] font-mono text-[#E8E6E0]">{h}</span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[11px] font-mono text-[#3A3A38]">No reverse DNS</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* CVE Intelligence */}
+                    {device.vulns.length > 0 && (
+                      <div className="p-4 border-t border-[#2A2A28]">
+                        <div className="text-[10px] font-mono text-[#5C5A54] tracking-widest uppercase mb-3">Vulnerabilities ({device.vulns.length})</div>
+                        <div className="flex flex-col gap-2">
+                          {device.vulns.map((cveId: string) => {
+                            const info = cveCache[cveId];
+                            const isLoading = !info || info.loading;
+                            const severityColor = !info?.severity ? '#5C5A54'
+                              : info.severity === 'CRITICAL' ? '#FF3D3D'
+                              : info.severity === 'HIGH' ? '#FF6B00'
+                              : info.severity === 'MEDIUM' ? '#FFD700'
+                              : '#76FF03';
+                            return (
+                              <div key={cveId} className="bg-[#111] border border-[#2A2A28] rounded-lg p-3">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[12px] font-mono font-bold text-[#E8E6E0]">{cveId}</span>
+                                    {info?.cvss != null && (
+                                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: severityColor + '15', color: severityColor, border: `1px solid ${severityColor}40` }}>CVSS {info.cvss}</span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {info?.severity && (
+                                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded" style={{ backgroundColor: severityColor + '15', color: severityColor, border: `1px solid ${severityColor}40` }}>{info.severity}</span>
+                                    )}
+                                    <a href={`https://nvd.nist.gov/vuln/detail/${cveId}`} target="_blank" rel="noreferrer" className="text-[#5C5A54] hover:text-[#E8E6E0] transition-colors">
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                  </div>
+                                </div>
+                                {isLoading ? (
+                                  <div className="flex items-center gap-2 py-1">
+                                    <Loader2 className="w-3 h-3 animate-spin text-[#5C5A54]" />
+                                    <span className="text-[10px] font-mono text-[#5C5A54]">Fetching vulnerability intelligence...</span>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <p className="text-[11px] font-mono text-[#8A8880] leading-relaxed">{info.description}</p>
+                                    {info.cwe && <div className="text-[10px] font-mono text-[#5C5A54] mt-2">Weakness: {info.cwe}</div>}
+                                    {info.affected && info.affected.length > 0 && (
+                                      <div className="mt-2 flex flex-wrap gap-1.5">
+                                        {info.affected.map((a: any, i: number) => (
+                                          <span key={i} className="text-[9px] font-mono px-1.5 py-0.5 bg-[#1A1A18] border border-[#2A2A28] rounded text-[#8A8880]">
+                                            {a.vendor}/{a.product}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            ))}
+            );
+            })}
           </div>
           <div className="px-3 py-2 border-t border-[#2A2A28]">
             <div className="text-[8px] font-mono text-[#5C5A54] tracking-wider">SWEPT {sweepResult.summary.total_hosts} HOSTS IN {(sweepResult.sweep_time_ms / 1000).toFixed(1)}s · ASN {sweepResult.center.asn}</div>
@@ -523,19 +692,47 @@ function OsintPanelInner({ isMobile, onSweepVisualize }: OsintPanelProps) {
 
   if (isMobile) return renderContent();
 
+  if (isFullScreen) {
+    return (
+      <div className="fixed inset-4 z-[999] glass-panel bg-[#0a0a09]/95 backdrop-blur-2xl border border-[var(--cyan-primary)]/40 rounded-xl flex flex-col overflow-hidden shadow-2xl shadow-[var(--cyan-primary)]/20">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-secondary)] bg-[#111]">
+          <div className="flex items-center gap-3">
+            <Radar className="w-5 h-5 text-[var(--cyan-primary)]" />
+            <span className="hud-text text-[16px] text-[var(--text-primary)]">OSIRIS RECON TOOLKIT</span>
+            <span className="px-2 py-1 rounded bg-[var(--cyan-primary)]/10 text-[var(--cyan-primary)] font-mono text-[10px] tracking-widest border border-[var(--cyan-primary)]/30">FULL SCREEN MODE</span>
+          </div>
+          <button onClick={() => setIsFullScreen(false)} className="p-2 hover:bg-white/5 rounded transition-colors text-[var(--text-muted)] hover:text-white">
+            <Minimize2 className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6 styled-scrollbar">
+          {/* We wrap renderContent in a container that forces wider layouts if we want to target it with CSS */}
+          <div className="max-w-[1400px] mx-auto w-full full-screen-mode-content">
+             {renderContent()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="glass-panel flex flex-col overflow-hidden pointer-events-auto">
-      <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-between px-4 py-3 hover:bg-[var(--hover-accent)] transition-colors">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-transparent hover:bg-[var(--hover-accent)] transition-colors">
+        <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2 flex-1">
           <Radar className="w-4 h-4 text-[var(--cyan-primary)]" />
           <span className="hud-text text-[12px] text-[var(--text-primary)]">RECON TOOLKIT</span>
           <span className="text-[9px] font-mono text-[var(--text-muted)]">{TABS.length} TOOLS</span>
-        </div>
-        <div className="flex items-center gap-2">
+        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setIsFullScreen(true)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Full Screen">
+             <Maximize2 className="w-3.5 h-3.5" />
+          </button>
           <div className="w-1.5 h-1.5 rounded-full bg-[var(--cyan-primary)] animate-osiris-pulse" />
-          {expanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" /> : <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
+          <button onClick={() => setExpanded(!expanded)}>
+            {expanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" /> : <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
+          </button>
         </div>
-      </button>
+      </div>
       <AnimatePresence>
         {expanded && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden px-3 pb-3">
