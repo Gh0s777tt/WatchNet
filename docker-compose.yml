@@ -1,15 +1,80 @@
+name: osiris
 services:
   osiris:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # Built locally from this repo's Dockerfile and tagged osiris:casaos.
+    # On the CasaOS host run:  docker build -t osiris:casaos /DATA/AppData/osiris
+    # (or change `image:` to a registry path if you push it somewhere)
+    image: osiris:casaos
+    container_name: osiris
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      # Optional — uncomment and fill in to enhance data sources
-      # - OPENSKY_USERNAME=your_username
-      # - OPENSKY_PASSWORD=your_password
-      # - N2YO_API_KEY=your_key
-      # - AIS_API_KEY=your_key
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Optional — uncomment and fill in to enhance data sources.
+      # The platform works without these; sources with missing keys are skipped.
+      # - FIRMS_API_KEY=your_key            # NASA FIRMS fire data
+      # - AIS_API_KEY=your_key              # Maritime vessel tracking (aisstream.io)
+      # - OPENSKY_CLIENT_ID=your_id         # OpenSky OAuth2 (higher rate limits)
+      # - OPENSKY_CLIENT_SECRET=your_secret
+      # - N2YO_API_KEY=your_key             # Satellite tracking
+      # - SCANNER_URL=http://your-scanner:7700  # RECON scanner backend
+      # - SCANNER_KEY=your_key
     restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  main: osiris
+  author: Aiacos
+  developer: simplifaisoul
+  category: Network
+  description:
+    en_us: >-
+      OSIRIS is a production-grade open-source OSINT situational-awareness
+      dashboard. It aggregates real-time global intelligence across aviation,
+      maritime, CCTV networks, seismic activity, wildfires, news feeds,
+      weather, space weather, cyber threats (CVEs) and conflict zones into a
+      single GPU-accelerated MapLibre interface. Most features work with no
+      API keys.
+  tagline:
+    en_us: Real-time global OSINT intelligence dashboard
+  title:
+    en_us: OSIRIS
+  icon: https://raw.githubusercontent.com/Aiacos/osiris/master/public/casaos-icon.png
+  thumbnail: https://raw.githubusercontent.com/Aiacos/osiris/master/public/og-image.png
+  screenshot_link:
+    - https://raw.githubusercontent.com/Aiacos/osiris/master/public/og-image.png
+  scheme: http
+  hostname: ""
+  port_map: "3000"
+  index: /
+  webui_port: 3000
+  envs:
+    - container: FIRMS_API_KEY
+      description:
+        en_us: "(Optional) NASA FIRMS API key for active-fire data."
+    - container: AIS_API_KEY
+      description:
+        en_us: "(Optional) aisstream.io key for maritime vessel tracking."
+    - container: OPENSKY_CLIENT_ID
+      description:
+        en_us: "(Optional) OpenSky OAuth2 client id for higher aircraft rate limits."
+    - container: OPENSKY_CLIENT_SECRET
+      description:
+        en_us: "(Optional) OpenSky OAuth2 client secret."
+    - container: N2YO_API_KEY
+      description:
+        en_us: "(Optional) N2YO key for satellite tracking."
+  ports:
+    - container: "3000"
+      description:
+        en_us: "Web UI (HTTP)."
