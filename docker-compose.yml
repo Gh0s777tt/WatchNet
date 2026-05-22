@@ -1,40 +1,35 @@
 name: osiris
 services:
   osiris:
-    # Built locally from this repo's Dockerfile and tagged osiris:casaos.
-    # On the CasaOS host run:  docker build -t osiris:casaos /DATA/AppData/osiris
-    # (or change `image:` to a registry path if you push it somewhere)
-    image: osiris:casaos
+    # `docker compose up -d` builds the image from the local Dockerfile and
+    # tags it `osiris:latest`. If you already have the image, the build step
+    # is skipped. Replace with a registry path (e.g. ghcr.io/<user>/osiris)
+    # to pull a prebuilt image instead of building.
+    image: osiris:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: osiris
     ports:
       - "3000:3000"
+    # Optional API keys / scanner backend — copy .env.template to .env and
+    # fill in what you need. Missing file is ignored (keyless feeds still work).
+    env_file:
+      - path: .env
+        required: false
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
-      # Optional — uncomment and fill in to enhance data sources.
-      # The platform works without these; sources with missing keys are skipped.
-      # - FIRMS_API_KEY=your_key            # NASA FIRMS fire data
-      # - AIS_API_KEY=your_key              # Maritime vessel tracking (aisstream.io)
-      # - OPENSKY_CLIENT_ID=your_id         # OpenSky OAuth2 (higher rate limits)
-      # - OPENSKY_CLIENT_SECRET=your_secret
-      # - N2YO_API_KEY=your_key             # Satellite tracking
-      # - SCANNER_URL=http://your-scanner:7700  # RECON scanner backend
-      # - SCANNER_KEY=your_key
     restart: unless-stopped
-    networks:
-      - default
 
-networks:
-  default:
-    driver: bridge
-
+# ── CasaOS app-store metadata (ignored by plain Docker Compose) ──
 x-casaos:
   architectures:
     - amd64
     - arm64
   main: osiris
-  author: Aiacos
+  author: simplifaisoul
   developer: simplifaisoul
   category: Network
   description:
@@ -49,16 +44,22 @@ x-casaos:
     en_us: Real-time global OSINT intelligence dashboard
   title:
     en_us: OSIRIS
-  icon: https://raw.githubusercontent.com/Aiacos/osiris/master/public/casaos-icon.png
-  thumbnail: https://raw.githubusercontent.com/Aiacos/osiris/master/public/og-image.png
+  icon: https://raw.githubusercontent.com/simplifaisoul/osiris/master/public/casaos-icon.png
+  thumbnail: https://raw.githubusercontent.com/simplifaisoul/osiris/master/public/og-image.png
   screenshot_link:
-    - https://raw.githubusercontent.com/Aiacos/osiris/master/public/og-image.png
+    - https://raw.githubusercontent.com/simplifaisoul/osiris/master/public/og-image.png
   scheme: http
   hostname: ""
   port_map: "3000"
   index: /
   webui_port: 3000
   envs:
+    - container: SCANNER_URL
+      description:
+        en_us: "(Optional) RECON scanner backend URL, e.g. http://scanner:7700"
+    - container: SCANNER_KEY
+      description:
+        en_us: "(Optional) RECON scanner shared secret (must match backend OSIRIS_KEY)."
     - container: FIRMS_API_KEY
       description:
         en_us: "(Optional) NASA FIRMS API key for active-fire data."

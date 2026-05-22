@@ -111,20 +111,43 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### Environment Variables
+### Docker / Self-Hosting
 
-Create a `.env.local` file:
-
-```env
-# Optional — enhances flight data
-OPENSKY_USERNAME=your_username
-OPENSKY_PASSWORD=your_password
-
-# Optional — satellite tracking
-N2YO_API_KEY=your_key
+```bash
+git clone https://github.com/simplifaisoul/osiris.git
+cd osiris
+cp .env.template .env     # optional — configure keys
+docker compose up -d
 ```
 
-> Most features work without any API keys. The platform is designed to be functional out of the box.
+Open [http://localhost:3000](http://localhost:3000). The image is a multi-stage
+`node:22-alpine` standalone build (~220 MB, non-root). The compose file also
+carries CasaOS app metadata (`x-casaos:`) for one-click install on
+[CasaOS](https://casaos.io). See **[DOCKER.md](DOCKER.md)** for the full Docker,
+CasaOS and API-key guide.
+
+### Environment Variables
+
+OSIRIS works **fully without any API keys** — all core feeds use public,
+keyless sources. Copy [`.env.template`](.env.template) to `.env` and set only
+what you need:
+
+```env
+# RECON scanner backend (the only vars the current code reads).
+# SCANNER_KEY must match the backend's OSIRIS_KEY — generate with: openssl rand -hex 32
+SCANNER_URL=
+SCANNER_KEY=
+
+# Optional, for higher rate limits / future sources (see DOCKER.md for signup links)
+FIRMS_API_KEY=                # NASA FIRMS  — firms.modaps.eosdis.nasa.gov/api/map_key/
+OPENSKY_CLIENT_ID=            # OpenSky OAuth2 (since Mar 2025) — opensky-network.org
+OPENSKY_CLIENT_SECRET=
+N2YO_API_KEY=                 # N2YO satellites — n2yo.com (Profile → API key)
+AIS_API_KEY=                 # aisstream.io maritime
+```
+
+> Without `SCANNER_URL`/`SCANNER_KEY` the RECON toolkit returns `503`; every
+> other layer works out of the box. `.env` is gitignored — only the template is committed.
 
 ---
 
