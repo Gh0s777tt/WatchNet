@@ -112,7 +112,7 @@ export default function Dashboard() {
     private: false,
     jets: false,
     military: false,
-    maritime: false,
+    maritime: true,
     satellites: false,
     balloons: false,
     cctv: true,
@@ -364,7 +364,7 @@ export default function Dashboard() {
       intervals.push(setInterval(() => fetchEndpoint('/api/radiation', d => ({ radiation: d.stations })), 60000)); // 1m
     }
     if (activeLayers.maritime) {
-      intervals.push(setInterval(() => fetchEndpoint('/api/maritime', d => ({ maritime_ports: d.ports, maritime_chokepoints: d.chokepoints, maritime_ships: d.ships })), 60000)); // 1m
+      intervals.push(setInterval(() => fetchEndpoint('/api/maritime', d => ({ maritime_ports: d.ports, maritime_chokepoints: d.chokepoints, maritime_ships: d.ships })), 10000)); // 10s
     }
     // Fires: no polling needed (data changes very slowly, initial fetch is enough)
     return () => intervals.forEach(clearInterval);

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
+import WebSocket from 'ws';
 
 /**
  * OSIRIS — Maritime Intelligence
- * Major global ports, naval bases, and shipping chokepoints.
- * Static dataset — zero external API calls.
+ * Real-time AIS vessel tracking via aisstream.io + Static global ports.
  */
 
 const PORTS = [
@@ -66,14 +66,114 @@ const CHOKEPOINTS = [
   { name: 'Lombok Strait', lat: -8.47, lng: 115.72, traffic: 'Alt Malacca', risk: 'LOW' },
 ];
 
+// --- Global AIS Stream Client (In-Memory Cache) ---
+// Note: In a true serverless environment, this state would reset per invocation.
+// For Next.js dev server or Node.js Docker container, this will persist.
+
+const globalForAis = globalThis as unknown as {
+  shipsCache: Map<number, any>;
+  isAisConnecting: boolean;
+};
+
+if (!globalForAis.shipsCache) {
+  globalForAis.shipsCache = new Map();
+  globalForAis.isAisConnecting = false;
+}
+
+const shipsCache = globalForAis.shipsCache;
+
+function connectAisStream() {
+  if (globalForAis.isAisConnecting) return;
+  const apiKey = process.env.AIS_API_KEY;
+  if (!apiKey) return;
+
+  globalForAis.isAisConnecting = true;
+  let ws: WebSocket;
+
+  try {
+    ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
+  } catch (e) {
+    globalForAis.isAisConnecting = false;
+    return;
+  }
+
+  ws.on("open", () => {
+    globalForAis.isAisConnecting = false;
+    const subscriptionMessage = {
+      APIKey: apiKey,
+      // Global bounding box to catch major movement
+      BoundingBoxes: [[[-90, -180], [90, 180]]],
+      FilterMessageTypes: ["PositionReport"]
+    };
+    ws.send(JSON.stringify(subscriptionMessage));
+  });
+
+  ws.on("message", (data) => {
+    try {
+      const parsed = JSON.parse(data.toString());
+      if (parsed.MessageType === "PositionReport" && parsed.Message?.PositionReport) {
+        const report = parsed.Message.PositionReport;
+        const mmsi = parsed.MetaData?.MMSI || report.UserID;
+        
+        if (!mmsi) return;
+
+        shipsCache.set(mmsi, {
+          id: mmsi,
+          mmsi: mmsi,
+          lat: report.Latitude,
+          lng: report.Longitude,
+          speed: report.Sog,
+          heading: report.TrueHeading || report.Cog,
+          timestamp: Date.now()
+        });
+
+        // Limit cache size to prevent memory leak (latest 5000 ships)
+        if (shipsCache.size > 5000) {
+          const firstKey = shipsCache.keys().next().value;
+          if (firstKey) shipsCache.delete(firstKey);
+        }
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+  });
+
+  ws.on("close", () => {
+    globalForAis.isAisConnecting = false;
+    setTimeout(connectAisStream, 5000); // Reconnect
+  });
+
+  ws.on("error", () => {
+    ws.close();
+  });
+}
+
+// Start connection process asynchronously
+connectAisStream();
+
 export async function GET() {
+  // Clean up stale ships (older than 10 minutes)
+  const now = Date.now();
+  for (const [mmsi, ship] of shipsCache.entries()) {
+    if (now - ship.timestamp > 10 * 60 * 1000) {
+      shipsCache.delete(mmsi);
+    }
+  }
+
+  const ships = Array.from(shipsCache.values());
+
   return NextResponse.json({
     ports: PORTS,
     chokepoints: CHOKEPOINTS,
+    ships: ships,
     total_ports: PORTS.length,
     total_chokepoints: CHOKEPOINTS.length,
+    total_ships: ships.length,
     timestamp: new Date().toISOString(),
   }, {
-    headers: { 'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=172800' },
+    headers: { 
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache'
+    },
   });
 }
