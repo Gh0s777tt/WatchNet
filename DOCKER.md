@@ -27,24 +27,45 @@ Open <http://localhost:3000>.
 
 What the compose file does:
 
-- **`build:` + `image:`** — `docker compose up -d` builds the image from the
-  local `Dockerfile` and tags it `osiris:latest`. If the image already exists,
-  the build is skipped. Point `image:` at a registry path (e.g.
-  `ghcr.io/<user>/osiris:latest`) to pull a prebuilt image instead of building.
+- **`image:` + `build:`** — `image:` points at a prebuilt registry image; the
+  `build:` block is a fallback. `docker compose up -d` uses the registry image
+  if it's available locally or pullable, otherwise builds from the local
+  `Dockerfile`. Run `docker compose pull` to fetch the latest published image.
 - **`env_file: .env` (`required: false`)** — if a `.env` file exists its
   values are injected into the container; if it's missing, OSIRIS still starts
   with the keyless feeds.
-- **`ports: 3000:3000`** — the web UI. Change the host side (left number) to
-  expose it elsewhere, e.g. `8080:3000`.
+- **`ports: ${OSIRIS_PORT:-3000}:3000`** — the web UI. The container always
+  listens on 3000; the published **host** port is `OSIRIS_PORT` (default
+  `3000`). Set `OSIRIS_PORT` in `.env` to remap it, e.g. `OSIRIS_PORT=3005`
+  when 3000 is already in use — no need to edit the compose file.
 - **`restart: unless-stopped`** — survives reboots.
 
 Common commands:
 
 ```bash
+docker compose pull             # fetch latest published image
 docker compose logs -f          # follow logs
-docker compose up -d --build    # rebuild after pulling new code
+docker compose up -d --build    # rebuild locally after pulling new code
 docker compose down             # stop & remove
 ```
+
+### Pull the prebuilt image from GHCR
+
+A prebuilt multi-arch-friendly image is published to the GitHub Container
+Registry, so you can run OSIRIS without building anything:
+
+```bash
+docker pull ghcr.io/aiacos/osiris:latest      # or a pinned tag, e.g. :0.1.0
+docker run -d --name osiris \
+  -p 3005:3000 --env-file .env --restart unless-stopped \
+  ghcr.io/aiacos/osiris:latest
+```
+
+> If the package is **private**, authenticate first with a GitHub token that
+> has `read:packages`:
+> `echo $TOKEN | docker login ghcr.io -u <github-user> --password-stdin`.
+> Make it public from the package's **Settings → Danger Zone → Change
+> visibility** to allow anonymous pulls.
 
 ### Plain `docker run`
 
@@ -75,7 +96,8 @@ reads.
 2. CasaOS dashboard → **`+`** → **Install a customized app** → paste the
    contents of `docker-compose.yml`.
    *(or simply run `docker compose up -d` from the cloned directory).*
-3. OSIRIS appears on the dashboard with its icon, reachable on host port `3000`.
+3. OSIRIS appears on the dashboard with its icon, reachable on host port
+   `3000` (or whatever `OSIRIS_PORT` you set in `.env`).
 
 The app icon is the gold Eye-of-Horus mark in
 `public/casaos-icon.png` (512×512 PNG), referenced by the `icon:` URL in the

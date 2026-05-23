@@ -116,7 +116,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ```bash
 git clone https://github.com/simplifaisoul/osiris.git
 cd osiris
-cp .env.template .env     # optional — configure keys
+cp .env.template .env     # optional — configure keys / port
 docker compose up -d
 ```
 
@@ -126,6 +126,17 @@ carries CasaOS app metadata (`x-casaos:`) for one-click install on
 [CasaOS](https://casaos.io). See **[DOCKER.md](DOCKER.md)** for the full Docker,
 CasaOS and API-key guide.
 
+**Prebuilt image (GHCR)** — skip the build and pull it directly:
+
+```bash
+docker pull ghcr.io/aiacos/osiris:latest
+docker run -d -p 3000:3000 --env-file .env ghcr.io/aiacos/osiris:latest
+```
+
+**Custom port** — the container always listens on `3000`; set `OSIRIS_PORT` in
+`.env` to change the published host port (e.g. `OSIRIS_PORT=3005`) without
+editing the compose file.
+
 ### Environment Variables
 
 OSIRIS works **fully without any API keys** — all core feeds use public,
@@ -133,6 +144,9 @@ keyless sources. Copy [`.env.template`](.env.template) to `.env` and set only
 what you need:
 
 ```env
+# Published host port (container always listens on 3000). Default: 3000
+OSIRIS_PORT=3000
+
 # RECON scanner backend (the only vars the current code reads).
 # SCANNER_KEY must match the backend's OSIRIS_KEY — generate with: openssl rand -hex 32
 SCANNER_URL=
