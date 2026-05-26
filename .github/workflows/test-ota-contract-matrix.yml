@@ -33,7 +33,7 @@ env:
 
 jobs:
   native:
-    name: Ota Contract Matrix (Native - ${{ matrix.name }})
+    name: Ota Contract Matrix (Cross-OS + Ubuntu Runtime - ${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
@@ -206,6 +206,29 @@ jobs:
         run: |
           ota up --workflow prod --native --dry-run --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-up-prod-native-dry-run.json"
           cat "$OTA_MATRIX_ARTIFACT_DIR/ota-up-prod-native-dry-run.json"
+
+      - name: Container mode planning checks (cross-OS)
+        shell: bash
+        run: |
+          set +e
+          ota up --workflow app:container --container --dry-run --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-up-app-container-cross-os-dry-run.json"
+          app_status=$?
+          ota up --workflow prod:container --container --dry-run --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-up-prod-container-cross-os-dry-run.json"
+          prod_status=$?
+          set -e
+          node - "$OTA_MATRIX_ARTIFACT_DIR/ota-up-app-container-cross-os-dry-run.json" "$OTA_MATRIX_ARTIFACT_DIR/ota-up-prod-container-cross-os-dry-run.json" <<'NODE'
+          const fs = require("fs");
+          for (const path of process.argv.slice(2)) {
+            const report = JSON.parse(fs.readFileSync(path, "utf8"));
+            if (!report.dry_run || !report.status) {
+              console.error(JSON.stringify(report, null, 2));
+              process.exit(1);
+            }
+          }
+          NODE
+          if [ "$app_status" -ne 0 ] || [ "$prod_status" -ne 0 ]; then
+            echo "container dry-run blocked on this host (expected on non-Ubuntu hosted runners)"
+          fi
 
       - name: Dry-run app:container workflow
         if: ${{ matrix.docker_ready }}
