@@ -125,27 +125,22 @@ export default function Dashboard() {
   const lastGeocodedPos = useRef<{ lat: number; lng: number } | null>(null);
 
   // ── DEFAULT: Most layers OFF — fast initial load ──
-  const [activeLayers, setActiveLayers] = useState({
-    flights: false,
-    private: false,
-    jets: false,
-    military: false,
-    maritime: true,
-    satellites: false,
-    balloons: false,
-    cctv: true,
-    live_news: true,
-    news_intel: true,
-    earthquakes: true,
-    fires: false,
-    weather: false,
-    radiation: false,
-    infrastructure: false,
-    global_incidents: true,
-    war_alerts: false,
-    gps_jamming: false,
-    dep_threats: false,
-    day_night: true,
+  // Override via NEXT_PUBLIC_DEFAULT_LAYERS=maritime,earthquakes,... at build time.
+  const [activeLayers, setActiveLayers] = useState(() => {
+    const base: Record<string, boolean> = {
+      flights: false, private: false, jets: false, military: false,
+      maritime: true, satellites: false, balloons: false, cctv: true,
+      live_news: true, news_intel: true, earthquakes: true, fires: false,
+      weather: false, radiation: false, infrastructure: false,
+      global_incidents: true, war_alerts: false, gps_jamming: false,
+      dep_threats: false, day_night: true,
+    };
+    const raw = process.env.NEXT_PUBLIC_DEFAULT_LAYERS;
+    if (!raw) return base;
+    const keys = new Set(raw.split(',').map((s: string) => s.trim()).filter(Boolean));
+    const overridden: Record<string, boolean> = {};
+    Object.keys(base).forEach(k => { overridden[k] = keys.has(k); });
+    return overridden;
   });
   const [liveFeedUrl, setLiveFeedUrl] = useState<string | null>(null);
   const [liveFeedName, setLiveFeedName] = useState('');

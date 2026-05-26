@@ -76,8 +76,20 @@ const LAYER_GROUPS = [
   },
 ];
 
+// Build-time layer visibility filter. If NEXT_PUBLIC_ENABLED_LAYERS is set,
+// only those layer keys appear in the panel; empty groups are hidden entirely.
+const ENABLED_KEYS: Set<string> | null = (() => {
+  const raw = process.env.NEXT_PUBLIC_ENABLED_LAYERS;
+  if (!raw) return null;
+  return new Set(raw.split(',').map((s: string) => s.trim()).filter(Boolean));
+})();
+
+const VISIBLE_GROUPS = ENABLED_KEYS
+  ? LAYER_GROUPS.map(g => ({ ...g, layers: g.layers.filter(l => ENABLED_KEYS!.has(l.key)) })).filter(g => g.layers.length > 0)
+  : LAYER_GROUPS;
+
 // Flat list for backward compat
-const ALL_LAYERS = LAYER_GROUPS.flatMap(g => g.layers);
+const ALL_LAYERS = VISIBLE_GROUPS.flatMap(g => g.layers);
 
 function LayerPanel({ data, activeLayers, setActiveLayers }: LayerPanelProps) {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
@@ -136,7 +148,7 @@ function LayerPanel({ data, activeLayers, setActiveLayers }: LayerPanelProps) {
 
       {/* Groups */}
       <div className="space-y-1">
-        {LAYER_GROUPS.map((group) => {
+        {VISIBLE_GROUPS.map((group) => {
           const isExpanded = expandedGroups[group.label];
           const groupActiveCount = group.layers.filter(l => activeLayers[l.key]).length;
           const allActive = groupActiveCount === group.layers.length;
