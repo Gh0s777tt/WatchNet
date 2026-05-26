@@ -777,7 +777,7 @@ export default function Dashboard() {
           });
           setFlyToLocation({ lat: data.lat, lng: data.lng, ts: Date.now() });
         }} />
-        <DepPanel />
+        {process.env.NEXT_PUBLIC_DEP_SEARCH === 'true' && <DepPanel />}
         <LiveAlerts data={data} onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })} onWatchFeed={(url, name) => { setLiveFeedUrl(url); setLiveFeedName(name); }} />
       </div>
 
