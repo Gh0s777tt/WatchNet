@@ -19,10 +19,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: [], error: 'keyw or domain parameter required' }, { status: 400 });
   }
 
+  const hideIdentity = process.env.DEP_HIDE_VICTIM_NAME === 'true';
+
   try {
-    const results = domain
+    const raw = domain
       ? await searchByDomains(domain.split(',').map((d: string) => d.trim()), dset, maxres)
       : await searchByKeyword(keyw!, dset, maxres);
+
+    const results = hideIdentity
+      ? raw.map((r: any) => ({ ...r, victim: '[REDACTED]', domain: null, victimDomain: null, annLink: null }))
+      : raw;
 
     return NextResponse.json({ results, total: results.length }, {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },

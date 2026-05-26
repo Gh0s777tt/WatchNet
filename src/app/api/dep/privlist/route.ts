@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ victims: [], error: 'No valid datasets specified' }, { status: 400 });
   }
 
+  const hideIdentity = process.env.DEP_HIDE_VICTIM_NAME === 'true';
+
   try {
     const records = await fetchPrivlist(datasets, ts, te);
 
@@ -42,16 +44,16 @@ export async function GET(req: NextRequest) {
 
       victims.push({
         id: r.hashid || `dep-${fallbackId++}`,
-        victim: r.victim,
+        victim: hideIdentity ? '[REDACTED]' : r.victim,
         sector: r.sector,
         actor: r.actor,
         date: r.date,
-        site: r.site || r.victimDomain,
+        site: hideIdentity ? null : (r.site || r.victimDomain),
         dset: r.dset,
         victimCC: r.victimCC,
         victimCity: r.victimCity,
         victimState: r.victimState,
-        victimAddress: r.victimAddress,
+        victimAddress: hideIdentity ? null : r.victimAddress,
         lat: geo.lat,
         lng: geo.lng,
         geocodeTier: geo.tier,

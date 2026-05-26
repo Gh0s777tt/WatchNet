@@ -34,9 +34,25 @@ DEP_CLIENT_ID=                 # Cognito app client ID (provided by DEP)
 DEP_REFRESH_TOKEN=             # Recommended: Cognito refresh token
 DEP_USERNAME=                  # Alternative: your DEP login email
 DEP_PASSWORD=                  # Alternative: your DEP login password
+
+# Optional privacy control
+DEP_HIDE_VICTIM_NAME=true      # Set to "true" to redact victim names and domains
 ```
 
 If `DEP_API_KEY` or `DEP_AUTH_ENDPOINT` are not set, both features silently return `503` and the layer toggle has no effect — no errors are shown to end users.
+
+### Victim name redaction
+
+Set `DEP_HIDE_VICTIM_NAME=true` to redact identifying information before it reaches the browser. When active:
+
+| Field | Privlist layer | Search panel |
+|-------|---------------|--------------|
+| `victim` | `[REDACTED]` | `[REDACTED]` |
+| `site` / `domain` | `null` | `null` |
+| `victimAddress` | `null` | — |
+| `annLink` | — | `null` |
+
+Sector, actor, country, city, and date are **not** redacted — they are useful for threat analysis without identifying a specific organisation. This mode is intended for demo deployments, analyst training environments, or any context where victim identity must not be exposed.
 
 ### Authentication flow
 
