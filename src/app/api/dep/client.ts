@@ -30,7 +30,11 @@ async function authenticate(): Promise<string> {
     method: 'POST', headers, body: JSON.stringify(payload),
     signal: AbortSignal.timeout(30000),
   });
-  if (!res.ok) throw new Error(`DEP auth failed: ${res.status}`);
+  if (!res.ok) {
+    let body = '';
+    try { body = await res.text(); } catch { /* ignore */ }
+    throw new Error(`DEP auth failed: ${res.status} — ${body}`);
+  }
 
   const data = await res.json();
   const token: string = data?.AuthenticationResult?.IdToken;
