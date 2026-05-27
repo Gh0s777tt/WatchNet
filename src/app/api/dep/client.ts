@@ -10,7 +10,14 @@ async function authenticate(): Promise<string> {
   const username = process.env.DEP_USERNAME;
   const password = process.env.DEP_PASSWORD;
 
-  if (!loginEndpoint || !clientId) throw new Error('DEP_AUTH_ENDPOINT and DEP_CLIENT_ID are required');
+  // ── Startup diagnostics (safe — no secrets logged) ──
+  console.log('[DEP auth] endpoint:', loginEndpoint ?? '(not set)');
+  console.log('[DEP auth] clientId:', clientId ? `${clientId.slice(0, 6)}… (${clientId.length} chars)` : '(not set)');
+  console.log('[DEP auth] flow:', refreshToken ? 'REFRESH_TOKEN_AUTH' : (username ? 'USER_PASSWORD_AUTH' : 'NONE — no credentials'));
+  if (username) console.log('[DEP auth] username:', username);
+
+  if (!loginEndpoint) throw new Error('DEP_AUTH_ENDPOINT is not set');
+  if (!clientId)      throw new Error('DEP_CLIENT_ID is not set');
 
   const headers = {
     'Content-Type': 'application/x-amz-json-1.1',
@@ -26,25 +33,36 @@ async function authenticate(): Promise<string> {
     throw new Error('DEP_REFRESH_TOKEN or DEP_USERNAME+DEP_PASSWORD are required');
   }
 
+  console.log('[DEP auth] posting to:', loginEndpoint);
   const res = await fetch(loginEndpoint, {
     method: 'POST', headers, body: JSON.stringify(payload),
     signal: AbortSignal.timeout(30000),
   });
+
+  console.log('[DEP auth] response status:', res.status);
   if (!res.ok) {
     let body = '';
     try { body = await res.text(); } catch { /* ignore */ }
+    console.error('[DEP auth] error body:', body);
     throw new Error(`DEP auth failed: ${res.status} — ${body}`);
   }
 
   const data = await res.json();
   const token: string = data?.AuthenticationResult?.IdToken;
-  if (!token) throw new Error('DEP auth: no IdToken in response');
+  if (!token) {
+    console.error('[DEP auth] no IdToken in response, keys present:', Object.keys(data));
+    throw new Error('DEP auth: no IdToken in response');
+  }
+  console.log('[DEP auth] token obtained, expires in ~55 min');
   return token;
 }
 
 async function getToken(): Promise<string> {
   const now = Date.now();
-  if (tokenCache && tokenCache.expiresAt > now + 60000) return tokenCache.token;
+  if (tokenCache && tokenCache.expiresAt > now + 60000) {
+    console.log('[DEP auth] using cached token, expires in', Math.round((tokenCache.expiresAt - now) / 60000), 'min');
+    return tokenCache.token;
+  }
   const token = await authenticate();
   tokenCache = { token, expiresAt: now + 55 * 60 * 1000 };
   return token;
@@ -62,24 +80,38 @@ export async function fetchPrivlist(
   const apiEndpoint = process.env.DEP_API_ENDPOINT;
   if (!apiEndpoint || !process.env.DEP_API_KEY) throw new Error('DEP_API_ENDPOINT and DEP_API_KEY are required');
 
+  console.log('[DEP privlist] fetching datasets:', datasets, 'range:', startDate, '→', endDate);
   const token = await getToken();
+
   const results = await Promise.allSettled(
     datasets.map(async (dset) => {
       const params = new URLSearchParams({ ts: startDate, te: endDate, dset, full: 'true' });
-      const res = await fetch(`${apiEndpoint}/dbtr/privlist?${params}`, {
+      const url = `${apiEndpoint}/dbtr/privlist?${params}`;
+      console.log('[DEP privlist] GET', url);
+      const res = await fetch(url, {
         headers: apiHeaders(token), signal: AbortSignal.timeout(60000),
       });
-      if (!res.ok) throw new Error(`DEP privlist ${dset}: ${res.status}`);
+      console.log('[DEP privlist]', dset, 'status:', res.status);
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`DEP privlist ${dset}: ${res.status} — ${body}`);
+      }
       const data = await res.json();
       const records = (Array.isArray(data) ? data : []) as DepPrivlistRecord[];
+      console.log('[DEP privlist]', dset, 'records:', records.length);
       return records.map(r => ({ ...r, dset }));
     }),
   );
 
   const all: Array<DepPrivlistRecord & { dset: DepDataset }> = [];
   for (const r of results) {
-    if (r.status === 'fulfilled') all.push(...r.value);
+    if (r.status === 'fulfilled') {
+      all.push(...r.value);
+    } else {
+      console.error('[DEP privlist] dataset fetch rejected:', r.reason);
+    }
   }
+  console.log('[DEP privlist] total records:', all.length);
   return all;
 }
 

@@ -27,8 +27,8 @@ Add these to your `.env` (local) or Vercel / Docker environment:
 # Required
 DEP_API_KEY=                   # Your DEP API key
 DEP_API_ENDPOINT=https://api.eu-ep1.doubleextortion.com/v1
-DEP_AUTH_ENDPOINT=https://auth.eu-ep1.doubleextortion.com/
-DEP_CLIENT_ID=                 # Cognito app client ID (provided by DEP)
+DEP_AUTH_ENDPOINT=https://cognito-idp.eu-west-1.amazonaws.com/
+DEP_CLIENT_ID=49g8542gda2lstovq74aii323t
 
 # Authentication — provide EITHER the refresh token OR username + password
 DEP_REFRESH_TOKEN=             # Recommended: Cognito refresh token
