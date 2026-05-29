@@ -251,6 +251,12 @@ jobs:
           ota up --workflow docker --native --dry-run --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-up-docker-native-dry-run.json"
           cat "$OTA_MATRIX_ARTIFACT_DIR/ota-up-docker-native-dry-run.json"
 
+      - name: Execute native smoke tasks (cross-OS non-Ubuntu)
+        if: ${{ !matrix.full_proof }}
+        timeout-minutes: 45
+        shell: bash
+        run: ota run --native --stream verify .
+
       - name: Run native verification task
         if: ${{ matrix.full_proof }}
         timeout-minutes: 30
