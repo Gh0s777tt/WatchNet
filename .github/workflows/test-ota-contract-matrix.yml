@@ -292,7 +292,7 @@ jobs:
                   if (.modes | type) == "array" then
                     any(.modes[]?; .mode == "native" and ((.has_runtime // false) == true))
                   else
-                    false
+                    (.has_runtime // false)
                   end
                 )
               }
@@ -332,7 +332,7 @@ jobs:
                   if (.modes | type) == "array" then
                     any(.modes[]?; .mode == "container" and ((.has_runtime // false) == true))
                   else
-                    false
+                    (.has_runtime // false)
                   end
                 )
               }
