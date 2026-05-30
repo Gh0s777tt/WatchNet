@@ -8,17 +8,17 @@ interface ViewPresetsProps {
 }
 
 const PRESETS = [
-  { label: 'GLOBAL', lat: 20, lng: 0, zoom: 2.5, icon: '🌍' },
-  { label: 'EUROPE', lat: 48, lng: 10, zoom: 4, icon: '🇪🇺' },
-  { label: 'MIDDLE EAST', lat: 30, lng: 45, zoom: 4.5, icon: '🔥', hot: true },
-  { label: 'EAST ASIA', lat: 35, lng: 120, zoom: 4, icon: '🌏' },
-  { label: 'AMERICAS', lat: 25, lng: -90, zoom: 3, icon: '🌎' },
-  { label: 'UKRAINE', lat: 49, lng: 32, zoom: 6, icon: '⚔️', hot: true },
-  { label: 'AFRICA', lat: 5, lng: 20, zoom: 3.5, icon: '🌍' },
-  { label: 'S.E. ASIA', lat: 10, lng: 110, zoom: 4.5, icon: '🌏' },
-  { label: 'ARCTIC', lat: 75, lng: 0, zoom: 3.5, icon: '❄️' },
-  { label: 'INDIA', lat: 22, lng: 78, zoom: 4.5, icon: '🇮🇳' },
-  { label: 'AUSTRALIA', lat: -25, lng: 134, zoom: 4, icon: '🇦🇺' },
+  { label: 'KÜRESEL', lat: 20, lng: 0, zoom: 2.5, icon: '🌍' },
+  { label: 'AVRUPA', lat: 48, lng: 10, zoom: 4, icon: '🇪🇺' },
+  { label: 'ORTA DOĞU', lat: 30, lng: 45, zoom: 4.5, icon: '🔥', hot: true },
+  { label: 'DOĞU ASYA', lat: 35, lng: 120, zoom: 4, icon: '🌏' },
+  { label: 'AMERİKA', lat: 25, lng: -90, zoom: 3, icon: '🌎' },
+  { label: 'UKRAYNA', lat: 49, lng: 32, zoom: 6, icon: '⚔️', hot: true },
+  { label: 'AFRIKA', lat: 5, lng: 20, zoom: 3.5, icon: '🌍' },
+  { label: 'GÜNEYDOĞU ASYA', lat: 10, lng: 110, zoom: 4.5, icon: '🌏' },
+  { label: 'ARKTİK', lat: 75, lng: 0, zoom: 3.5, icon: '❄️' },
+  { label: 'HİNDİSTAN', lat: 22, lng: 78, zoom: 4.5, icon: '🇮🇳' },
+  { label: 'AVUSTRALYA', lat: -25, lng: 134, zoom: 4, icon: '🇦🇺' },
   { label: 'SUDAN', lat: 15, lng: 30, zoom: 5.5, icon: '⚠️', hot: true },
 ];
 
@@ -32,9 +32,9 @@ export default function ViewPresets({ onNavigate }: ViewPresetsProps) {
     >
       <div className="flex items-center gap-2 mb-2">
         <Globe className="w-3.5 h-3.5 text-[var(--gold-primary)]" />
-        <span className="hud-text text-[12px] text-[var(--text-primary)] tracking-widest">REGION PRESETS</span>
+        <span className="hud-text text-[12px] text-[var(--text-primary)] tracking-widest">BÖLGE ÖN AYARLARI</span>
         <span className="gotham-tag gotham-tag--critical" style={{ fontSize: '7px', padding: '1px 4px', marginLeft: 'auto' }}>
-          {PRESETS.filter(p => (p as any).hot).length} HOT
+          {PRESETS.filter(p => (p as any).hot).length} SICAK
         </span>
       </div>
       <div className="grid grid-cols-2 gap-1">

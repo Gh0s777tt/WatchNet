@@ -10,11 +10,11 @@ import {
 interface MarketsPanelProps { data: any; spaceWeather?: any; }
 
 const SECTIONS = [
-  { key: 'indices', label: 'INDICES', icon: LineChart },
-  { key: 'stocks', label: 'DEFENSE', icon: Shield },
-  { key: 'oil', label: 'ENERGY', icon: Droplets },
-  { key: 'commodities', label: 'COMMODITIES', icon: Gem },
-  { key: 'crypto', label: 'CRYPTO', icon: Bitcoin },
+  { key: 'indices', label: 'ENDEKSLER', icon: LineChart },
+  { key: 'stocks', label: 'SAVUNMA', icon: Shield },
+  { key: 'oil', label: 'ENERJİ', icon: Droplets },
+  { key: 'commodities', label: 'EMTİA', icon: Gem },
+  { key: 'crypto', label: 'KRİPTO', icon: Bitcoin },
 ];
 
 function Ticker({ name, data: d }: { name: string; data: any }) {
@@ -46,8 +46,8 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
       <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-between w-full mb-2">
         <div className="flex items-center gap-2">
           <BarChart3 className="w-3.5 h-3.5 text-[var(--gold-primary)]" />
-          <span className="hud-text text-[12px] text-[var(--text-primary)]">MARKETS & INTEL</span>
-          <span className="gotham-tag gotham-tag--low" style={{ fontSize: '7px', padding: '1px 4px' }}>LIVE</span>
+          <span className="hud-text text-[12px] text-[var(--text-primary)]">PİYASALAR & İSTİHBARAT</span>
+          <span className="gotham-tag gotham-tag--low" style={{ fontSize: '7px', padding: '1px 4px' }}>CANLI</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-[var(--alert-green)] animate-osiris-pulse" />
@@ -64,7 +64,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3 h-3" style={{ color: spaceWeather.storm_color }} />
-                    <span className="text-[10px] font-mono tracking-widest text-[var(--text-muted)]">SPACE WEATHER</span>
+                    <span className="text-[10px] font-mono tracking-widest text-[var(--text-muted)]">UZAY HAVASI</span>
                   </div>
                   <span className="text-[10px] font-mono font-bold" style={{ color: spaceWeather.storm_color }}>
                     Kp {spaceWeather.kp_index} — {spaceWeather.storm_level}
@@ -72,7 +72,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 </div>
                 {spaceWeather.solar_flares?.length > 0 && (
                   <div className="mt-1 text-[8px] font-mono text-[var(--text-muted)]">
-                    Latest flare: {spaceWeather.solar_flares[0].class}
+                    Son patlama: {spaceWeather.solar_flares[0].class}
                   </div>
                 )}
               </div>
@@ -109,7 +109,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 <Ticker key={name} name={name} data={d} />
               ))}
               {(!markets[activeSection] || Object.keys(markets[activeSection]).length === 0) && (
-                <div className="text-center py-3 text-[10px] font-mono text-[var(--text-muted)]">Loading {activeSection}...</div>
+                <div className="text-center py-3 text-[10px] font-mono text-[var(--text-muted)]">{activeSection} yükleniyor...</div>
               )}
             </div>
           </motion.div>

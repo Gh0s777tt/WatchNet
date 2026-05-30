@@ -370,7 +370,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
         boxShadow:
           '0 0 30px rgba(212, 175, 55, 0.2), 0 0 60px rgba(212, 175, 55, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5)',
       }}
-      aria-label="Open AI Intelligence Analyst"
+      aria-label="Yapay zeka istihbarat analistini aç"
     >
       <Brain className="w-6 h-6 text-[var(--gold-primary)]" />
       {/* Pulse rings */}
@@ -440,9 +440,9 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                     <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--alert-green)] animate-osiris-pulse" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="hud-text text-[11px] text-[var(--text-heading)]">OSIRIS ANALYST</span>
+                    <span className="hud-text text-[11px] text-[var(--text-heading)]">GÖKSEL ANALİST</span>
                     <span className="text-[7px] font-mono tracking-[0.2em] text-[var(--text-muted)]">
-                      GEMINI 2.0 FLASH • ONLINE
+                      GEMINI 2.0 FLASH • ÇEVRİMİÇİ
                     </span>
                   </div>
                 </div>
@@ -452,7 +452,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                     <button
                       onClick={clearMessages}
                       className="p-1.5 rounded-lg hover:bg-[var(--hover-accent)] transition-colors group"
-                      title="Clear conversation"
+                      title="Sohbeti temizle"
                     >
                       <Trash2 className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--alert-red)]" />
                     </button>
@@ -460,7 +460,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   <button
                     onClick={() => setShowSettings(!showSettings)}
                     className="p-1.5 rounded-lg hover:bg-[var(--hover-accent)] transition-colors group"
-                    title="Settings"
+                    title="Ayarlar"
                   >
                     <Settings
                       className={`w-3.5 h-3.5 transition-colors ${
@@ -471,7 +471,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   <button
                     onClick={() => setIsOpen(false)}
                     className="p-1.5 rounded-lg hover:bg-[var(--hover-accent)] transition-colors group"
-                    title="Close"
+                    title="Kapat"
                   >
                     <X className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
                   </button>
@@ -498,7 +498,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                       <div className="flex items-center gap-2">
                         <Key className="w-3 h-3 text-[var(--gold-dim)]" />
                         <span className="hud-label" style={{ fontSize: '8px' }}>
-                          GEMINI API KEY (OPTIONAL)
+                          GEMINI API ANAHTARI (İSTEĞE BAĞLI)
                         </span>
                       </div>
                       <div className="flex gap-2">
@@ -523,7 +523,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                                 color: keySaved ? 'var(--alert-green)' : 'var(--gold-primary)',
                               }}
                             >
-                              {keySaved ? <Check className="w-3 h-3" /> : 'SAVE'}
+                              {keySaved ? <Check className="w-3 h-3" /> : 'KAYDET'}
                             </button>
                             <button
                               onClick={clearApiKey}
@@ -539,7 +539,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                         )}
                       </div>
                       <p className="text-[8px] font-mono text-[var(--text-muted)] leading-relaxed">
-                        Your key is stored locally and sent only to the OSIRIS server. Get a free key at{' '}
+                        Anahtarınız yerel olarak saklanır ve yalnızca GÖKSEL sunucusuna gönderilir. Ücretsiz anahtar:{' '}
                         <a
                           href="https://aistudio.google.com/apikey"
                           target="_blank"
@@ -586,22 +586,22 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
 
                     <div className="space-y-2">
                       <h3 className="hud-text text-[12px] text-[var(--text-heading)]">
-                        INTELLIGENCE ANALYST READY
+                        İSTİHBARAT ANALİSTİ HAZIR
                       </h3>
                       <p className="text-[10px] font-mono text-[var(--text-muted)] leading-relaxed max-w-[280px]">
-                        I correlate live seismic, OSINT, threat, and cyber data to deliver actionable intelligence assessments.
+                        Canlı sismik, OSINT, tehdit ve siber verileri ilişkilendirerek uygulanabilir istihbarat değerlendirmeleri sunarım.
                       </p>
                     </div>
 
                     {/* Quick prompts */}
                     <div className="w-full space-y-1.5">
                       <span className="hud-label block text-center mb-2" style={{ fontSize: '7px' }}>
-                        SUGGESTED QUERIES
+                        ÖNERİLEN SORGULAR
                       </span>
                       {[
-                        'What are the top 3 threats right now?',
-                        'Are there seismic patterns correlating with conflicts?',
-                        'Assess cyber risks to critical infrastructure',
+                        'Şu an en önemli 3 tehdit nedir?',
+                        'Çatışmalarla ilişkili sismik örüntüler var mı?',
+                        'Kritik altyapıya yönelik siber riskleri değerlendir',
                       ].map((prompt) => (
                         <button
                           key={prompt}
@@ -671,7 +671,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                               : 'var(--gold-primary)',
                           }}
                         >
-                          {msg.role === 'user' ? 'OPERATOR' : 'OSIRIS ANALYST'}
+                          {msg.role === 'user' ? 'OPERATÖR' : 'GÖKSEL ANALİST'}
                         </span>
                         <span className="text-[7px] font-mono text-[var(--text-muted)] ml-auto">
                           {new Date(msg.timestamp).toLocaleTimeString([], {
@@ -713,7 +713,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                       <Loader2 className="w-3.5 h-3.5 text-[var(--gold-primary)] animate-spin" />
                       <div className="flex items-center gap-1">
                         <span className="text-[9px] font-mono tracking-[0.15em] text-[var(--gold-primary)] uppercase">
-                          Analyzing intelligence
+                          İstihbarat analiz ediliyor
                         </span>
                         <motion.span
                           animate={{ opacity: [0, 1, 0] }}
@@ -751,12 +751,12 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                     }}
                   >
                     <Sparkles className="w-3 h-3" />
-                    GENERATE BRIEFING
+                    BRİFİNG OLUŞTUR
                   </button>
                   <div className="flex-1" />
                   <span className="flex items-center text-[7px] font-mono text-[var(--text-muted)] tracking-wider">
                     <ChevronDown className="w-2.5 h-2.5 mr-0.5" />
-                    SHIFT+ENTER FOR NEWLINE
+                    YENİ SATIR: SHIFT+ENTER
                   </span>
                 </div>
 
@@ -774,7 +774,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="Query the intelligence analyst..."
+                      placeholder="İstihbarat analistine sorun..."
                       rows={1}
                       className="w-full bg-transparent px-3 py-2.5 text-[11px] font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none resize-none"
                       style={{ maxHeight: '120px', minHeight: '36px' }}
@@ -815,10 +815,10 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                 {/* Footer */}
                 <div className="flex items-center justify-between mt-1.5 px-1">
                   <span className="text-[7px] font-mono text-[var(--text-muted)] tracking-wider">
-                    {keySaved ? '🔑 CUSTOM KEY' : '🔧 SERVER KEY'} • {messages.filter((m) => m.role === 'user').length} QUERIES
+                    {keySaved ? '🔑 ÖZEL ANAHTAR' : '🔧 SUNUCU ANAHTARI'} • {messages.filter((m) => m.role === 'user').length} SORGU
                   </span>
                   <span className="text-[7px] font-mono text-[var(--text-muted)] tracking-wider">
-                    FEEDS: {(data.earthquakes?.length || 0) + (data.news?.length || 0) + (data.gdelt?.length || 0)} ITEMS
+                    AKIŞ: {(data.earthquakes?.length || 0) + (data.news?.length || 0) + (data.gdelt?.length || 0)} ÖĞE
                   </span>
                 </div>
               </div>

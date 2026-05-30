@@ -100,23 +100,57 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const number = searchParams.get('number');
 
-  if (!number) {
-    return NextResponse.json({ error: 'Missing phone parameter' }, { status: 400 });
+  if (!number || !number.trim()) {
+    return NextResponse.json({ error: 'Telefon numarası gerekli' }, { status: 400 });
   }
 
   let query = number.trim();
   const digitsOnly = query.replace(/\D/g, '');
+
+  if (digitsOnly.length < 7) {
+    return NextResponse.json({
+      query: number,
+      valid: false,
+      error: 'Numara çok kısa veya geçersiz',
+      number: query,
+      international: query,
+      national: query,
+      country_code: '—',
+      region: 'Geçersiz format',
+      line_type: 'BİLİNMİYOR',
+      lat: null,
+      lng: null,
+    });
+  }
   
   // Auto-detect NANP (+1 for US/Canada) if it's exactly 10 digits
   if (digitsOnly.length === 10 && !query.startsWith('+') && !query.startsWith('00')) {
       query = '+1' + digitsOnly;
   } else if (!query.startsWith('+') && !query.startsWith('00')) {
-      query = '+' + query;
+      query = '+' + digitsOnly;
   }
 
   try {
-      const parsedNumber = phoneUtil.parse(query);
+      const parsedNumber = query.startsWith('+')
+        ? phoneUtil.parse(query)
+        : phoneUtil.parse(query, 'TR');
       const isValid = phoneUtil.isValidNumber(parsedNumber);
+
+      if (!isValid) {
+        return NextResponse.json({
+          query: number,
+          valid: false,
+          error: 'Geçerli bir telefon numarası değil',
+          number: query,
+          international: query,
+          national: query,
+          country_code: '—',
+          region: 'Geçersiz format',
+          line_type: 'BİLİNMİYOR',
+          lat: null,
+          lng: null,
+        });
+      }
       
       const regionCode = phoneUtil.getRegionCodeForNumber(parsedNumber) || 'Unknown';
       const countryCode = parsedNumber.getCountryCode();
@@ -168,17 +202,18 @@ export async function GET(req: Request) {
           lng: coords?.lng || null
       });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Ayrıştırma hatası';
       return NextResponse.json({ 
           query: number,
           valid: false,
-          error: err.message,
+          error: message,
           number: query,
           international: query,
           national: query,
-          country_code: 'Unknown',
-          region: 'Invalid format',
-          line_type: 'UNKNOWN',
+          country_code: '—',
+          region: 'Geçersiz format',
+          line_type: 'BİLİNMİYOR',
           lat: null,
           lng: null
       });

@@ -1,4 +1,4 @@
-# Osiris Global Intelligence Platform
+# GÖKSEL Küresel İstihbarat Platformu
 # https://osirisai.live
 
 User-agent: *

@@ -1,3 +1,10 @@
+# Göksel - Türkçeleştirilmiş OSINT Platformu
+
+OSIRIS'in Türkçe lokalizasyonu. Orijinal proje: [simplifaisoul/osiris](https://github.com/simplifaisoul/osiris)
+
+---
+
+
 <div align="center">
 
 # ⬡ OSIRIS

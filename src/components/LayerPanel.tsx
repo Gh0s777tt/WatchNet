@@ -17,60 +17,60 @@ interface LayerPanelProps {
 
 const LAYER_GROUPS = [
   {
-    label: 'AVIATION',
+    label: 'HAVACILIK',
     icon: Plane,
     color: '#00E5FF',
     layers: [
-      { key: 'flights', label: 'Commercial', icon: Plane, color: '#00E5FF', dataKey: 'commercial_flights' },
-      { key: 'private', label: 'Private', icon: Plane, color: '#00E676', dataKey: 'private_flights' },
-      { key: 'jets', label: 'Private Jets', icon: Plane, color: '#FF69B4', dataKey: 'private_jets' },
-      { key: 'military', label: 'Military', icon: Shield, color: '#FF3D3D', dataKey: 'military_flights' },
+      { key: 'flights', label: 'Ticari', icon: Plane, color: '#00E5FF', dataKey: 'commercial_flights' },
+      { key: 'private', label: 'Özel', icon: Plane, color: '#00E676', dataKey: 'private_flights' },
+      { key: 'jets', label: 'Özel Jetler', icon: Plane, color: '#FF69B4', dataKey: 'private_jets' },
+      { key: 'military', label: 'Askeri', icon: Shield, color: '#FF3D3D', dataKey: 'military_flights' },
     ],
   },
   {
-    label: 'MARITIME & SPACE',
+    label: 'DENİZ & UZAY',
     icon: Ship,
     color: '#00BCD4',
     layers: [
-      { key: 'maritime', label: 'Maritime / Naval', icon: Ship, color: '#00BCD4', dataKey: 'maritime_ships,maritime_ports,maritime_chokepoints' },
-      { key: 'satellites', label: 'Satellites', icon: Satellite, color: '#D4AF37', dataKey: 'satellites' },
+      { key: 'maritime', label: 'Deniz / Donanma', icon: Ship, color: '#00BCD4', dataKey: 'maritime_ships,maritime_ports,maritime_chokepoints' },
+      { key: 'satellites', label: 'Uydular', icon: Satellite, color: '#D4AF37', dataKey: 'satellites' },
     ],
   },
   {
-    label: 'SURVEILLANCE',
+    label: 'GÖZETİM',
     icon: Camera,
     color: '#39FF14',
     layers: [
-      { key: 'cctv', label: 'CCTV Cameras', icon: Camera, color: '#39FF14', dataKey: 'cameras' },
-      { key: 'live_news', label: 'Live News Feeds', icon: Tv, color: '#FF4081', dataKey: 'live_feeds' },
+      { key: 'cctv', label: 'CCTV Kameralar', icon: Camera, color: '#39FF14', dataKey: 'cameras' },
+      { key: 'live_news', label: 'Canlı Haber Akışları', icon: Tv, color: '#FF4081', dataKey: 'live_feeds' },
     ],
   },
   {
-    label: 'NATURAL HAZARDS',
+    label: 'DOĞAL TEHDİTLER',
     icon: Activity,
     color: '#FF9500',
     layers: [
-      { key: 'earthquakes', label: 'Earthquakes (24h)', icon: Activity, color: '#FF9500', dataKey: 'earthquakes' },
-      { key: 'fires', label: 'Active Fires', icon: Flame, color: '#FF6B00', dataKey: 'fires' },
-      { key: 'weather', label: 'Severe Weather', icon: CloudLightning, color: '#E040FB', dataKey: 'weather_events' },
+      { key: 'earthquakes', label: 'Depremler (24s)', icon: Activity, color: '#FF9500', dataKey: 'earthquakes' },
+      { key: 'fires', label: 'Aktif Yangınlar', icon: Flame, color: '#FF6B00', dataKey: 'fires' },
+      { key: 'weather', label: 'Şiddetli Hava', icon: CloudLightning, color: '#E040FB', dataKey: 'weather_events' },
     ],
   },
   {
-    label: 'THREATS & INFRA',
+    label: 'TEHDİT & ALTYAPI',
     icon: AlertTriangle,
     color: '#FF3D3D',
     layers: [
-      { key: 'infrastructure', label: 'Nuclear Facilities', icon: Radiation, color: '#76FF03', dataKey: 'infrastructure' },
-      { key: 'global_incidents', label: 'Global Incidents', icon: AlertTriangle, color: '#FF3D3D', dataKey: 'gdelt' },
-      { key: 'gps_jamming', label: 'GPS Jamming', icon: Radio, color: '#FF4444', dataKey: 'gps_jamming' },
+      { key: 'infrastructure', label: 'Nükleer Tesisler', icon: Radiation, color: '#76FF03', dataKey: 'infrastructure' },
+      { key: 'global_incidents', label: 'Küresel Olaylar', icon: AlertTriangle, color: '#FF3D3D', dataKey: 'gdelt' },
+      { key: 'gps_jamming', label: 'GPS Karıştırma', icon: Radio, color: '#FF4444', dataKey: 'gps_jamming' },
     ],
   },
   {
-    label: 'DISPLAY',
+    label: 'GÖRÜNÜM',
     icon: Sun,
     color: '#448AFF',
     layers: [
-      { key: 'day_night', label: 'Day / Night Cycle', icon: Sun, color: '#448AFF', dataKey: '' },
+      { key: 'day_night', label: 'Gündüz / Gece Döngüsü', icon: Sun, color: '#448AFF', dataKey: '' },
     ],
   },
 ];
@@ -123,13 +123,13 @@ function LayerPanel({ data, activeLayers, setActiveLayers }: LayerPanelProps) {
             <Eye className="w-3.5 h-3.5 text-[var(--gold-primary)]" />
             <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--alert-green)] animate-osiris-pulse" />
           </div>
-          <span className="hud-text text-[12px] text-[var(--text-primary)] tracking-widest">DATA LAYERS</span>
+          <span className="hud-text text-[12px] text-[var(--text-primary)] tracking-widest">VERİ KATMANLARI</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className={`gotham-tag ${activeCount > 10 ? 'gotham-tag--critical' : activeCount > 5 ? 'gotham-tag--high' : 'gotham-tag--low'}`} style={{ fontSize: '8px', padding: '1px 6px' }}>
             {activeCount}/{ALL_LAYERS.length}
           </span>
-          <span className="gotham-tag gotham-tag--info" style={{ fontSize: '7px', padding: '1px 5px' }}>{totalEntities.toLocaleString()} ENT</span>
+          <span className="gotham-tag gotham-tag--info" style={{ fontSize: '7px', padding: '1px 5px' }}>{totalEntities.toLocaleString()} VARLIK</span>
         </div>
       </div>
 
@@ -164,7 +164,7 @@ function LayerPanel({ data, activeLayers, setActiveLayers }: LayerPanelProps) {
                 <button
                   onClick={() => toggleAllInGroup(group)}
                   className="p-1 rounded hover:bg-white/[0.05] transition-colors"
-                  title={allActive ? 'Disable all' : 'Enable all'}
+                  title={allActive ? 'Tümünü kapat' : 'Tümünü aç'}
                 >
                   {allActive ? (
                     <ToggleRight className="w-3.5 h-3.5" style={{ color: group.color }} />
