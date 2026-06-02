@@ -130,6 +130,27 @@ jobs:
           cat "$OTA_MATRIX_ARTIFACT_DIR/ota-validate.json"
           ota validate .
 
+      - name: Inspect doctor readiness
+        shell: bash
+        run: |
+          ota doctor --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-doctor.json"
+          cat "$OTA_MATRIX_ARTIFACT_DIR/ota-doctor.json"
+          ota doctor .
+
+      - name: List runnable tasks
+        shell: bash
+        run: |
+          ota tasks --use --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-tasks-use.json"
+          cat "$OTA_MATRIX_ARTIFACT_DIR/ota-tasks-use.json"
+          ota tasks --use .
+
+      - name: List agent-safe tasks
+        shell: bash
+        run: |
+          ota tasks --safe --use --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-tasks-safe-use.json"
+          cat "$OTA_MATRIX_ARTIFACT_DIR/ota-tasks-safe-use.json"
+          ota tasks --safe --use .
+
       - name: List verify workflow tasks
         shell: bash
         run: |
