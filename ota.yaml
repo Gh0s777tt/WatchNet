@@ -5,7 +5,11 @@ project:
   type: application
 metadata:
   ota:
-    minimum_version: "1.6.15"
+    minimum_version: "1.6.18"
+toolchains:
+  node:
+    provider: corepack
+    version: "^22.13.0"
 execution:
   default_context: host
   contexts:
@@ -19,9 +23,6 @@ execution:
     app:
       backend: container
       lifecycle: persistent
-      requirements:
-        runtimes:
-          node: "^22.13.0"
       attachments:
         isolated_paths:
           - node_modules
@@ -127,8 +128,8 @@ tasks:
           context: app
           run: npm ci
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
     effects:
@@ -152,8 +153,8 @@ tasks:
           context: app
           run: npm run lint
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
       checks:
@@ -177,8 +178,8 @@ tasks:
           context: app
           run: npm run build
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
       checks:
@@ -206,8 +207,8 @@ tasks:
           context: app
           run: npm exec -- tsc --noEmit
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
       checks:
@@ -236,8 +237,8 @@ tasks:
           context: app
           run: npm exec -- tsc --noEmit && npm run build
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
       checks:
@@ -288,8 +289,8 @@ tasks:
                       mode: auto
                     primary: true
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
       checks:
@@ -347,8 +348,8 @@ tasks:
                       mode: auto
                     primary: true
     requirements:
-      runtimes:
-        node: "^22.13.0"
+      toolchains:
+        - node
       tools:
         npm: "*"
       checks:
@@ -368,12 +369,14 @@ tasks:
     description: Run the documented self-host Docker Compose stack
     notes: |
       Maps directly to README and DOCKER.md.
-      Uses attached mode so OTA can evaluate readiness while the service is live.
+      The documented self-host path is detached `docker compose up -d`, not an attached compose session.
     category: dev
-    run: docker compose up
+    run: docker compose up -d
     requirements:
       tools:
         docker: "*"
+      checks:
+        - docker-backend-ready
     effects:
       external_state:
         - docker
@@ -463,6 +466,11 @@ workflows:
       - surface: app
       - surface: health
 checks:
+  - name: docker-backend-ready
+    kind: precondition
+    severity: error
+    run: docker info >/dev/null 2>&1
+    timeout: 10000
   - name: workspace-dependencies-installed
     kind: file
     severity: error
@@ -496,6 +504,7 @@ agent:
     - .github/workflows/test-ota-contract-matrix.yml
     - AGENTS.md
     - ota-pressure-matrix.md
+    - ota-pressure-test-osiris.md
     - .env
     - .env.example
     - .env.template
@@ -507,10 +516,11 @@ agent:
   bootstrap:
     ota:
       note: Install ota when missing so contributors and agents can run the readiness workflows declared in this contract.
-      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.15 sh
-      powershell: $env:OTA_VERSION='v1.6.15'; irm https://dist.ota.run/install.ps1 | iex
+      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.18 sh
+      powershell: $env:OTA_VERSION='v1.6.18'; irm https://dist.ota.run/install.ps1 | iex
   notes: |
-    Use `ota tasks --use .` to list runnable tasks and review the agent-safe surface before execution.
+    Use `ota tasks --use .` to list runnable tasks and workflows before execution.
+    Use `ota tasks --safe --use .` to confirm that this slice intentionally exposes no agent-safe task surface.
     Use `ota run setup:env .` to create `.env` from `.env.template` only when missing.
     Use `ota up --workflow app --native .` for the canonical host-native dev path.
     Use `ota up --workflow app:container --container .` for the containerized dev path.
