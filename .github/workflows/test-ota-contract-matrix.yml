@@ -133,9 +133,27 @@ jobs:
       - name: Inspect doctor readiness
         shell: bash
         run: |
+          set +e
           ota doctor --json . > "$OTA_MATRIX_ARTIFACT_DIR/ota-doctor.json"
+          doctor_status=$?
+          set -e
           cat "$OTA_MATRIX_ARTIFACT_DIR/ota-doctor.json"
+          node - "$OTA_MATRIX_ARTIFACT_DIR/ota-doctor.json" <<'NODE'
+          const fs = require("fs");
+          const report = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+          if (!report || typeof report.ok !== "boolean" || !report.summary || !report.summary.verdict) {
+            console.error(JSON.stringify(report, null, 2));
+            process.exit(1);
+          }
+          console.log(`doctor verdict: ${report.summary.verdict}`);
+          NODE
+          set +e
           ota doctor .
+          doctor_plain_status=$?
+          set -e
+          if [ "$doctor_status" -ne 0 ] || [ "$doctor_plain_status" -ne 0 ]; then
+            echo "doctor reported repo readiness blockers or warnings on this runner; JSON and plain output captured for review"
+          fi
 
       - name: List runnable tasks
         shell: bash
