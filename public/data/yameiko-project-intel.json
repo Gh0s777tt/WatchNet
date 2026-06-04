@@ -1,0 +1,95 @@
+{
+  "caseId": "yameiko-project-intelligence",
+  "title": "Yameiko Project Intelligence",
+  "generatedFrom": "local development portfolio",
+  "generatedAt": "2026-06-04",
+  "summary": "A starter OSIRIS case that treats the local development portfolio as monitored digital assets.",
+  "projects": [
+    {
+      "name": "EntdeckerApp",
+      "type": "Capacitor mobile app",
+      "stack": ["React", "TypeScript", "Vite", "Firebase", "Tailwind", "Capacitor"],
+      "signals": ["Firebase deploy surface", "mobile release readiness", "test and admin workflows"],
+      "riskFocus": "Production app with auth, admin and deployment scripts needs release, credential and availability monitoring.",
+      "priority": "critical"
+    },
+    {
+      "name": "NatureCoach",
+      "type": "Capacitor mobile app",
+      "stack": ["React", "TypeScript", "Vite", "Firebase", "Tailwind", "Capacitor"],
+      "signals": ["Firebase deploy surface", "mobile release readiness", "user data flows"],
+      "riskFocus": "Similar app platform to EntdeckerApp, useful for shared release and security monitoring.",
+      "priority": "high"
+    },
+    {
+      "name": "evplanner",
+      "type": "EV charging and camping companion",
+      "stack": ["Vanilla JS", "Vite", "Capacitor", "Firebase"],
+      "signals": ["charging/camping data freshness", "Firebase deployment", "iOS verification scripts"],
+      "riskFocus": "Travel and charging decisions depend on data quality and mobile reliability.",
+      "priority": "critical"
+    },
+    {
+      "name": "ClarityAI",
+      "type": "iOS app",
+      "stack": ["Swift", "SwiftUI"],
+      "signals": ["App Store readiness", "simulator validation", "privacy posture"],
+      "riskFocus": "Native app should be monitored for release blockers and privacy-sensitive flows.",
+      "priority": "high"
+    },
+    {
+      "name": "Homeassistant",
+      "type": "Home automation",
+      "stack": ["Home Assistant", "YAML", "Python"],
+      "signals": ["automation availability", "IoT device dependencies", "local network exposure"],
+      "riskFocus": "Operational reliability and local network attack surface are the main concerns.",
+      "priority": "medium"
+    },
+    {
+      "name": "Webseite-efoil",
+      "type": "commerce website",
+      "stack": ["Firebase Hosting", "Firebase Functions", "PayPal", "Email"],
+      "signals": ["checkout uptime", "payment flow", "email delivery", "public domain posture"],
+      "riskFocus": "Revenue path depends on checkout, serverless API and email deliverability.",
+      "priority": "critical"
+    },
+    {
+      "name": "Webseite-yameiko",
+      "type": "website",
+      "stack": ["Vite", "React"],
+      "signals": ["public content", "SEO", "availability"],
+      "riskFocus": "Brand surface and portfolio visibility.",
+      "priority": "medium"
+    },
+    {
+      "name": "Webshop-CargoVault",
+      "type": "e-commerce prototype",
+      "stack": ["Vite", "React", "React Router", "Tailwind", "Framer Motion"],
+      "signals": ["conversion path", "public content", "frontend build health"],
+      "riskFocus": "Good candidate for market and product signal monitoring.",
+      "priority": "high"
+    },
+    {
+      "name": "Webshop-MainLakritz",
+      "type": "e-commerce prototype",
+      "stack": ["Vite"],
+      "signals": ["product page readiness", "frontend build health"],
+      "riskFocus": "Early-stage shop surface with simple technical footprint.",
+      "priority": "medium"
+    },
+    {
+      "name": "zigbee2mqtt-master",
+      "type": "IoT integration",
+      "stack": ["Zigbee2MQTT", "Node.js"],
+      "signals": ["device compatibility", "local network dependencies", "update cadence"],
+      "riskFocus": "Useful for device inventory and home automation dependency monitoring.",
+      "priority": "medium"
+    }
+  ],
+  "starterWorkflow": [
+    "Use OSIRIS live layers for external context around locations and infrastructure relevant to a project.",
+    "Use the RECON panel for public domains only: DNS, WHOIS, SSL and IP intelligence.",
+    "Track critical projects as assets with owner, deployment target, public URL and release status.",
+    "Convert repeated findings into a weekly operating review: critical changes, incidents, release blockers and next actions."
+  ]
+}
