@@ -21,6 +21,20 @@ const LayerPanel = dynamic(() => import('@/components/LayerPanel'));
 const CameraViewer = dynamic(() => import('@/components/CameraViewer'));
 const OsintPanel = dynamic(() => import('@/components/OsintPanel'));
 
+type MapBbox = {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+};
+
+type MapViewState = {
+  zoom: number;
+  latitude: number;
+  longitude: number;
+  bbox?: MapBbox;
+};
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -81,13 +95,33 @@ function getYouTubeWatchUrl(url: string): string {
   return url;
 }
 
+function getCampingBbox(view: MapViewState): string | null {
+  const centerLng = Number.isFinite(view.longitude) ? view.longitude : 25.48;
+  const centerLat = Number.isFinite(view.latitude) ? view.latitude : 42.7;
+  const maxSpan = view.zoom >= 9 ? 1.2 : 2.4;
+  const rawWest = view.bbox?.west ?? centerLng - maxSpan / 2;
+  const rawEast = view.bbox?.east ?? centerLng + maxSpan / 2;
+  const rawSouth = view.bbox?.south ?? centerLat - maxSpan / 2;
+  const rawNorth = view.bbox?.north ?? centerLat + maxSpan / 2;
+
+  if (![rawWest, rawEast, rawSouth, rawNorth].every(Number.isFinite)) return null;
+
+  const west = Math.max(-180, Math.max(rawWest, centerLng - maxSpan / 2));
+  const east = Math.min(180, Math.min(rawEast, centerLng + maxSpan / 2));
+  const south = Math.max(-85, Math.max(rawSouth, centerLat - maxSpan / 2));
+  const north = Math.min(85, Math.min(rawNorth, centerLat + maxSpan / 2));
+
+  if (east <= west || north <= south) return null;
+  return [west, south, east, north].map(value => value.toFixed(3)).join(',');
+}
+
 export default function Dashboard() {
   const dataRef = useRef<any>({});
   const [dataVersion, setDataVersion] = useState(0);
   const data = dataRef.current;
 
   const [backendStatus, setBackendStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
-  const [mapView, setMapView] = useState({ zoom: 2.5, latitude: 20 });
+  const [mapView, setMapView] = useState<MapViewState>({ zoom: 6.5, latitude: 42.7, longitude: 25.48 });
   const [flyToLocation, setFlyToLocation] = useState<{ lat: number; lng: number; ts: number } | null>(null);
   const [globalStats, setGlobalStats] = useState<any>(null);
   const mouseCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
@@ -118,7 +152,7 @@ export default function Dashboard() {
   const lastGeocodedPos = useRef<{ lat: number; lng: number } | null>(null);
 
   // ── DEFAULT: Most layers OFF — fast initial load ──
-  const [activeLayers, setActiveLayers] = useState({
+  const [activeLayers, setActiveLayers] = useState<Record<string, boolean>>({
     flights: false,
     private: false,
     jets: false,
@@ -127,8 +161,10 @@ export default function Dashboard() {
     satellites: false,
     balloons: false,
     cctv: true,
+    camping: false,
     live_news: true,
     news_intel: true,
+    rail_germany: false,
     earthquakes: true,
     fires: false,
     weather: false,
@@ -185,7 +221,7 @@ export default function Dashboard() {
     urlTimer.current = setTimeout(() => {
       const p = new URLSearchParams();
       p.set('lat', (mapView.latitude ?? 20).toFixed(4));
-      p.set('lon', '0');
+      p.set('lon', (mapView.longitude ?? 0).toFixed(4));
       p.set('zoom', mapView.zoom.toFixed(2));
       const active = Object.entries(activeLayers).filter(([,v]) => v).map(([k]) => k).join(',');
       p.set('layers', active);
@@ -394,6 +430,30 @@ export default function Dashboard() {
       fetchEndpoint('/api/live-news', d => ({ live_feeds: d.feeds }));
       layerFetchedRef.current.add('live_news');
     }
+    // Germany rail network
+    if (activeLayers.rail_germany && !layerFetchedRef.current.has('rail_germany')) {
+      fetchEndpoint('/api/rail/germany', d => ({
+        rail_germany: d.stations || [],
+        rail_germany_lines: d.lines || [],
+        rail_germany_stats: d.stats,
+        rail_germany_sources: d.sources,
+      }));
+      layerFetchedRef.current.add('rail_germany');
+    }
+    // Camping sites
+    if (activeLayers.camping) {
+      const bbox = getCampingBbox(mapView);
+      if (bbox) {
+        const key = `camping:${bbox}`;
+        if (!layerFetchedRef.current.has(key)) {
+          fetchEndpoint(`/api/camping?bbox=${bbox}`, d => ({
+            camping_sites: d.sites || [],
+            camping_sources: d.sources,
+          }));
+          layerFetchedRef.current.add(key);
+        }
+      }
+    }
     // Weather
     if (activeLayers.weather && !layerFetchedRef.current.has('weather')) {
       fetchEndpoint('/api/weather', d => ({ weather_events: d.events }));
@@ -438,7 +498,7 @@ export default function Dashboard() {
     }
 
 
-  }, [activeLayers]);
+  }, [activeLayers, mapView, fetchEndpoint]);
 
   // ── LAYER-AWARE POLLING — only poll data for active layers ──
   useEffect(() => {

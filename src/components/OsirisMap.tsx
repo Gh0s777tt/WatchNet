@@ -10,7 +10,12 @@ interface OsirisMapProps {
   onEntityClick?: (entity: any) => void;
   onMouseCoords?: (coords: { lat: number; lng: number }) => void;
   onRightClick?: (coords: { lat: number; lng: number }) => void;
-  onViewStateChange?: (vs: { zoom: number; latitude: number }) => void;
+  onViewStateChange?: (vs: {
+    zoom: number;
+    latitude: number;
+    longitude: number;
+    bbox: { west: number; south: number; east: number; north: number };
+  }) => void;
   flyToLocation?: { lat: number; lng: number; ts: number } | null;
   projection?: 'mercator' | 'globe';
   mapStyle?: string;
@@ -166,7 +171,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       createDot(map, 'dot-cctv', '#39FF14', 10);
 
       // Sources
-      const sources = ['flights','military','jets','private-fl','satellites','earthquakes','gdelt','gps-jamming','day-night','cctv','fires','weather','infrastructure','maritime','maritime-choke','maritime-ships','live-news','sigint-news','conflict-zones', 'war-alerts-targets', 'war-alerts-lines', 'balloons', 'radiation', 'ip-sweep-devices', 'ip-sweep-pulse', 'ip-sweep-connections', 'scan-targets', 'sdk-entities', 'sdk-links', 'ioda-outages', 'malware-nodes'];
+      const sources = ['flights','military','jets','private-fl','satellites','earthquakes','gdelt','gps-jamming','day-night','cctv','camping','fires','weather','infrastructure','maritime','maritime-choke','maritime-ships','live-news','sigint-news','rail-germany','rail-germany-lines','conflict-zones', 'war-alerts-targets', 'war-alerts-lines', 'balloons', 'radiation', 'ip-sweep-devices', 'ip-sweep-pulse', 'ip-sweep-connections', 'scan-targets', 'sdk-entities', 'sdk-links', 'ioda-outages', 'malware-nodes'];
       sources.forEach(s => map.addSource(s, { type: 'geojson', data: EMPTY_FC }));
 
       // Warning icon generator (parameterized — eliminates 3x copy-paste)
@@ -242,6 +247,22 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
         'text-field': ['get','name'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
         'text-offset': [0, 1.8], 'text-max-width': 12, 'text-allow-overlap': false,
       }, paint: { 'text-color': '#39FF14', 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.7 }});
+
+      // Camping sites
+      map.addLayer({ id: 'camping-glow', type: 'circle', source: 'camping', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 5,6, 9,12, 13,20],
+        'circle-color': '#9CCC65', 'circle-opacity': 0.12, 'circle-blur': 1,
+      }});
+      map.addLayer({ id: 'camping-dots', type: 'circle', source: 'camping', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 5,3, 9,6, 13,10],
+        'circle-color': ['match', ['get','kind'], 'caravan_site','#FFB74D', '#9CCC65'],
+        'circle-opacity': 0.88,
+        'circle-stroke-width': 1.5, 'circle-stroke-color': '#E8F5E9', 'circle-stroke-opacity': 0.55,
+      }});
+      map.addLayer({ id: 'camping-label', type: 'symbol', source: 'camping', minzoom: 10, layout: {
+        'text-field': ['get','name'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
+        'text-offset': [0, 1.7], 'text-max-width': 12, 'text-allow-overlap': false,
+      }, paint: { 'text-color': '#C5E1A5', 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.8 }});
 
       // GDELT
       // ══ NETWORK INTEL — IODA Internet Outages ══
@@ -379,6 +400,28 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
         'text-field': ['get','name'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
         'text-offset': [0, 1.8], 'text-max-width': 12, 'text-allow-overlap': false,
       }, paint: { 'text-color': '#FF4081', 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.8 }});
+
+      // Germany rail infrastructure
+      map.addLayer({ id: 'rail-lines', type: 'line', source: 'rail-germany-lines', paint: {
+        'line-color': '#FFD54F',
+        'line-width': ['interpolate',['linear'],['zoom'], 4,0.6, 7,1.2, 11,2.4],
+        'line-opacity': 0.45,
+      }});
+      map.addLayer({ id: 'rail-glow', type: 'circle', source: 'rail-germany', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 4,5, 7,10, 11,18],
+        'circle-color': ['match', ['get','kind'], 'yard','#FF9500', 'depot','#00BCD4', 'junction','#76FF03', 'halt','#D4AF37', '#FFD54F'],
+        'circle-opacity': 0.12, 'circle-blur': 1,
+      }});
+      map.addLayer({ id: 'rail-dots', type: 'circle', source: 'rail-germany', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 4,3, 7,5, 11,9],
+        'circle-color': ['match', ['get','kind'], 'yard','#FF9500', 'depot','#00BCD4', 'junction','#76FF03', 'halt','#D4AF37', '#FFD54F'],
+        'circle-opacity': 0.9,
+        'circle-stroke-width': 1.5, 'circle-stroke-color': '#FFF8DC', 'circle-stroke-opacity': 0.5,
+      }});
+      map.addLayer({ id: 'rail-label', type: 'symbol', source: 'rail-germany', minzoom: 6, layout: {
+        'text-field': ['get','name'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
+        'text-offset': [0, 1.7], 'text-max-width': 12, 'text-allow-overlap': false,
+      }, paint: { 'text-color': '#FFD54F', 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.8 }});
 
       // SIGINT RSS news - gold markers
       map.addLayer({ id: 'sigint-news-glow', type: 'circle', source: 'sigint-news', paint: {
@@ -551,8 +594,24 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
         onMouseCoords?.({ lat: e.lngLat.lat, lng: e.lngLat.lng });
       }
     });
+    const emitViewState = () => {
+      const c = map.getCenter();
+      const b = map.getBounds();
+      onViewStateChange?.({
+        zoom: map.getZoom(),
+        latitude: c.lat,
+        longitude: c.lng,
+        bbox: {
+          west: b.getWest(),
+          south: b.getSouth(),
+          east: b.getEast(),
+          north: b.getNorth(),
+        },
+      });
+    };
+    emitViewState();
     map.on('contextmenu', e => { e.preventDefault(); onRightClick?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }); });
-    map.on('moveend', () => { const c = map.getCenter(); onViewStateChange?.({ zoom: map.getZoom(), latitude: c.lat }); });
+    map.on('moveend', emitViewState);
 
     // ── POPUP HELPER ──
     const popup = (coords: any, html: string) => {
@@ -616,6 +675,30 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       });
       // Also fly to the camera
       map.flyTo({ center: coords, zoom: Math.max(map.getZoom(), 13), duration: 1000 });
+    });
+
+    // ── Camping sites ──
+    map.on('click', 'camping-dots', e => {
+      if (!e.features?.length) return;
+      const p = e.features[0].properties as any;
+      const coords = (e.features[0].geometry as any).coordinates;
+      const color = p.kind === 'caravan_site' ? '#FFB74D' : '#9CCC65';
+      const typeLabel = p.kind === 'caravan_site' ? 'CARAVAN SITE' : 'CAMP SITE';
+      popup(coords, `<div style="${pStyle}border:1px solid ${color}40;">
+        <div style="color:${color};font-size:13px;font-weight:700;margin-bottom:4px;">${p.name || 'Camping site'}</div>
+        <div style="font-size:9px;color:#8A8880;margin-bottom:8px;">${typeLabel} / OpenStreetMap</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:9px;margin-bottom:8px;">
+          <div><span style="color:#5C5A54;">OPERATOR</span><br/><span style="color:#E8E6E0;">${p.operator || '-'}</span></div>
+          <div><span style="color:#5C5A54;">CAPACITY</span><br/><span style="color:#E8E6E0;">${p.capacity || '-'}</span></div>
+          <div><span style="color:#5C5A54;">PHONE</span><br/><span style="color:#E8E6E0;">${p.phone || '-'}</span></div>
+          <div><span style="color:#5C5A54;">COORDS</span><br/><span style="color:#E8E6E0;">${coords[1].toFixed(3)}, ${coords[0].toFixed(3)}</span></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${p.website ? `<a href="${p.website}" target="_blank" style="${linkStyle}color:${color};border:1px solid ${color}66;background:${color}18;">WEBSITE</a>` : ''}
+          <a href="https://www.openstreetmap.org/${p.osmType || 'node'}/${p.osmId || ''}" target="_blank" style="${linkStyle}color:#C5E1A5;border:1px solid rgba(197,225,165,0.4);background:rgba(197,225,165,0.1);">OSM</a>
+          <a href="https://www.google.com/maps/@${coords[1]},${coords[0]},15z" target="_blank" style="${linkStyle}color:#448AFF;border:1px solid rgba(68,138,255,0.4);background:rgba(68,138,255,0.1);">MAP</a>
+        </div>
+      </div>`);
     });
 
     // ── Earthquakes (with USGS link) ──
@@ -732,7 +815,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     });
 
     // ── Generic hover for clickables ──
-    ['conflict-icons','cctv-dots','eq-circles','sat-dots','fires-heat','gdelt-dots','weather-dots','infra-dots','maritime-dots','choke-dots','news-dots','sigint-news-dots','balloon-dots','rad-dots','ship-dots','sweep-device-dots','scan-targets-dots','sdk-sea','sdk-sea-glow','sdk-sea-atmo','sdk-air','sdk-air-glow','sdk-air-atmo','sdk-intel','sdk-intel-glow','sdk-intel-atmo'].forEach(layer => {
+    ['conflict-icons','cctv-dots','eq-circles','sat-dots','fires-heat','gdelt-dots','weather-dots','infra-dots','maritime-dots','choke-dots','news-dots','sigint-news-dots','rail-dots','rail-lines','balloon-dots','rad-dots','ship-dots','sweep-device-dots','scan-targets-dots','sdk-sea','sdk-sea-glow','sdk-sea-atmo','sdk-air','sdk-air-glow','sdk-air-atmo','sdk-intel','sdk-intel-glow','sdk-intel-atmo'].forEach(layer => {
       map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
     });
@@ -947,6 +1030,41 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       });
     });
 
+    // ── Germany Rail ──
+    map.on('click', 'rail-lines', e => {
+      if (!e.features?.length) return;
+      const p = e.features[0].properties as any;
+      const coords = e.lngLat;
+      popup([coords.lng, coords.lat], `<div style="${pStyle}border:1px solid rgba(255,213,79,0.35);">
+        <div style="color:#FFD54F;font-size:13px;font-weight:700;margin-bottom:4px;">GERMAN RAIL LINE</div>
+        <div style="font-size:12px;color:#E8E6E0;margin-bottom:8px;">${p.name || p.ref || 'Rail line'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:9px;">
+          <div><span style="color:#5C5A54;">USAGE</span><br/><span style="color:#E8E6E0;">${p.usage || '—'}</span></div>
+          <div><span style="color:#5C5A54;">ELECTRIFIED</span><br/><span style="color:#E8E6E0;">${p.electrified || '—'}</span></div>
+          <div><span style="color:#5C5A54;">OPERATOR</span><br/><span style="color:#E8E6E0;">${p.operator || '—'}</span></div>
+          <div><span style="color:#5C5A54;">GAUGE</span><br/><span style="color:#E8E6E0;">${p.gauge || '—'}</span></div>
+        </div>
+      </div>`);
+    });
+
+    map.on('click', 'rail-dots', e => {
+      if (!e.features?.length) return;
+      const p = e.features[0].properties as any;
+      const coords = (e.features[0].geometry as any).coordinates;
+      const kindColor = p.kind === 'yard' ? '#FF9500' : p.kind === 'depot' ? '#00BCD4' : p.kind === 'junction' ? '#76FF03' : p.kind === 'halt' ? '#D4AF37' : '#FFD54F';
+      popup(coords, `<div style="${pStyle}border:1px solid ${kindColor}40;">
+        <div style="color:${kindColor};font-size:13px;font-weight:700;margin-bottom:4px;">GERMAN RAIL INFRA</div>
+        <div style="font-size:12px;color:#E8E6E0;margin-bottom:8px;">${p.name || 'Rail infrastructure'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:9px;margin-bottom:8px;">
+          <div><span style="color:#5C5A54;">TYPE</span><br/><span style="color:${kindColor};">${(p.kind || 'station').toUpperCase()}</span></div>
+          <div><span style="color:#5C5A54;">NETWORK</span><br/><span style="color:#E8E6E0;">${p.network || '—'}</span></div>
+          <div><span style="color:#5C5A54;">OPERATOR</span><br/><span style="color:#E8E6E0;">${p.operator || '—'}</span></div>
+          <div><span style="color:#5C5A54;">UIC / REF</span><br/><span style="color:#E8E6E0;">${p.uicRef || p.ref || '—'}</span></div>
+          <div><span style="color:#5C5A54;">COORDS</span><br/><span style="color:#E8E6E0;">${coords[1].toFixed(3)}°, ${coords[0].toFixed(3)}°</span></div>
+        </div>
+      </div>`);
+    });
+
     return () => { map.remove(); mapRef.current = null; };
   }, []);
 
@@ -1116,6 +1234,40 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
 
   useEffect(() => {
     if (!mapReady) return;
+    setGeo('rail-germany', activeLayers.rail_germany && data.rail_germany ? data.rail_germany
+      .filter((item: any) => typeof item.lng === 'number' && typeof item.lat === 'number')
+      .map((item: any) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [item.lng, item.lat] },
+      properties: {
+        name: item.name,
+        kind: item.kind,
+        operator: item.operator,
+        network: item.network,
+        uicRef: item.uicRef,
+        ref: item.ref,
+      },
+    })) : []);
+    setGeo('rail-germany-lines', activeLayers.rail_germany && data.rail_germany_lines ? data.rail_germany_lines
+      .filter((item: any) => item.geometry?.type === 'LineString')
+      .map((item: any) => ({
+        type: 'Feature',
+        geometry: item.geometry,
+        properties: {
+          name: item.name,
+          kind: item.kind,
+          operator: item.operator,
+          network: item.network,
+          ref: item.ref,
+          electrified: item.electrified,
+          usage: item.usage,
+          gauge: item.gauge,
+        },
+      })) : []);
+  }, [mapReady, data.rail_germany, data.rail_germany_lines, activeLayers.rail_germany, setGeo]);
+
+  useEffect(() => {
+    if (!mapReady) return;
     const items = data.news || [];
     setGeo('sigint-news', activeLayers.news_intel && items.length > 0
       ? items.filter((n: any) => n.coords?.length === 2).map((n: any) => ({
@@ -1176,6 +1328,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     setVis(['ship-dots','ship-label'], activeLayers.maritime);
     setVis(['news-glow','news-dots','news-label'], activeLayers.live_news);
     setVis(['sigint-news-glow','sigint-news-dots','sigint-news-label'], activeLayers.news_intel);
+    setVis(['rail-lines','rail-glow','rail-dots','rail-label'], activeLayers.rail_germany);
     setVis(['conflict-icons'], activeLayers.conflict_zones !== false);
 
     setVis(['balloon-dots','balloon-label'], activeLayers.balloons);

@@ -3,19 +3,36 @@
 import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plane, Satellite, Activity, Sun, AlertTriangle, Camera, Flame, Target,
-  CloudLightning, Radiation, Tv, Anchor, Ship, Newspaper,
-  Network, Share2, Radio
+  Plane, Satellite, Activity, Sun, AlertTriangle, Camera, Flame,
+  CloudLightning, Radiation, Tv, Anchor, Ship,
+  Share2, Radio, Train, Shield, MapPinned
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+
+type LayerState = Record<string, boolean>;
+type LayerData = Record<string, unknown>;
+type LayerConfig = {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  dataKey: string;
+};
+type LayerGroup = {
+  label: string;
+  fullLabel: string;
+  color: string;
+  layers: LayerConfig[];
+};
 
 interface LayerPanelProps {
-  data: any;
-  activeLayers: any;
-  setActiveLayers: React.Dispatch<React.SetStateAction<any>>;
+  data: LayerData;
+  activeLayers: LayerState;
+  setActiveLayers: React.Dispatch<React.SetStateAction<LayerState>>;
   isMobile?: boolean;
 }
 
-const LAYER_GROUPS = [
+const LAYER_GROUPS: LayerGroup[] = [
   {
     label: 'SDK',
     fullLabel: 'OSIRIS SDK',
@@ -53,6 +70,8 @@ const LAYER_GROUPS = [
     layers: [
       { key: 'cctv', label: 'CCTV Cameras', icon: Camera, color: '#39FF14', dataKey: 'cameras' },
       { key: 'live_news', label: 'Live News Feeds', icon: Tv, color: '#FF4081', dataKey: 'live_feeds' },
+      { key: 'rail_germany', label: 'DE Rail Infra', icon: Train, color: '#FFD54F', dataKey: 'rail_germany,rail_germany_lines' },
+      { key: 'camping', label: 'Campingplaetze', icon: MapPinned, color: '#9CCC65', dataKey: 'camping_sites' },
     ],
   },
   {
@@ -94,29 +113,19 @@ const LAYER_GROUPS = [
   },
 ];
 
-const ALL_LAYERS = LAYER_GROUPS.flatMap(g => g.layers);
-
-// SVG component for Shield which was missing in the imports above
-function Shield(props: any) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-  );
-}
-
 function LayerPanel({ data, activeLayers, setActiveLayers, isMobile }: LayerPanelProps) {
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
 
-  const toggle = (key: string) => setActiveLayers((prev: any) => ({ ...prev, [key]: !prev[key] }));
+  const toggle = (key: string) => setActiveLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   
   const getCount = (dk: string): number | null => {
     if (!dk) return null;
     let total = 0;
     let found = false;
     for (const k of dk.split(',')) {
-      if (data[k] && Array.isArray(data[k])) {
-        total += data[k].length;
+      const value = data[k];
+      if (Array.isArray(value)) {
+        total += value.length;
         found = true;
       }
     }
@@ -236,8 +245,6 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile }: LayerPane
                       {group.layers.map((layer) => {
                         const isLayerActive = activeLayers[layer.key];
                         const count = getCount(layer.dataKey);
-                        const Icon = layer.icon || Shield;
-                        
                         return (
                           <button
                             key={layer.key}
