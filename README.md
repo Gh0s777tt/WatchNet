@@ -135,10 +135,10 @@ Questo fork è basato sul progetto originale [simplifaisoul/osiris](https://gith
 | 91 | `osint/crypto` | ₿ **Crypto wallet**. Ricerca wallet BTC/ETH via Blockchair (saldo, transazioni). | `GET ?coin=&address=` ✦ |
 | 92 | `osint/dns` | 🌐 **DNS lookup**. A/AAAA/MX/NS/TXT/CNAME/SOA via Google DoH. | `GET ?domain=` |
 
-### AI — Funzionamento Offline con Luana
+### AI — Funzionamento Offline
 
 L'AI Analyst è configurato per funzionare **completamente offline** usando:
-- **Luana (Mark-XXXIX-OR)** — assistente vocale AI italiana che fa da interfaccia
+- **Mark-XXXIX-OR** — interfaccia AI personale
 - **Modello locale** — llama.cpp su `127.0.0.1:8080` (nessuna chiave API, nessuna connessione internet)
 - **Tutto offline** — analisi intelligence, briefing, esecuzione strumenti OSINT
 
@@ -276,7 +276,7 @@ npm start
 
 ### Variabili Ambiente
 
-OSIRIS funziona **senza chiavi API** per la maggior parte delle feature. L'AI è **completamente offline** usando il modello locale integrato con **Luana (Mark-XXXIX-OR)** — nessuna connessione internet necessaria.
+OSIRIS funziona **senza chiavi API** per la maggior parte delle feature. L'AI è **completamente offline** usando il modello locale integrato con **Mark-XXXIX-OR** — nessuna connessione internet necessaria.
 
 ```env
 OSIRIS_PORT=3000
@@ -285,7 +285,7 @@ OSIRIS_PORT=3000
 SCANNER_URL=
 SCANNER_KEY=
 
-# AI — OFFLINE (default): usa Luana + modello locale llama.cpp su 127.0.0.1:8080
+# AI — OFFLINE (default): usa Mark-XXXIX-OR + modello locale llama.cpp su 127.0.0.1:8080
 # AI — ONLINE: imposta AI_BASE_URL=https://openrouter.ai/api e inserisci chiave
 #              nell'interfaccia AiAnalyst → "Connect API" (Gemini/Claude/GPT)
 AI_BASE_URL=http://127.0.0.1:8080
