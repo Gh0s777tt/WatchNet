@@ -11,10 +11,10 @@ import {
 interface MarketsPanelProps { data: any; spaceWeather?: any; }
 
 const SECTIONS = [
-  { key: 'indices', label: 'INDICES', icon: LineChart },
-  { key: 'stocks', label: 'DEFENSE', icon: Shield },
-  { key: 'oil', label: 'ENERGY', icon: Droplets },
-  { key: 'commodities', label: 'COMMODITIES', icon: Gem },
+  { key: 'indices', label: 'INDICI', icon: LineChart },
+  { key: 'stocks', label: 'DIFESA', icon: Shield },
+  { key: 'oil', label: 'ENERGIA', icon: Droplets },
+  { key: 'commodities', label: 'MATERIE PRIME', icon: Gem },
   { key: 'crypto', label: 'CRYPTO', icon: Bitcoin },
 ];
 
@@ -22,12 +22,12 @@ function Ticker({ name, data: d }: { name: string; data: any }) {
   if (!d) return null;
   return (
     <div className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-[var(--hover-accent)] transition-colors">
-      <span className="text-[10px] font-mono text-[var(--text-secondary)] tracking-wide">{name}</span>
+      <span className="text-[12px] font-mono text-[var(--text-secondary)] tracking-wide">{name}</span>
       <div className="flex items-center gap-2">
-        <span className="text-[11px] font-mono font-bold text-[var(--text-primary)] tabular-nums">
+        <span className="text-[13px] font-mono font-bold text-[var(--text-primary)] tabular-nums">
           {d.price >= 1000 ? `${(d.price / 1000).toFixed(1)}K` : d.price?.toFixed(2)}
         </span>
-        <span className={`text-[9px] font-mono font-bold flex items-center gap-0.5 ${d.up ? 'text-[var(--alert-green)]' : 'text-[var(--alert-red)]'}`}>
+        <span className={`text-[13px] font-mono font-bold flex items-center gap-0.5 ${d.up ? 'text-[var(--alert-green)]' : 'text-[var(--alert-red)]'}`}>
           {d.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
           {d.change_percent > 0 ? '+' : ''}{d.change_percent?.toFixed(2)}%
         </span>
@@ -42,7 +42,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
   const [activeSection, setActiveSection] = useState('stocks');
   const markets = data.markets || {};
 
-  // Ensure portal only renders on client
+  // Assicura che il portal sia renderizzato solo lato client
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -51,14 +51,14 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
       <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-between w-full mb-2">
         <div className="flex items-center gap-2">
           <BarChart3 className="w-3.5 h-3.5 text-[var(--gold-primary)]" />
-          <span className="hud-text text-[12px] text-[var(--text-primary)]">MARKETS & INTEL</span>
+          <span className="hud-text text-[12px] text-[var(--text-primary)]">MERCATI & INTELLIGENCE</span>
           <span className="gotham-tag gotham-tag--low" style={{ fontSize: '7px', padding: '1px 4px' }}>LIVE</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-[var(--alert-green)] animate-osiris-pulse" />
-          <button onClick={(e) => { e.stopPropagation(); setMaximized(!maximized); if (!expanded && !maximized) setExpanded(true); }} className="hover:text-white transition-colors" title={maximized ? "Restore" : "Maximize"}>
+          <div onClick={(e) => { e.stopPropagation(); setMaximized(!maximized); if (!expanded && !maximized) setExpanded(true); }} className="hover:text-white transition-colors cursor-pointer" title={maximized ? "Ripristina" : "Ingrandisci"} role="button" tabIndex={0}>
             {maximized ? <Minimize2 className="w-3.5 h-3.5 text-[var(--text-muted)]" /> : <Maximize2 className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
-          </button>
+          </div>
           {expanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" /> : <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
         </div>
       </button>
@@ -72,15 +72,15 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3 h-3" style={{ color: spaceWeather.storm_color }} />
-                    <span className="text-[10px] font-mono tracking-widest text-[var(--text-muted)]">SPACE WEATHER</span>
+                    <span className="text-[12px] font-mono tracking-widest text-[var(--text-muted)]">METEO SPAZIALE</span>
                   </div>
-                  <span className="text-[10px] font-mono font-bold" style={{ color: spaceWeather.storm_color }}>
+                  <span className="text-[12px] font-mono font-bold" style={{ color: spaceWeather.storm_color }}>
                     Kp {spaceWeather.kp_index} — {spaceWeather.storm_level}
                   </span>
                 </div>
                 {spaceWeather.solar_flares?.length > 0 && (
-                  <div className="mt-1 text-[8px] font-mono text-[var(--text-muted)]">
-                    Latest flare: {spaceWeather.solar_flares[0].class}
+                  <div className="mt-1 text-[12px] font-mono text-[var(--text-muted)]">
+                    Ultimo bagliore: {spaceWeather.solar_flares[0].class}
                   </div>
                 )}
               </div>
@@ -92,7 +92,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 const Icon = s.icon;
                 return (
                   <button key={s.key} onClick={() => setActiveSection(s.key)}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[9px] font-mono tracking-wider whitespace-nowrap transition-all ${activeSection === s.key ? 'bg-[var(--hover-accent)] text-[var(--gold-primary)] border border-[var(--border-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] border border-transparent'}`}>
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[13px] font-mono tracking-wider whitespace-nowrap transition-all ${activeSection === s.key ? 'bg-[var(--hover-accent)] text-[var(--gold-primary)] border border-[var(--border-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] border border-transparent'}`}>
                     <Icon className="w-3 h-3" />
                     {s.label}
                   </button>
@@ -104,7 +104,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
             {markets.scm_alerts && markets.scm_alerts.length > 0 && (
               <div className="mb-2 space-y-1">
                 {markets.scm_alerts.map((alert: string, i: number) => (
-                  <div key={i} className="px-2 py-1.5 rounded border border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500] text-[9px] font-mono leading-tight shadow-[0_0_8px_rgba(255,149,0,0.15)]">
+                  <div key={i} className="px-2 py-1.5 rounded border border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500] text-[13px] font-mono leading-tight shadow-[0_0_8px_rgba(255,149,0,0.15)]">
                     {alert}
                   </div>
                 ))}
@@ -117,7 +117,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 <Ticker key={name} name={name} data={d} />
               ))}
               {(!markets[activeSection] || Object.keys(markets[activeSection]).length === 0) && (
-                <div className="text-center py-3 text-[10px] font-mono text-[var(--text-muted)]">Loading {activeSection}...</div>
+                <div className="text-center py-3 text-[12px] font-mono text-[var(--text-muted)]">Caricamento {activeSection}...</div>
               )}
             </div>
           </motion.div>

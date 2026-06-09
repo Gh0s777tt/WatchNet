@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const pyramids = [
+    { id: 1, name: 'Great Pyramid of Giza', lat: 29.9792, lng: 31.1342, country: 'Egypt', culture: 'Egyptian', height_m: 146.6, description: 'Largest Egyptian pyramid, built 2580-2560 BC, tomb of Pharaoh Khufu' },
+    { id: 2, name: 'Pyramid of Khafre', lat: 29.9760, lng: 31.1307, country: 'Egypt', culture: 'Egyptian', height_m: 136.4, description: 'Second largest of Giza, still retains casing stones at apex' },
+    { id: 3, name: 'Pyramid of Menkaure', lat: 29.9725, lng: 31.1283, country: 'Egypt', culture: 'Egyptian', height_m: 65.5, description: 'Smallest of the three Giza pyramids' },
+    { id: 4, name: 'Step Pyramid of Djoser (Saqqara)', lat: 29.8713, lng: 31.2164, country: 'Egypt', culture: 'Egyptian', height_m: 62.5, description: 'Earliest colossal stone building in Egypt, designed by Imhotep' },
+    { id: 5, name: 'Bent Pyramid (Dahshur)', lat: 29.7903, lng: 31.2093, country: 'Egypt', culture: 'Egyptian', height_m: 105.1, description: 'Unique bent angles due to structural issues during construction' },
+    { id: 6, name: 'Red Pyramid (Dahshur)', lat: 29.8083, lng: 31.2061, country: 'Egypt', culture: 'Egyptian', height_m: 104.0, description: 'First successful true smooth-sided pyramid in Egypt' },
+    { id: 7, name: 'Pyramid of Meidum', lat: 29.3833, lng: 31.1500, country: 'Egypt', culture: 'Egyptian', height_m: 65.0, description: 'Collapsed pyramid with unique tower-like core' },
+    { id: 8, name: 'Pyramid of Kukulcán (El Castillo)', lat: 20.6830, lng: -88.5690, country: 'Mexico', culture: 'Maya', height_m: 30.0, description: 'Chichen Itza, 365 steps, equinox serpent shadow phenomenon' },
+    { id: 9, name: 'Pyramid of the Sun (Teotihuacan)', lat: 19.6925, lng: -98.8438, country: 'Mexico', culture: 'Teotihuacan', height_m: 65.0, description: 'Third largest pyramid in the world, built 200 AD' },
+    { id: 10, name: 'Pyramid of the Moon (Teotihuacan)', lat: 19.6995, lng: -98.8440, country: 'Mexico', culture: 'Teotihuacan', height_m: 43.0, description: 'Second largest in Teotihuacan, aligned with Cerro Gordo mountain' },
+    { id: 11, name: 'Temple of the Inscriptions (Palenque)', lat: 17.4840, lng: -92.0463, country: 'Mexico', culture: 'Maya', height_m: 21.0, description: 'Step pyramid containing the tomb of Pakal the Great' },
+    { id: 12, name: 'Pyramid of the Magician (Uxmal)', lat: 20.3596, lng: -89.7714, country: 'Mexico', culture: 'Maya', height_m: 35.0, description: 'Unusual oval-shaped pyramid with steep stairs' },
+    { id: 13, name: 'Tikal Temple IV', lat: 17.2228, lng: -89.6238, country: 'Guatemala', culture: 'Maya', height_m: 70.0, description: 'Tallest Maya pyramid, reaching 70 meters above jungle floor' },
+    { id: 14, name: 'Temple of the Great Jaguar (Tikal I)', lat: 17.2221, lng: -89.6236, country: 'Guatemala', culture: 'Maya', height_m: 47.0, description: 'Temple of Jasaw Chan K\'awiil I, iconic Maya pyramid' },
+    { id: 15, name: 'Nubian Pyramids of Meroe', lat: 16.9389, lng: 33.7500, country: 'Sudan', culture: 'Kushite / Nubian', height_m: 30.0, description: 'Over 200 narrow pyramids built by Kingdom of Kush' },
+    { id: 16, name: 'Nubian Pyramids of Napata (El-Kurru)', lat: 18.5300, lng: 31.8300, country: 'Sudan', culture: 'Kushite / Nubian', height_m: 30.0, description: 'Royal burial pyramids of the Kushite 25th Dynasty' },
+    { id: 17, name: 'White Pyramid of Xi\'an (Maoling)', lat: 34.3375, lng: 108.5694, country: 'China', culture: 'Chinese Han', height_m: 46.5, description: 'Tomb of Emperor Wu of Han, largest Chinese pyramid' },
+    { id: 18, name: 'Chinese Pyramid of Xi\'an (Qin Shi Huang)', lat: 34.3814, lng: 109.2542, country: 'China', culture: 'Chinese Qin', height_m: 76.0, description: 'Mausoleum of first Qin emperor, guarded by Terracotta Army' },
+    { id: 19, name: 'Gunung Padang', lat: -6.9940, lng: 107.0560, country: 'Indonesia', culture: 'Sundanese', height_m: 100.0, description: 'Controversial megalithic site, possibly oldest pyramid in the world' },
+    { id: 20, name: 'Bosnian Pyramid of the Sun (Visoko)', lat: 43.9770, lng: 18.1770, country: 'Bosnia and Herzegovina', culture: 'Controversial', height_m: 220.0, description: 'Claimed by Semir Osmanagić to be ancient pyramid, heavily debated' },
+    { id: 21, name: 'Bosnian Pyramid of the Moon (Visoko)', lat: 43.9700, lng: 18.1830, country: 'Bosnia and Herzegovina', culture: 'Controversial', height_m: 190.0, description: 'Adjacent hill claimed as second pyramid in Visoko complex' },
+    { id: 22, name: 'Pyramid of Hellinikon', lat: 37.5850, lng: 22.9900, country: 'Greece', culture: 'Helladic', height_m: 7.0, description: 'Ancient pyramid structure near Argos, 2720 BC, contested' },
+    { id: 23, name: 'Pyramids of Güímar', lat: 28.3215, lng: -16.4130, country: 'Spain', culture: 'Guanche', height_m: 5.0, description: 'Six stepped pyramids in Tenerife, terraced and aligned astronomically' },
+    { id: 24, name: 'Caral Pyramid (Huaca del Sol)', lat: -10.8939, lng: -77.5183, country: 'Peru', culture: 'Norte Chico', height_m: 28.0, description: 'Oldest known pyramid in the Americas, 2600 BC' },
+    { id: 25, name: 'Calakmul Pyramid (Structure II)', lat: 18.1049, lng: -89.8100, country: 'Mexico', culture: 'Maya', height_m: 55.0, description: 'One of the largest Maya pyramids, in the ancient Snake Kingdom' },
+    { id: 26, name: 'Coba Pyramid (Nohoch Mul)', lat: 20.4930, lng: -87.7340, country: 'Mexico', culture: 'Maya', height_m: 42.0, description: 'Tallest pyramid in Yucatán, visitors can still climb it' },
+    { id: 27, name: 'Ek Balam Pyramid', lat: 20.8919, lng: -88.1368, country: 'Mexico', culture: 'Maya', height_m: 32.0, description: 'Maya site with massive acropolis and stucco jaguar mouth entrance' },
+    { id: 28, name: 'Ziggurat of Ur', lat: 30.9620, lng: 46.1050, country: 'Iraq', culture: 'Sumerian', height_m: 30.0, description: 'Massive step pyramid built by Ur-Nammu, 2100 BC' },
+    { id: 29, name: 'Montevecchia Pyramid', lat: 45.7050, lng: 9.3750, country: 'Italy', culture: 'Celtic / Controversial', height_m: 30.0, description: 'Hill claimed as pyramid near Lecco, astronomical alignments' },
+    { id: 30, name: 'Etna Pyramid (Monte Vetro)', lat: 37.7500, lng: 14.9900, country: 'Italy', culture: 'Controversial', height_m: 15.0, description: 'Claimed pyramid-shaped structure on the slopes of Mount Etna' },
+    { id: 31, name: 'Pyramid of Cestius', lat: 41.8765, lng: 12.4812, country: 'Italy', culture: 'Roman', height_m: 36.4, description: 'Roman-era pyramid in Rome, built 12 BC as tomb' },
+    { id: 32, name: 'Louvre Pyramid', lat: 48.8610, lng: 2.3358, country: 'France', culture: 'Modern', height_m: 21.6, description: 'Glass pyramid entrance to the Louvre Museum, built 1989' },
+    { id: 33, name: 'El Tigre Pyramid (El Mirador)', lat: 17.7560, lng: -89.9200, country: 'Guatemala', culture: 'Maya', height_m: 55.0, description: 'Huge pyramid in the lost city of El Mirador' },
+    { id: 34, name: 'La Danta Pyramid (El Mirador)', lat: 17.7550, lng: -89.9180, country: 'Guatemala', culture: 'Maya', height_m: 72.0, description: 'One of the largest pyramids in the world by volume' },
+    { id: 35, name: 'Túcume Pyramids', lat: -6.5160, lng: -79.8450, country: 'Peru', culture: 'Lambayeque', height_m: 40.0, description: '26 adobe pyramids near Chiclayo, built by Lambayeque culture' },
+    { id: 36, name: 'Monks Mound (Cahokia)', lat: 38.6600, lng: -90.0600, country: 'USA', culture: 'Mississippian', height_m: 30.0, description: 'Largest pre-Columbian earthwork north of Mexico, 1000 AD' },
+    { id: 37, name: 'Huaca del Sol (Moche)', lat: -8.1333, lng: -78.9833, country: 'Peru', culture: 'Moche', height_m: 41.0, description: 'Massive adobe pyramid of the Moche civilization' },
+  ];
+  return NextResponse.json({ pyramids, total: pyramids.length, timestamp: new Date().toISOString() });
+}

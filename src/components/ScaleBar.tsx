@@ -3,8 +3,8 @@
 import { useMemo } from 'react';
 
 /* ═══════════════════════════════════════════════════════════════
-   OSIRIS — Scale Bar
-   Dynamic map scale indicator
+   OSIRIS — Barra Scala
+   Indicatore dinamico scala mappa
    ═══════════════════════════════════════════════════════════════ */
 
 interface ScaleBarProps {
@@ -16,13 +16,13 @@ const SCALE_STEPS = [5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5, 
 
 export default function ScaleBar({ zoom, latitude }: ScaleBarProps) {
   const scaleInfo = useMemo(() => {
-    // Meters per pixel at given zoom and latitude
+    // Metri per pixel a dato zoom e latitudine
     const metersPerPx = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, zoom);
-    const maxWidth = 120; // Max bar width in pixels
+    const maxWidth = 120; // Larghezza massima barra in pixel
     const maxMeters = metersPerPx * maxWidth;
     const maxKm = maxMeters / 1000;
 
-    // Find the best scale step
+    // Trova il miglior gradino di scala
     let bestStep = SCALE_STEPS[0];
     for (const step of SCALE_STEPS) {
       if (step <= maxKm) { bestStep = step; break; }

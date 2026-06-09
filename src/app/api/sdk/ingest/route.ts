@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 
-// Share the entity store with the stream endpoint
+// Condividi il deposito entità con l'endpoint stream
 const globalForSDK = globalThis as unknown as {
   sdkEntityStore: Map<string, any>;
   sdkLastUpdate: number;
@@ -28,7 +28,7 @@ if (!globalForSDK.sdkIngestLog) {
   globalForSDK.sdkIngestLog = [];
 }
 
-// Simple API key validation (in production, use proper auth)
+// Validazione chiave API semplice (in produzione, usa autenticazione adeguata)
 const VALID_KEYS = new Set([
   process.env.SDK_INGEST_KEY || 'polybolos-dev-key',
   'lattice-integration-key',
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate structure
+    // Valida struttura
     if (!body.source || !body.apiKey || !Array.isArray(body.entities)) {
       return NextResponse.json({
         accepted: 0,
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validate API key
+    // Valida chiave API
     if (!VALID_KEYS.has(body.apiKey)) {
       return NextResponse.json({
         accepted: 0,
@@ -63,14 +63,14 @@ export async function POST(request: NextRequest) {
     const errors: string[] = [];
 
     for (const entity of body.entities) {
-      // Validate minimum required fields
+      // Valida campi minimi richiesti
       if (!entity.id || !entity.position?.lat || !entity.position?.lng) {
         rejected++;
         errors.push(`Entity missing required fields (id, position.lat, position.lng): ${entity.id || 'unknown'}`);
         continue;
       }
 
-      // Normalize and store
+      // Normalizza e memorizza
       const normalized = {
         id: `ext-${body.source}-${entity.id}`,
         name: entity.name || `ENTITY-${entity.id}`,
@@ -106,16 +106,16 @@ export async function POST(request: NextRequest) {
       accepted++;
     }
 
-    // Update timestamp to trigger SSE push
+    // Aggiorna timestamp per attivare push SSE
     globalForSDK.sdkLastUpdate = Date.now();
 
-    // Log ingestion
+    // Registra ingestione
     globalForSDK.sdkIngestLog.push({
       source: body.source,
       count: accepted,
       timestamp: new Date().toISOString(),
     });
-    // Keep log to last 100 entries
+    // Mantieni log alle ultime 100 voci
     if (globalForSDK.sdkIngestLog.length > 100) {
       globalForSDK.sdkIngestLog = globalForSDK.sdkIngestLog.slice(-100);
     }
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       accepted,
       rejected,
-      errors: errors.slice(0, 10), // Limit error list
+      errors: errors.slice(0, 10), // Limita lista errori
       timestamp: new Date().toISOString(),
     });
   } catch (e) {

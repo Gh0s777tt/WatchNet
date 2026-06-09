@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { safeFetch, isRateLimited, getClientIp } from '@/lib/ssrf-guard';
 import { matchExact, type SanctionEntry } from '@/lib/sanctions';
 
-// WHOIS + Domain Intelligence via RDAP (free, standardized).
-// Cross-checks any registrant / org names returned by RDAP against the
-// OFAC SDN list so a sanctioned registrant surfaces alongside the WHOIS
-// metadata (still keyless — the SDN snapshot is sourced from the open
-// OpenSanctions mirror).
+// WHOIS + Intelligence Dominio via RDAP (gratuito, standardizzato).
+// Incrocia eventuali nomi di registranti/organizzazioni restituiti da RDAP con la
+// lista OFAC SDN in modo che un registrante sanzionato emerga insieme ai metadati
+// WHOIS (ancora senza chiave — lo snapshot SDN proviene dal mirror aperto
+// OpenSanctions).
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const domain = searchParams.get('domain');
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
   try {
     const results: any = { domain, timestamp: new Date().toISOString() };
 
-    // RDAP (Registration Data Access Protocol) — successor to WHOIS
+    // RDAP (Registration Data Access Protocol) — successore di WHOIS
     try {
       const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, {
         signal: AbortSignal.timeout(8000),
@@ -49,7 +49,7 @@ export async function GET(req: Request) {
           })).filter((e: any) => e.name || e.org),
         };
 
-        // Extract key dates
+        // Estrai date chiave
         const events = results.rdap.events || [];
         results.registration = events.find((e: any) => e.action === 'registration')?.date;
         results.expiration = events.find((e: any) => e.action === 'expiration')?.date;
@@ -57,10 +57,10 @@ export async function GET(req: Request) {
       }
     } catch (e) { console.warn('[OSIRIS] Suppressed error:', e instanceof Error ? e.message : e); }
 
-    // HTTP headers for tech fingerprinting — go through safeFetch so the
-    // attacker can't aim a HEAD request at internal infrastructure with a
-    // hostname that resolves to a reserved range, or chain a redirect from a
-    // public host to one. Redirects are followed manually with re-validation.
+    // Headers HTTP per fingerprinting tecnico — passa attraverso safeFetch così
+    // l'attaccante non può indirizzare una richiesta HEAD verso infrastrutture interne
+    // con un hostname che risolve in un intervallo riservato, o concatenare un redirect
+    // da un host pubblico a uno. I redirect vengono seguiti manualmente con ri-validazione.
     try {
       const res = await safeFetch(`https://${domain}`, {
         method: 'HEAD',
@@ -81,7 +81,7 @@ export async function GET(req: Request) {
         final_url: res.url,
       };
 
-      // Security score
+      // Punteggio sicurezza
       let score = 0;
       if (headers['strict-transport-security']) score += 2;
       if (headers['content-security-policy']) score += 2;
@@ -91,7 +91,7 @@ export async function GET(req: Request) {
       results.security_score = { score, max: 7, grade: score >= 5 ? 'A' : score >= 3 ? 'B' : score >= 1 ? 'C' : 'F' };
     } catch (e) { console.warn('[OSIRIS] Suppressed error:', e instanceof Error ? e.message : e); }
 
-    // OFAC SDN cross-check on RDAP entity names/orgs.
+    // Controllo incrociato OFAC SDN su nomi/org entità RDAP
     try {
       const candidates = new Set<string>();
       for (const ent of results.rdap?.entities ?? []) {

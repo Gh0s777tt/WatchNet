@@ -64,7 +64,7 @@ async function fetchYahooV6(symbol: string): Promise<any | null> {
   } catch { return null; }
 }
 
-// Fetch from CoinGecko for crypto (free, no key)
+// Recupero da CoinGecko per criptovalute (gratuito, senza chiave)
 async function fetchCoinGecko(): Promise<Record<string, any>> {
   try {
     const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true', {
@@ -92,7 +92,7 @@ async function fetchCoinGecko(): Promise<Record<string, any>> {
 }
 
 async function fetchQuote(symbol: string): Promise<any | null> {
-  // Try Yahoo v8 first, then v6
+  // Prova Yahoo v8 prima, poi v6
   let result = await fetchYahoo(symbol);
   if (!result) result = await fetchYahooV6(symbol);
   return result;
@@ -108,14 +108,14 @@ const INDEX_NAMES: Record<string, string> = { 'ES=F': 'S&P 500', 'NQ=F': 'Nasdaq
 
 export async function GET() {
   try {
-    // Fetch all in parallel
+    // Recupera tutto in parallelo
     const [stockResults, oilResults, commodityResults, yahooResults, indexResults, cgCrypto] = await Promise.all([
       Promise.all(DEFENSE_STOCKS.map(async t => ({ symbol: t, data: await fetchQuote(t) }))),
       Promise.all(OIL_TICKERS.map(async t => ({ symbol: t, data: await fetchQuote(t) }))),
       Promise.all(COMMODITY_TICKERS.map(async t => ({ symbol: t, data: await fetchQuote(t) }))),
       Promise.all(CRYPTO_TICKERS.map(async t => ({ symbol: t, data: await fetchQuote(t) }))),
       Promise.all(INDEX_TICKERS.map(async t => ({ symbol: t, data: await fetchQuote(t) }))),
-      fetchCoinGecko(), // CoinGecko as crypto fallback
+      fetchCoinGecko(), // CoinGecko come fallback criptovalute
     ]);
 
     const stocks: Record<string, any> = {};
@@ -127,10 +127,10 @@ export async function GET() {
     const commodities: Record<string, any> = {};
     for (const { symbol, data } of commodityResults) { if (data) commodities[COMMODITY_NAMES[symbol] || symbol] = data; }
 
-    // Crypto: prefer Yahoo, fallback to CoinGecko
+    // Crypto: preferisci Yahoo, fallback a CoinGecko
     const crypto: Record<string, any> = {};
     for (const { symbol, data } of yahooResults) { if (data) crypto[CRYPTO_NAMES[symbol] || symbol] = data; }
-    // Fill gaps with CoinGecko
+    // Completa con CoinGecko
     for (const [name, data] of Object.entries(cgCrypto)) {
       if (!crypto[name]) crypto[name] = data;
     }
@@ -138,7 +138,7 @@ export async function GET() {
     const indices: Record<string, any> = {};
     for (const { symbol, data } of indexResults) { if (data) indices[INDEX_NAMES[symbol] || symbol] = data; }
 
-    // --- SCM Integration: Chokepoint-Commodity Correlation ---
+    // --- Integrazione SCM: Correlazione Colli di Bottiglia-Merce ---
     const scm_alerts: string[] = [];
     try {
       const maritimeRes = await fetch('http://127.0.0.1:3000/api/maritime', { signal: AbortSignal.timeout(3000) });
@@ -161,14 +161,14 @@ export async function GET() {
         }
       }
     } catch (e) {
-      // Ignore if maritime is unreachable
+      // Ignora se maritime non è raggiungibile
     }
 
     return NextResponse.json({
       stocks, oil, commodities, crypto, indices, scm_alerts,
       timestamp: new Date().toISOString(),
     }, {
-      headers: { 'Cache-Control': 'no-store' }, // Prevent caching so alerts update real-time
+      headers: { 'Cache-Control': 'no-store' }, // Previeni caching così gli alert si aggiornano in tempo reale
     });
   } catch (error) {
     console.error('Markets fetch error:', error);

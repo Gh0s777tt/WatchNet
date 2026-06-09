@@ -9,14 +9,14 @@ import { validateHost, isRateLimited, getClientIp } from '@/lib/ssrf-guard';
 const SCANNER_URL = process.env.SCANNER_URL || '';
 const SCANNER_KEY = process.env.SCANNER_KEY || '';
 
-// The string-based regex previously here matched only literal dotted-quad
-// IPv4, missed every IPv6 form, and never resolved hostnames — so an attacker
-// could bypass it with `target=metadata.example.com` (DNS A → 169.254.169.254),
-// `target=2130706433` (decimal 127.0.0.1), or `target=::1`. Validation now
-// canonicalises the input and resolves hostnames before deciding. See
+// La regex basata su stringhe presente in precedenza corrispondeva solo a dotted-quad
+// IPv4, non rilevava forme IPv6 e non risolveva mai gli hostname — quindi un attaccante
+// poteva bypassarla con `target=metadata.example.com` (DNS A → 169.254.169.254),
+// `target=2130706433` (decimale 127.0.0.1), o `target=::1`. La validazione ora
+// canonizza l'input e risolve gli hostname prima di decidere. Vedi
 // `src/lib/ssrf-guard.ts`.
 
-// ── ALLOWED SCAN TYPES (safe subset only) ──
+// ── TIPI SCAN CONSENTITI (solo sottoinsieme sicuro) ──
 const ALLOWED_SCANS: Record<string, { endpoint: string; timeout: number }> = {
   quick:      { endpoint: '/scan/quick',      timeout: 15000 },
   ssl:        { endpoint: '/scan/ssl',        timeout: 10000 },
@@ -29,20 +29,20 @@ const ALLOWED_SCANS: Record<string, { endpoint: string; timeout: number }> = {
   vuln:       { endpoint: '/scan/vuln',       timeout: 90000 },
 };
 
-// REMOVED from public access: deep, ports, banner, traceroute
-// These are dangerous in an unauthenticated context:
-//   deep     → scans 65,535 ports (DDoS amplifier)
-//   banner   → harvests software versions from targets using our IP
-//   traceroute → reveals hosting infrastructure
-//   ports    → arbitrary port range scanning
+// RIMOSSI dall'accesso pubblico: deep, ports, banner, traceroute
+// Questi sono pericolosi in un contesto non autenticato:
+//   deep     → scansiona 65.535 porte (amplificatore DDoS)
+//   banner   → raccoglie versioni software dai target usando il nostro IP
+//   traceroute → rivela l'infrastruttura di hosting
+//   ports    → scansione arbitraria di intervalli di porte
 
 export async function GET(req: Request) {
-  // 1. Check scanner is configured
+  // 1. Verifica scanner configurato
   if (!SCANNER_KEY) {
     return NextResponse.json({ error: 'Scanner not configured', hint: 'Set SCANNER_URL and SCANNER_KEY in .env' }, { status: 503 });
   }
 
-  // 2. Rate limit by client IP
+  // 2. Limite richieste per IP client
   const clientIp = getClientIp(req);
   if (isRateLimited(clientIp, 5, 60_000)) {
     return NextResponse.json({
@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     }, { status: 429 });
   }
 
-  // 3. Validate params
+  // 3. Valida parametri
   const { searchParams } = new URL(req.url);
   const target = searchParams.get('target')?.trim();
   const scanType = searchParams.get('type') || 'quick';
@@ -60,9 +60,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Missing target parameter' }, { status: 400 });
   }
 
-  // 4. Block private/internal targets (DNS-resolves before deciding so a
-  //    hostname pointing at a reserved range is rejected, and IPv6 + non-
-  //    canonical IPv4 forms are no longer free bypasses).
+  // 4. Blocca target privati/interni (risolve DNS prima di decidere, quindi un
+  //    hostname che punta a un intervallo riservato viene rifiutato, e forme
+  //    IPv6 + IPv4 non canoniche non sono più bypass gratuiti).
   const guard = await validateHost(target);
   if (!guard.ok) {
     return NextResponse.json({
@@ -71,7 +71,7 @@ export async function GET(req: Request) {
     }, { status: 403 });
   }
 
-  // 5. Validate scan type (only safe scans allowed)
+  // 5. Valida tipo scan (solo scan sicuri consentiti)
   const scanConfig = ALLOWED_SCANS[scanType];
   if (!scanConfig) {
     return NextResponse.json({
@@ -81,7 +81,7 @@ export async function GET(req: Request) {
     }, { status: 403 });
   }
 
-  // 6. Execute scan with tight timeout
+  // 6. Esegui scan con timeout stretto
   try {
     const params = new URLSearchParams({ key: SCANNER_KEY, target });
     const res = await fetch(`${SCANNER_URL}${scanConfig.endpoint}?${params.toString()}`, {

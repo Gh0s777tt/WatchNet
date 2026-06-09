@@ -1,17 +1,3 @@
-/**
- * ═══════════════════════════════════════════════════════════════
- *  OSIRIS — AI Intelligence Engine
- *  Gemini 2.0 Flash integration for real-time intelligence analysis
- *  Designed to correlate multi-domain feeds into actionable briefings
- * ═══════════════════════════════════════════════════════════════
- */
-
-import { GoogleGenerativeAI, type GenerativeModel } from '@google/generative-ai';
-
-/* ─────────────────────────────────────────────────────────────
-   Data Interfaces — Zero `any` types
-   ───────────────────────────────────────────────────────────── */
-
 export interface EarthquakeEvent {
   id: string;
   magnitude: number;
@@ -68,10 +54,6 @@ export interface IntelligenceContext {
   cyberAlerts: CyberAlert[];
   timestamp: string;
 }
-
-/* ─────────────────────────────────────────────────────────────
-   System Prompt — Palantir-grade analyst persona
-   ───────────────────────────────────────────────────────────── */
 
 const SYSTEM_PROMPT = `You are OSIRIS Intelligence Analyst — a senior, elite intelligence analyst embedded within the OSIRIS Global Intelligence Platform. You operate at the level of a Palantir Forward Deployed Engineer crossed with a CIA PDB (Presidential Daily Brief) analyst.
 
@@ -139,32 +121,8 @@ State overall confidence level and key analytical gaps.
 
 Analyze the provided data thoroughly. Be specific — reference actual events, magnitudes, locations, and CVE IDs from the context.`;
 
-/* ─────────────────────────────────────────────────────────────
-   Client Factory
-   ───────────────────────────────────────────────────────────── */
-
-export function createGeminiClient(apiKey: string): GoogleGenerativeAI {
-  return new GoogleGenerativeAI(apiKey);
-}
-
-/* ─────────────────────────────────────────────────────────────
-   API Key Rotation — Round-robin through available keys
-   ───────────────────────────────────────────────────────────── */
-
-let _keyIndex = 0;
-
-export function rotateApiKey(keys: string[]): string {
-  if (keys.length === 0) {
-    throw new Error('No API keys available');
-  }
-  const key = keys[_keyIndex % keys.length];
-  _keyIndex = (_keyIndex + 1) % keys.length;
-  return key;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Context Serializer — Compact representation for token efficiency
-   ───────────────────────────────────────────────────────────── */
+const AI_BASE_URL = process.env.AI_BASE_URL || 'http://127.0.0.1:8080';
+const AI_MODEL = process.env.AI_MODEL || 'llama-3.2-1b-instruct';
 
 function serializeContext(context: IntelligenceContext): string {
   const sections: string[] = [];
@@ -213,20 +171,55 @@ function serializeContext(context: IntelligenceContext): string {
   return sections.join('\n');
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Intelligence Analysis
-   ───────────────────────────────────────────────────────────── */
+function buildRequestBody(systemPrompt: string, userPrompt: string) {
+  return {
+    model: AI_MODEL,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    max_tokens: 4096,
+    temperature: 0.3,
+    stream: false,
+  };
+}
+
+export async function callOpenRouter(apiKey: string, systemPrompt: string, userPrompt: string): Promise<string> {
+  const baseUrl = AI_BASE_URL;
+  const url = `${baseUrl}/v1/chat/completions`;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Aggiungi Authorization solo se non è un server locale (llama.cpp non richiede chiave)
+  if (!baseUrl.includes('127.0.0.1') && !baseUrl.includes('localhost')) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(buildRequestBody(systemPrompt, userPrompt)),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const msg = body?.error?.message || body?.error || `AI API error: HTTP ${res.status}`;
+    if (res.status === 429) throw new Error(`RESOURCE_EXHAUSTED: ${msg}`);
+    if (res.status === 401) throw new Error(`API_KEY_INVALID: ${msg}`);
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || 'No response generated.';
+}
 
 export async function analyzeIntelligence(
-  client: GoogleGenerativeAI,
+  apiKey: string,
   context: IntelligenceContext,
   userQuery: string
 ): Promise<string> {
-  const model: GenerativeModel = client.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PROMPT,
-  });
-
   const contextData = serializeContext(context);
 
   const prompt = `## CURRENT OPERATIONAL DATA
@@ -237,24 +230,13 @@ ${userQuery}
 
 Provide your intelligence assessment based on the operational data above and the analyst's query.`;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  return callOpenRouter(apiKey, SYSTEM_PROMPT, prompt);
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Daily Briefing Generation
-   ───────────────────────────────────────────────────────────── */
-
 export async function generateBriefing(
-  client: GoogleGenerativeAI,
+  apiKey: string,
   context: IntelligenceContext
 ): Promise<string> {
-  const model: GenerativeModel = client.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PROMPT,
-  });
-
   const contextData = serializeContext(context);
 
   const prompt = `${BRIEFING_PROMPT}
@@ -264,7 +246,5 @@ ${contextData}
 
 Generate the briefing now.`;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  return callOpenRouter(apiKey, SYSTEM_PROMPT, prompt);
 }

@@ -3,8 +3,8 @@ import "./globals.css";
 
 const SITE_URL = "https://osirisai.live";
 const SITE_NAME = "OSIRIS";
-const SITE_TITLE = "OSIRIS — Open Source Intelligence Platform | Live Flight Tracking, CCTV, OSINT Tools & More";
-const SITE_DESCRIPTION = "The open-source Palantir alternative. Track 10,000+ aircraft, 2,000 satellites, and worldwide CCTV cameras in real-time on a 3D globe. Run Nmap scans, DNS lookups, WHOIS queries, SSL cert analysis & threat intelligence — all from your browser. 20+ live data feeds including earthquakes, wildfires, nuclear facilities, cyber threats, and global conflicts. Free & open source.";
+const SITE_TITLE = "OSIRIS — Piattaforma Intelligence Open Source | Voli, CCTV, Strumenti OSINT";
+const SITE_DESCRIPTION = "L'alternativa open source a Palantir. Traccia oltre 10.000 velivoli, 2.000 satelliti e telecamere CCTV in tutto il mondo in tempo reale su un globo 3D. Esegui scansioni Nmap, ricerche DNS, query WHOIS, analisi certificati SSL e threat intelligence — tutto dal tuo browser. Oltre 20 feed di dati live tra cui terremoti, incendi, impianti nucleari, minacce informatiche e conflitti globali. Gratuito e open source.";
 
 export const viewport: Viewport = {
   themeColor: "#D4AF37",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    // OSINT Tools - Primary focus
+    // Strumenti OSINT - Focus principale
     "OSINT tools", "free OSINT tools", "online OSINT toolkit", "OSINT framework",
     "nmap online", "nmap scanner online", "free nmap scan", "port scanner online",
     "DNS lookup tool", "WHOIS lookup", "reverse DNS", "DNS records",
@@ -33,12 +33,12 @@ export const metadata: Metadata = {
     "cybersecurity tools", "infosec tools", "security scanner",
     "linux OSINT tools", "kali linux tools online", "OSINT browser tools",
     
-    // Intelligence Platform
+    // Piattaforma Intelligence
     "OSINT", "open source intelligence", "intelligence platform", "global intelligence",
     "geospatial intelligence", "GEOINT", "SIGINT", "real-time tracking",
     "palantir alternative", "open source palantir", "intelligence dashboard",
     
-    // Tracking & Data
+    // Tracking e Dati
     "flight tracker", "aircraft tracking", "ADS-B tracker", "live flight radar",
     "satellite tracking", "ISS tracker", "space station tracker",
     "CCTV cameras live", "security cameras worldwide", "live cameras",
@@ -50,8 +50,16 @@ export const metadata: Metadata = {
     "space weather", "solar storm", "GPS jamming",
     "defense stocks", "commodities tracker",
     
-    // Brand
+    // Marchio
     "osiris", "osirisai", "osirisai.live",
+
+    // Parole chiave italiane
+    "piattaforma OSINT", "intelligence open source", "strumenti OSINT gratuiti",
+    "mappa interattiva 3D", "telecamere Italia", "webcam Italia",
+    "scanner porte online", "analisi sicurezza", "ricerca OSINT",
+    "monitoraggio minacce", "cybersicurezza", "analisi intelligence",
+    "tracciamento voli Italia", "CCTV Italia", "bluetooth scanner",
+    "dispositivi di rete", "scansione vulnerabilità", "whois Italia",
   ],
   authors: [{ name: "Osiris Project", url: SITE_URL }],
   creator: "Osiris Project",
@@ -90,32 +98,32 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: "OSIRIS — The Open-Source Palantir Alternative | Live Flights, CCTV, Satellites & OSINT Tools",
-    description: "Track 10K+ aircraft, 2K satellites & worldwide CCTV on a 3D globe. Run Nmap, DNS, WHOIS & threat intel scans from your browser. 20+ live intelligence feeds. Free. Open source.",
+    title: "OSIRIS — L'Alternativa Open Source a Palantir | Voli Live, CCTV, Satelliti e Strumenti OSINT",
+    description: "Traccia oltre 10K velivoli, 2K satelliti e CCTV mondiali su un globo 3D. Esegui scansioni Nmap, DNS, WHOIS e threat intelligence dal tuo browser. Oltre 20 feed di intelligence live. Gratuito. Open source.",
     type: "website",
     siteName: SITE_NAME,
-    locale: "en_US",
+    locale: "it_IT",
     url: SITE_URL,
     images: [
       {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "OSIRIS — Open Source Intelligence Platform with Live Tracking & OSINT Tools",
+        alt: "OSIRIS — Piattaforma Intelligence Open Source con Tracking Live e Strumenti OSINT",
         type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "🛰️ OSIRIS — Open Source Palantir Alternative | Live Tracking + OSINT Tools",
-    description: "Track 10K+ flights, satellites & CCTV worldwide. Run Nmap, DNS, WHOIS scans from your browser. 20+ live intel feeds. Free & open source.",
+    title: "🛰️ OSIRIS — Alternativa Open Source a Palantir | Tracking Live + Strumenti OSINT",
+    description: "Traccia oltre 10K voli, satelliti e CCTV in tutto il mondo. Esegui scansioni Nmap, DNS, WHOIS dal tuo browser. Oltre 20 feed intelligence live. Gratuito e open source.",
     creator: "@simplifaisoul",
     site: "@simplifaisoul",
     images: [`${SITE_URL}/og-image.png`],
   },
   category: "technology",
-  classification: "Intelligence & Security",
+  classification: "Intelligence & Sicurezza",
   other: {
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "black-translucent",
@@ -126,11 +134,11 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD Structured Data
+{/* Dati Strutturati JSON-LD */}
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "OSIRIS — OSINT Toolkit & Intelligence Platform",
+  name: "OSIRIS — Toolkit OSINT & Piattaforma Intelligence",
   alternateName: ["OSIRIS", "OsirisAI", "Osiris OSINT"],
   url: SITE_URL,
   description: SITE_DESCRIPTION,
@@ -144,26 +152,26 @@ const jsonLd = {
     availability: "https://schema.org/InStock",
   },
   featureList: [
-    "Nmap port scanning from the browser — no install required",
-    "DNS record lookup (A, AAAA, MX, NS, TXT, CNAME)",
-    "WHOIS domain registration lookup",
-    "SSL/TLS certificate transparency search",
-    "BGP routing & ASN lookup",
-    "IP geolocation & threat intelligence",
-    "Real-time flight tracking (10,000+ aircraft via ADS-B)",
-    "Satellite tracking (2,000+ objects including ISS)",
-    "Worldwide CCTV camera monitoring (1,400+ feeds)",
-    "Earthquake monitoring (USGS live feed)",
-    "Wildfire detection (NASA FIRMS satellite data)",
-    "Nuclear facility mapping (worldwide)",
-    "Severe weather alerts & tracking",
-    "Cyber threat & CVE intelligence",
-    "Space weather & solar storm monitoring",
-    "GPS jamming detection",
-    "Defense & commodity market tracking",
-    "SIGINT news aggregation feed",
-    "Interactive 3D globe with day/night cycle",
-    "Region intelligence dossier reports",
+    "Scansione porte Nmap dal browser — nessuna installazione richiesta",
+    "Ricerca record DNS (A, AAAA, MX, NS, TXT, CNAME)",
+    "Ricerca registrazione dominio WHOIS",
+    "Ricerca trasparenza certificati SSL/TLS",
+    "Routing BGP e ricerca ASN",
+    "Geolocalizzazione IP e threat intelligence",
+    "Tracciamento voli in tempo reale (oltre 10.000 velivoli via ADS-B)",
+    "Tracciamento satelliti (oltre 2.000 oggetti inclusa la ISS)",
+    "Monitoraggio telecamere CCTV mondiali (oltre 1.400 feed)",
+    "Monitoraggio terremoti (feed live USGS)",
+    "Rilevamento incendi (dati satellitari NASA FIRMS)",
+    "Mappatura impianti nucleari (mondiale)",
+    "Allerte meteorologiche severe e tracciamento",
+    "Intelligence minacce informatiche e CVE",
+    "Monitoraggio meteorologia spaziale e tempeste solari",
+    "Rilevamento jamming GPS",
+    "Tracciamento mercati difesa e materie prime",
+    "Feed aggregazione notizie SIGINT",
+    "Globo 3D interattivo con ciclo giorno/notte",
+    "Report dossier intelligence regionale",
   ],
   screenshot: `${SITE_URL}/og-image.png`,
   author: {
@@ -181,7 +189,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" dir="ltr">
+    <html lang="it" dir="ltr">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -191,7 +199,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="canonical" href={SITE_URL} />
         
-        {/* JSON-LD Structured Data */}
+        {/* Dati Strutturati JSON-LD */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

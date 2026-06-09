@@ -8,7 +8,7 @@ import { stealthFetch } from '@/lib/stealthFetch';
  * Computes real-time positions using simplified SGP4
  */
 
-// Mission classification by NORAD name keywords
+// Classificazione missione per parole chiave nome NORAD
 const MISSION_CLASSIFY: Record<string, { mission: string; color: string }> = {
   'USA': { mission: 'Military Recon', color: '#FF3D3D' },
   'NROL': { mission: 'NRO Classified', color: '#FF3D3D' },
@@ -57,7 +57,7 @@ function gmst(jd: number): number {
   return ((gmstSec % 86400) / 86400.0) * 2 * Math.PI;
 }
 
-// No longer needed: function parseTLE(tleText: string) {}
+// Non più necessario: function parseTLE(tleText: string) {}
 
 function propagateSGP4Simple(line1: string, line2: string): { lat: number; lng: number; alt: number } | null {
   try {
@@ -80,7 +80,7 @@ function propagateSGP4Simple(line1: string, line2: string): { lat: number; lng: 
     epochDate.setDate(epochDate.getDate() + epochDay - 1);
     const elapsedMin = (now.getTime() - epochDate.getTime()) / 60000;
 
-    // Reject stale TLEs (> 30 days old) unless it's the emergency fallback
+    // Rifiuta TLE obsoleti (> 30 giorni) a meno che non sia il fallback di emergenza
     if (Math.abs(elapsedMin) > 43200 && !line1.includes('27885-3')) return null;
 
     const n = meanMotion * 2 * Math.PI / 1440;
@@ -118,7 +118,7 @@ function propagateSGP4Simple(line1: string, line2: string): { lat: number; lng: 
     const alt = r - 6371;
 
     if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90) return null;
-    if (alt < 100 || alt > 50000) return null; // sanity check
+    if (alt < 100 || alt > 50000) return null;     // controllo di integrità
 
     return {
       lat: Math.round(lat * 10000) / 10000,
@@ -130,7 +130,7 @@ function propagateSGP4Simple(line1: string, line2: string): { lat: number; lng: 
   }
 }
 
-// SatNOGS Open API - Provides full TLE JSON without API keys or IP blocks
+    // API SatNOGS Open - Fornisce JSON TLE completo senza chiavi API o blocchi IP
 const SATNOGS_API = 'https://db.satnogs.org/api/tle/?format=json';
 
 let globalCachedSats: any[] = [];
@@ -142,7 +142,7 @@ export async function GET() {
     let allSats: any[] = globalCachedSats;
     let source = 'memory-cache';
 
-    if (globalCachedSats.length === 0 || nowTime - globalCacheTime > 3600000) { // 1 hour cache
+    if (globalCachedSats.length === 0 || nowTime - globalCacheTime > 3600000) {     // cache di 1 ora
       try {
         const res = await stealthFetch(SATNOGS_API, {
           signal: AbortSignal.timeout(15000),
@@ -179,14 +179,14 @@ export async function GET() {
       }
     }
 
-    // Emergency Fallback if cache is totally empty and SatNOGS is down
+    // Fallback di Emergenza se la cache è completamente vuota e SatNOGS è giù
     if (allSats.length === 0) {
       const issFallback = "1 25544U 98067A   24146.40251785  .00015505  00000-0  27885-3 0  9997\n2 25544  51.6402 189.7042 0004381 334.8091 106.8778 15.50091157455243";
       allSats = [{ name: 'ISS (FALLBACK)', line1: issFallback.split('\n')[0], line2: issFallback.split('\n')[1] }];
       source = 'emergency-fallback';
     }
 
-    // Sample for performance (max 2000 satellites)
+    // Campiona per prestazioni (max 2000 satelliti)
     const sampled = allSats.length > 2000
       ? allSats.filter((_, i) => i % Math.ceil(allSats.length / 2000) === 0)
       : allSats;

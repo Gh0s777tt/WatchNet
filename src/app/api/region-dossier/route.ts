@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const lng = parseFloat(searchParams.get('lng') || '0');
 
   try {
-    // Step 1: Reverse geocode to get country (must complete first — other steps depend on it)
+    // Step 1: Geocodifica inversa per ottenere paese (deve completare prima — altri step dipendono da esso)
     const geoRes = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=5&addressdetails=1`,
       {
@@ -39,10 +39,10 @@ export async function GET(request: Request) {
       };
     }
 
-    // Steps 2–4: Run in PARALLEL after geocode (Fixes #115 — was a sequential waterfall)
+    // Steps 2–4: Esegui in PARALLELO dopo geocodifica (Corregge #115 — era una cascata sequenziale)
     const [countryResult, wikiResult, hosResult] = await Promise.allSettled([
 
-      // Step 2: Fetch country details from RestCountries
+      // Step 2: Recupera dettagli paese da RestCountries
       (async () => {
         if (!countryCode) return null;
         try {
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
         return null;
       })(),
 
-      // Step 3: Fetch Wikipedia summary
+      // Step 3: Recupera riassunto Wikipedia
       (async () => {
         const wikiQuery = locationInfo.city || countryName;
         if (!wikiQuery) return null;
@@ -76,11 +76,11 @@ export async function GET(request: Request) {
         return null;
       })(),
 
-      // Step 4: Fetch head of state from Wikidata SPARQL
+      // Step 4: Recupera capo di stato da Wikidata SPARQL
       (async () => {
         if (!countryName) return null;
         try {
-          // Sanitize country name for SPARQL string literal
+          // Sanitizza nome paese per stringa letterale SPARQL
           const safe = countryName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
           const sparql = `SELECT ?leader ?leaderLabel ?positionLabel WHERE {
             ?country wdt:P31 wd:Q6256;

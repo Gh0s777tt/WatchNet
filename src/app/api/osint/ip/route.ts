@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { isRateLimited, getClientIp } from '@/lib/ssrf-guard';
 import { matchExact, type SanctionEntry } from '@/lib/sanctions';
 
-// IP Geolocation + Reputation — combines multiple free sources.
-// Cross-checks the ASN owner / ISP / org strings against the OFAC SDN
-// list so an IP routed via a sanctioned operator surfaces a hit.
+// Geolocalizzazione IP + Reputazione — combina molteplici fonti gratuite.
+// Ricontrolla proprietari ASN/ISP/org contro la lista OFAC SDN
+// cosicché un IP instradato via un operatore sanzionato venga rilevato.
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const ip = searchParams.get('ip');
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
-  // Validate IP format
+  // Valida formato IP
   const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
   const ipv6 = /^[0-9a-fA-F:]+$/;
   if (!ipv4.test(ip) && !ipv6.test(ip)) {
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
   try {
     const results: any = { ip, timestamp: new Date().toISOString() };
 
-    // 1. ip-api.com — geolocation (free, no key)
+    // 1. ip-api.com — geolocalizzazione (gratuita, senza chiave)
     try {
       const res = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,continent,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,asname,mobile,proxy,hosting,query`, {
         signal: AbortSignal.timeout(5000),
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
       }
     } catch (e) { console.warn('[OSIRIS] Suppressed error:', e instanceof Error ? e.message : e); }
 
-    // 2. AbuseIPDB-style check via ip-api proxy flag
+    // 2. Controllo stile AbuseIPDB tramite flag proxy ip-api
     results.reputation = {
       is_proxy: results.geo?.is_proxy || false,
       is_hosting: results.geo?.is_hosting || false,
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
       risk_level: results.geo?.is_proxy ? 'HIGH' : results.geo?.is_hosting ? 'MEDIUM' : 'LOW',
     };
 
-    // OFAC SDN cross-check on ASN / ISP / org strings.
+    // Ricontrollo OFAC SDN su stringhe ASN / ISP / org.
     try {
       const candidates = new Set<string>();
       if (results.geo?.org) candidates.add(results.geo.org);

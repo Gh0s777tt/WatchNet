@@ -5,14 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, X } from 'lucide-react';
 
 const SHORTCUTS = [
-  { key: 'F', desc: 'Toggle fullscreen' },
-  { key: 'S', desc: 'Share current view' },
-  { key: 'L', desc: 'Toggle layer panel' },
-  { key: 'M', desc: 'Toggle markets panel' },
-  { key: 'I', desc: 'Toggle intel feed' },
-  { key: 'R', desc: 'Reset to global view' },
-  { key: '?', desc: 'Show this help' },
-  { key: 'ESC', desc: 'Close panels / popups' },
+  { key: 'F', desc: 'Attiva/disattiva schermo intero' },
+  { key: 'S', desc: 'Condividi vista corrente' },
+  { key: 'L', desc: 'Attiva/disattiva pannello layer' },
+  { key: 'M', desc: 'Attiva/disattiva pannello mercati' },
+  { key: 'I', desc: 'Attiva/disattiva flusso intelligence' },
+  { key: 'R', desc: 'Resetta alla vista globale' },
+  { key: '?', desc: 'Mostra questo aiuto' },
+  { key: 'ESC', desc: 'Chiudi pannelli / popup' },
 ];
 
 export default function KeyboardShortcuts() {
@@ -46,7 +46,7 @@ export default function KeyboardShortcuts() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Keyboard className="w-4 h-4 text-[var(--gold-primary)]" />
-                <span className="text-sm font-mono font-bold text-[var(--text-heading)] tracking-wider">SHORTCUTS</span>
+                <span className="text-sm font-mono font-bold text-[var(--text-heading)] tracking-wider">SCORCIATOIE</span>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                 <X className="w-4 h-4" />
@@ -55,15 +55,15 @@ export default function KeyboardShortcuts() {
             <div className="space-y-2">
               {SHORTCUTS.map(s => (
                 <div key={s.key} className="flex items-center justify-between">
-                  <span className="text-[9px] font-mono text-[var(--text-secondary)]">{s.desc}</span>
-                  <kbd className="px-2 py-0.5 rounded text-[8px] font-mono font-bold text-[var(--gold-primary)] bg-[var(--bg-void)] border border-[var(--border-primary)]">
+                  <span className="text-[11px] font-mono text-[var(--text-secondary)]">{s.desc}</span>
+                  <kbd className="px-2 py-0.5 rounded text-[12px] font-mono font-bold text-[var(--gold-primary)] bg-[var(--bg-void)] border border-[var(--border-primary)]">
                     {s.key}
                   </kbd>
                 </div>
               ))}
             </div>
             <div className="mt-4 text-center text-[7px] font-mono text-[var(--text-muted)] tracking-widest">
-              PRESS [?] OR [ESC] TO CLOSE
+              PREMI [?] O [ESC] PER CHIUDERE
             </div>
           </motion.div>
         </motion.div>

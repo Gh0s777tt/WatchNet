@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { isRateLimited, getClientIp } from '@/lib/ssrf-guard';
 
-// Threat Intelligence — AlienVault OTX public pulse feed + Tor exit nodes
+// Intelligence Minacce — Feed pulse pubblico AlienVault OTX + nodi di uscita Tor
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const query = searchParams.get('query'); // Optional: IP or domain to check
+  const query = searchParams.get('query'); // Opzionale: IP o dominio da controllare
   
   const clientIp = getClientIp(req);
   if (isRateLimited(clientIp, 20, 60_000)) {
@@ -14,13 +14,13 @@ export async function GET(req: Request) {
   try {
     const results: any = { timestamp: new Date().toISOString() };
 
-    // 1. AlienVault OTX — public pulse feed (no key needed for public data)
+    // 1. AlienVault OTX — feed pulse pubblico (nessuna chiave necessaria per dati pubblici)
     try {
       const res = await fetch('https://otx.alienvault.com/api/v1/pulses/subscribed?limit=10&page=1', {
         signal: AbortSignal.timeout(8000),
         headers: { 'Accept': 'application/json' },
       });
-      // Public endpoint may require auth, fall back to activity feed
+      // Endpoint pubblico potrebbe richiedere auth, ricade al feed attività
       if (!res.ok) {
         const actRes = await fetch('https://otx.alienvault.com/api/v1/pulses/activity?limit=10', {
           signal: AbortSignal.timeout(8000),
@@ -41,12 +41,12 @@ export async function GET(req: Request) {
       }
     } catch (e) { console.warn('[OSIRIS] Suppressed error:', e instanceof Error ? e.message : e); }
 
-    // 2. Check specific IP/domain if provided
+    // 2. Controlla IP/dominio specifico se fornito
     if (query) {
       const isIP = /^(\d{1,3}\.){3}\d{1,3}$/.test(query);
       
       if (isIP) {
-        // Check against Tor exit node list
+        // Controlla contro lista nodi di uscita Tor
         try {
           const torRes = await fetch('https://check.torproject.org/torbulkexitlist', {
             signal: AbortSignal.timeout(5000),
@@ -59,7 +59,7 @@ export async function GET(req: Request) {
           results.tor_exit_node = null;
         }
 
-        // AlienVault OTX IP reputation (public)
+        // Reputazione IP AlienVault OTX (pubblica)
         try {
           const res = await fetch(`https://otx.alienvault.com/api/v1/indicators/IPv4/${query}/general`, {
             signal: AbortSignal.timeout(5000),
@@ -75,7 +75,7 @@ export async function GET(req: Request) {
           }
         } catch (e) { console.warn('[OSIRIS] Suppressed error:', e instanceof Error ? e.message : e); }
       } else {
-        // Domain check
+        // Controllo dominio
         try {
           const res = await fetch(`https://otx.alienvault.com/api/v1/indicators/domain/${encodeURIComponent(query)}/general`, {
             signal: AbortSignal.timeout(5000),

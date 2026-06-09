@@ -24,7 +24,7 @@ import { fetchJapanCameras } from './japan';
  * Or pass ?lat=x&lng=y&radius=5 for proximity-based loading
  */
 
-// ═══ CAMERA SOURCE DEFINITIONS ═══
+// ═══ DEFINIZIONI FONTI TELECAMERE ═══
 
 // ── UK: Transport for London JamCams (~900) ──
 async function fetchTfLCameras(): Promise<any[]> {
@@ -45,7 +45,7 @@ async function fetchTfLCameras(): Promise<any[]> {
   } catch { return []; }
 }
 
-// ── US-WEST: WSDOT Washington State (~500) ──
+// ── US-OVEST: WSDOT Stato di Washington (~500) ──
 async function fetchWSDOTCameras(): Promise<any[]> {
   try {
     const res = await stealthFetch('https://data.wsdot.wa.gov/log/public/cameras.json', { signal: AbortSignal.timeout(10000) });
@@ -59,7 +59,7 @@ async function fetchWSDOTCameras(): Promise<any[]> {
   } catch { return []; }
 }
 
-// ── US-WEST: Caltrans California Districts ──
+// ── US-OVEST: Distretti Caltrans California ──
 async function fetchCaltransCameras(): Promise<any[]> {
   const allCams: any[] = [];
   for (const dist of ['d03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd10', 'd11', 'd12']) {
@@ -79,48 +79,11 @@ async function fetchCaltransCameras(): Promise<any[]> {
   return allCams;
 }
 
-// ── CANADA: Ottawa, Toronto, Montreal, Quebec ──
+// ── CANADA: Ottawa, Toronto, Montreal ──
 async function fetchCanadaCameras(): Promise<any[]> {
   const cams: any[] = [];
 
-  // Ottawa Municipal Cameras (Comprehensive)
-  try {
-    const res = await stealthFetch('https://traffic.ottawa.ca/beta/camera_list', { signal: AbortSignal.timeout(10000) });
-    if (res.ok) {
-      const data = await res.json();
-      for (const cam of (data || [])) {
-        if (!cam.latitude || !cam.longitude) continue;
-        cams.push({
-          id: `ottawa-muni-${cam.id}`, lat: cam.latitude, lng: cam.longitude,
-          name: cam.description || 'Ottawa Traffic Camera', city: 'Ottawa', country: 'Canada',
-          feed_url: `https://traffic.ottawa.ca/map/camera?id=${cam.number || cam.id}`, source: 'City of Ottawa',
-        });
-      }
-    }
-  } catch { /* silent */ }
-
-  // Quebec 511 (Comprehensive - covers Montreal, Quebec City, highways)
-  try {
-    const res = await stealthFetch('https://ws.mapserver.transports.gouv.qc.ca/swtq?service=wfs&version=2.0.0&request=getfeature&typename=ms:infos_cameras&outfile=Camera&srsname=EPSG:4326&outputformat=geojson', { signal: AbortSignal.timeout(10000) });
-    if (res.ok) {
-      const data = await res.json();
-      for (const feature of (data.features || [])) {
-        const coords = feature.geometry?.coordinates;
-        const p = feature.properties;
-        if (!coords || !p || !p.IDEcamera) continue;
-        
-        cams.push({
-          id: `quebec511-${p.IDEcamera}`, lat: coords[1], lng: coords[0],
-          name: p.DescriptionLocalisationEn || p.DescriptionLocalisationFr || 'Quebec 511 Camera', city: p.NomRegionDiffusion || 'Quebec', country: 'Canada',
-          stream_url: p.URL_FLUX_DONNEE ? p.URL_FLUX_DONNEE.replace('FenetreVideo.html', 'camera.ashx') + '&format=mp4' : `https://www.quebec511.info/Carte/Fenetres/camera.ashx?id=${p.IDEcamera}&format=mp4`,
-          stream_type: 'mp4',
-          source: 'Quebec 511',
-        });
-      }
-    }
-  } catch { /* silent */ }
-
-  // Ontario 511 (MTO Highway Cameras)
+  // Telecamere Autostradali Ottawa MTO
   try {
     const res = await stealthFetch('https://511on.ca/api/v2/get/cameras', { signal: AbortSignal.timeout(10000) });
     if (res.ok) {
@@ -136,14 +99,14 @@ async function fetchCanadaCameras(): Promise<any[]> {
     }
   } catch { /* silent */ }
 
-  // Ville de Montréal municipal cameras
+  // Telecamere Ville de Montréal
   try {
     const res = await stealthFetch('https://ville.montreal.qc.ca/circulation/sites/ville.montreal.qc.ca.circulation/files/cameras.json', { signal: AbortSignal.timeout(8000) });
     if (res.ok) {
       const data = await res.json();
       for (const cam of (data || [])) {
         cams.push({
-          id: `mtl-muni-${cams.length}`, lat: cam.latitude || cam.lat, lng: cam.longitude || cam.lng,
+          id: `mtl-${cams.length}`, lat: cam.latitude || cam.lat, lng: cam.longitude || cam.lng,
           name: cam.description || cam.name || 'Montréal Camera', city: 'Montréal', country: 'Canada',
           feed_url: cam.url || cam.imageUrl || '', source: 'Ville MTL',
         });
@@ -151,8 +114,16 @@ async function fetchCanadaCameras(): Promise<any[]> {
     }
   } catch { /* silent */ }
 
-  // Curated Toronto cameras (fallback if 511ON fails)
+  // Telecamere curate Ottawa/Toronto da feed pubblici noti
   const curated = [
+    { id: 'ott-1', lat: 45.4215, lng: -75.6972, name: 'Parliament Hill / Wellington', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=1', source: 'Ottawa' },
+    { id: 'ott-2', lat: 45.4231, lng: -75.6831, name: 'Rideau / Sussex', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=2', source: 'Ottawa' },
+    { id: 'ott-3', lat: 45.4195, lng: -75.7009, name: 'Bank / Sparks', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=3', source: 'Ottawa' },
+    { id: 'ott-4', lat: 45.4249, lng: -75.6950, name: 'King Edward / Rideau', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=4', source: 'Ottawa' },
+    { id: 'ott-5', lat: 45.3968, lng: -75.7398, name: 'Merivale / Baseline', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=5', source: 'Ottawa' },
+    { id: 'ott-6', lat: 45.3484, lng: -75.7580, name: 'Fallowfield / Woodroffe', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=6', source: 'Ottawa' },
+    { id: 'ott-7', lat: 45.4012, lng: -75.6518, name: 'Hwy 417 / Vanier Pkwy', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=7', source: 'Ottawa' },
+    { id: 'ott-8', lat: 45.4475, lng: -75.4822, name: 'Innes / Orleans Blvd', city: 'Ottawa', country: 'Canada', feed_url: 'https://traffic.ottawa.ca/map/camera?id=8', source: 'Ottawa' },
     { id: 'tor-1', lat: 43.6532, lng: -79.3832, name: 'Yonge / Dundas Square', city: 'Toronto', country: 'Canada', feed_url: 'https://511on.ca/api/v2/get/cameras', source: '511 Ontario' },
     { id: 'tor-2', lat: 43.6426, lng: -79.3871, name: 'CN Tower / Lakeshore', city: 'Toronto', country: 'Canada', feed_url: 'https://511on.ca/api/v2/get/cameras', source: '511 Ontario' },
     { id: 'tor-3', lat: 43.6711, lng: -79.3868, name: 'Bloor / Yonge', city: 'Toronto', country: 'Canada', feed_url: 'https://511on.ca/api/v2/get/cameras', source: '511 Ontario' },
@@ -178,10 +149,10 @@ async function fetchCanadaCameras(): Promise<any[]> {
   return cams.filter((c: any) => c.lat && c.lng);
 }
 
-// ── US-CENTRAL: Chicago, Houston, Dallas, Denver ──
+// ── US-CENTRALE: Chicago, Houston, Dallas, Denver ──
 async function fetchUSCentralCameras(): Promise<any[]> {
   const cams: any[] = [];
-  // Illinois DOT
+  // DOT Illinois
   try {
     const res = await stealthFetch('https://www.travelmidwest.com/lmiga/cameraReport.json', { signal: AbortSignal.timeout(8000) });
     if (res.ok) {
@@ -200,11 +171,11 @@ async function fetchUSCentralCameras(): Promise<any[]> {
   return cams.filter((c: any) => c.lat && c.lng);
 }
 
-// ── US-EAST: OH, DC, Florida, Georgia ──
+// ── US-EST: OH, DC, Florida, Georgia ──
 async function fetchUSEastCameras(): Promise<any[]> {
   const cams: any[] = [];
 
-  // Butler County, OH (from redhunt45 fork)
+  // Contea di Butler, OH (dal fork redhunt45)
   cams.push(
     {
       id: 'butler-oh-hamilton', lat: 39.3988617, lng: -84.5595353,
@@ -222,7 +193,7 @@ async function fetchUSEastCameras(): Promise<any[]> {
     },
   );
 
-  // Cincinnati, OH (from redhunt45 fork)
+  // Cincinnati, OH (dal fork redhunt45)
   cams.push(
     {
       id: 'cincinnati-cincyvision-yt', lat: 39.089101, lng: -84.527943,
@@ -256,11 +227,11 @@ async function fetchUSEastCameras(): Promise<any[]> {
   return cams.filter((c: any) => c.lat && c.lng);
 }
 
-// ── EUROPE: Netherlands, Germany, France ──
+// ── EUROPA: Paesi Bassi, Germania, Francia ──
 async function fetchEuropeCameras(): Promise<any[]> {
   const cams: any[] = [];
 
-  // Netherlands Rijkswaterstaat
+  // Rijkswaterstaat Paesi Bassi
   try {
     const res = await stealthFetch('https://opendata.ndw.nu/cameras.json', { signal: AbortSignal.timeout(8000) });
     if (res.ok) {
@@ -281,11 +252,11 @@ async function fetchEuropeCameras(): Promise<any[]> {
   return cams.filter((c: any) => c.lat && c.lng);
 }
 
-// ── ASIA/PACIFIC ──
+// ── ASIA/PACIFICO ──
 async function fetchAsiaCameras(): Promise<any[]> {
   const cams: any[] = [];
 
-  // Singapore Live Traffic Images
+  // Immagini Traffico Live Singapore
   try {
     const res = await stealthFetch('https://api.data.gov.sg/v1/transport/traffic-images', { signal: AbortSignal.timeout(10000) });
     if (res.ok) {
@@ -311,11 +282,11 @@ async function fetchAsiaCameras(): Promise<any[]> {
 }
 
 
-// ── MIDDLE EAST: Israel, Lebanon ──
+// ── MEDIO ORIENTE: Israele, Libano ──
 async function fetchMiddleEastCameras(): Promise<any[]> {
   const cams: any[] = [];
   
-  // Israel Curated (Embedded)
+  // Israele Curata (Integrata)
   cams.push(
     {
       id: 'il-israel-multicam', lat: 32.0853, lng: 34.7818,
@@ -333,7 +304,7 @@ async function fetchMiddleEastCameras(): Promise<any[]> {
     }
   );
 
-  // Lebanon Curated (Embedded)
+  // Libano Curata (Integrata)
   cams.push(
     {
       id: 'lb-beirut-skyline', lat: 33.8938, lng: 35.5018,
@@ -354,7 +325,36 @@ async function fetchMiddleEastCameras(): Promise<any[]> {
   return cams;
 }
 
-// ═══ REGION MAPPING ═══
+// ── Stream Ambientali Live GeoJSON (5.172 telecamere, 19 famiglie fonti) ──
+async function fetchLiveEnvironmentStreams(): Promise<any[]> {
+  try {
+    const res = await stealthFetch('https://raw.githubusercontent.com/willytop8/Live-Environment-Streams/main/streams.geojson', { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const features = data?.features || [];
+    return features.map((f: any, i: number) => {
+      const coords = f.geometry?.coordinates;
+      const props = f.properties || {};
+      if (!coords || coords.length < 2) return null;
+      const streamUrl = props.url_type === 'hls' || props.url_type === 'http_image' ? props.url : undefined;
+      const extUrl = props.url_type === 'html_page' ? props.url : undefined;
+      return {
+        id: `les-${props.source_family}-${i}`,
+        lat: coords[1],
+        lng: coords[0],
+        name: props.name || `${props.source_family} Camera`,
+        city: props.display_name || '',
+        country: (props.country_code || '').toUpperCase(),
+        feed_url: streamUrl || '',
+        external_url: extUrl || '',
+        stream_type: props.url_type === 'hls' ? 'hls' : props.url_type === 'youtube' ? 'youtube' : props.url_type === 'http_image' ? 'image' : undefined,
+        source: props.source_family || 'LiveEnvStream',
+      };
+    }).filter((c: any) => c !== null && c.lat && c.lng);
+  } catch { return []; }
+}
+
+// ═══ MAPPA REGIONI ═══
 const REGION_FETCHERS: Record<string, () => Promise<any[]>> = {
   'middle-east': fetchMiddleEastCameras,
   'uk': fetchTfLCameras,
@@ -381,20 +381,20 @@ const REGION_FETCHERS: Record<string, () => Promise<any[]>> = {
   'japan': fetchJapanCameras,
 };
 
-// Determine which regions to fetch based on viewport bounds
+// Determina quali regioni caricare in base ai confini della viewport
 function getRegionsForBounds(lat: number, lng: number, radius: number): string[] {
   const regions: string[] = [];
-  // UK
+  // Regno Unito
   if (lat > 49 && lat < 61 && lng > -8 && lng < 2) regions.push('uk');
-  // US-East
+  // US-Est
   if (lat > 24 && lat < 49 && lng > -85 && lng < -66) regions.push('us-east');
-  // US-West
+  // US-Ovest
   if (lat > 24 && lat < 49 && lng > -125 && lng < -100) regions.push('us-west');
-  // US-Central
+  // US-Centrale
   if (lat > 24 && lat < 49 && lng > -105 && lng < -80) regions.push('us-central');
   // Canada
   if (lat > 42 && lat < 70 && lng > -141 && lng < -52) regions.push('canada');
-  // Europe
+  // Europa
   const inBulgaria = lat > 41 && lat < 44.5 && lng > 22 && lng < 29.5;
   const inGreece = lat > 34.5 && lat < 41.8 && lng > 19 && lng < 30;
   const inSerbia = lat > 42 && lat < 46.5 && lng > 18.8 && lng < 23.3;
@@ -428,19 +428,19 @@ function getRegionsForBounds(lat: number, lng: number, radius: number): string[]
   if (inSpain) regions.push('spain');
   if (inPoland) regions.push('poland');
 
-  // Middle East
+  // Medio Oriente
   const inMiddleEast = lat > 29 && lat < 34.5 && lng > 34 && lng < 36.5;
   if (inMiddleEast) regions.push('middle-east');
 
-  // Japan
+  // Giappone
   if (lat > 24 && lat < 46 && lng > 122 && lng < 154) regions.push('japan');
 
-  // Asia (includes Middle East, SE Asia, overriding parts of china but that's ok they can both load)
+  // Asia (include Medio Oriente, SE Asia, sovrascrive parti della Cina ma va bene, entrambe possono caricare)
   if ((lat > -10 && lat < 60 && lng > 60 && lng < 150)) regions.push('asia');
-  // Australia explicitly
+  // Australia esplicitamente
   if (lat > -45 && lat < -10 && lng > 110 && lng < 155) regions.push('asia');
 
-  return regions.length > 0 ? regions : ['uk', 'us-east']; // Default fallback
+  return regions.length > 0 ? regions : ['uk', 'us-east']; // Fallback predefinito
 }
 
 export async function GET(request: Request) {
@@ -460,13 +460,14 @@ export async function GET(request: Request) {
     } else if (lat !== 0 || lng !== 0) {
       regionsToFetch = getRegionsForBounds(lat, lng, radius);
     } else {
-      // Default: load all regions for global coverage
+      // Predefinito: carica tutte le regioni per copertura globale
       regionsToFetch = Object.keys(REGION_FETCHERS);
     }
 
-    const results = await Promise.allSettled(
-      regionsToFetch.map(r => REGION_FETCHERS[r]())
-    );
+    const results = await Promise.allSettled([
+      ...regionsToFetch.map(r => REGION_FETCHERS[r]()),
+      fetchLiveEnvironmentStreams(),
+    ]);
 
     const allCameras: any[] = [];
     const sources: Record<string, number> = {};

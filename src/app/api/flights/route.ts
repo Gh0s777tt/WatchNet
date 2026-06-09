@@ -9,15 +9,15 @@ import { stealthFetch } from '@/lib/stealthFetch';
  */
 
 const REGIONS = [
-  { lat: 39.8, lon: -98.5, dist: 2000 },   // North America
-  { lat: 50.0, lon: 15.0, dist: 2000 },     // Europe
+  { lat: 39.8, lon: -98.5, dist: 2000 },   // Nord America
+  { lat: 50.0, lon: 15.0, dist: 2000 },     // Europa
   { lat: 35.0, lon: 105.0, dist: 2000 },    // Asia
   { lat: -25.0, lon: 133.0, dist: 2000 },   // Australia
   { lat: 0.0, lon: 20.0, dist: 2500 },      // Africa
-  { lat: -15.0, lon: -60.0, dist: 2000 },   // South America
+  { lat: -15.0, lon: -60.0, dist: 2000 },   // Sud America
 ];
 
-// Helicopter type codes
+// Codici tipo elicottero
 const HELI_TYPES = new Set([
   'R22','R44','R66','B06','B06T','B204','B205','B206','B212','B222','B230',
   'B407','B412','B427','B429','B430','B505','B525',
@@ -30,7 +30,7 @@ const HELI_TYPES = new Set([
   'B47G','HUEY','GAMA','CABR','EXE',
 ]);
 
-// Private jet types
+// Tipi jet privati
 const PRIVATE_JET_TYPES = new Set([
   'G150','G200','G280','GLEX','G500','G550','G600','G650','G700',
   'GLF2','GLF3','GLF4','GLF5','GLF6','GL5T','GL7T','GV','GIV',
@@ -43,7 +43,7 @@ const PRIVATE_JET_TYPES = new Set([
   'PRM1','SF50','EA50','VLJ',
 ]);
 
-// Military type indicators
+// Indicatori tipo militari
 const MILITARY_INDICATORS = new Set([
   'C17','C5M','C130','C30J','KC10','KC46','KC35','E3CF','E3TF','E8A',
   'B1B','B2','B52','F16','F15','F18','F22','F35','A10','F117',
@@ -75,7 +75,7 @@ function classifyFlight(f: any) {
   const flightStr = (f.flight || '').trim().toUpperCase();
   const dbFlags = (f.dbFlags || 0);
 
-  // Skip fixed structures
+  // Salta strutture fisse
   if (modelUpper === 'TWR') return null;
 
   const lat = f.lat;
@@ -90,11 +90,11 @@ function classifyFlight(f: any) {
   const isHeli = HELI_TYPES.has(modelUpper);
   const isGrounded = typeof altRaw === 'number' && altRaw < 100;
 
-  // Extract airline code
+  // Estrai codice compagnia aerea
   const airlineMatch = AIRLINE_CODE_RE.exec(callsign);
   const airlineCode = airlineMatch ? airlineMatch[1] : '';
 
-  // Classification
+  // Classificazione
   let category: 'commercial' | 'private' | 'jet' | 'military' = 'commercial';
   if (dbFlags & 1 || MILITARY_INDICATORS.has(modelUpper) || (f.flight || '').match(/^(RCH|KING|DUKE|EVAC|JAKE|REACH|CONVOY)\d/i)) {
     category = 'military';
@@ -124,12 +124,12 @@ function classifyFlight(f: any) {
   };
 }
 
-// In-memory cache to prevent global fan-out abuse
-// NOTE (Issue #110): This cache is per-isolate in serverless environments (Vercel).
-// Multiple isolates may each hold their own cache, but this is acceptable because:
-// 1. It coalesces concurrent requests within the same isolate
-// 2. It prevents hammering adsb.lol which would cause rate-limit bans
-// For a globally shared cache, migrate to Vercel KV or similar persistent store.
+// Cache in memoria per prevenire abuso di fan-out globale
+// NOTA (Issue #110): Questa cache è per-isolate in ambienti serverless (Vercel).
+// Isolate multipli possono avere la propria cache, ma questo è accettabile perché:
+// 1. Unisce richieste concorrenti nello stesso isolate
+// 2. Previene il sovraccarico di adsb.lol che causerebbe ban per limite richieste
+// Per una cache condivisa globalmente, migrare a Vercel KV o memoria persistente simile.
 let cachedData: any = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 45000; // 45 seconds cache window
@@ -138,14 +138,14 @@ let fetchPromise: Promise<any> | null = null;
 export async function GET() {
   const now = Date.now();
 
-  // Return cached data if within TTL
+  // Restituisci dati in cache se entro il TTL
   if (cachedData && now - lastFetchTime < CACHE_TTL) {
     return NextResponse.json(cachedData, {
       headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' },
     });
   }
 
-  // Coalesce concurrent requests: wait for the active fetch rather than starting a new one
+  // Unisci richieste concorrenti: attendi il fetch attivo invece di avviarne uno nuovo
   if (fetchPromise) {
     try {
       const data = await fetchPromise;
@@ -153,16 +153,16 @@ export async function GET() {
         headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' },
       });
     } catch {
-      // Fallback to error if the pending fetch failed
+      // Fallback a errore se il fetch in sospeso fallisce
       return NextResponse.json({ error: 'Failed to fetch flight data' }, { status: 500 });
     }
   }
 
   const JAMMING_NACAP_THRESHOLD = 4;
 
-  // Start new global fetch
+  // Avvia nuovo fetch globale
   fetchPromise = (async () => {
-    // Fetch all 6 regions in parallel
+    // Recupera tutte le 6 regioni in parallelo
     const regionResults = await Promise.allSettled(
       REGIONS.map(r => fetchRegion(r))
     );
@@ -182,7 +182,7 @@ export async function GET() {
       }
     }
 
-    // Classify all flights
+    // Classifica tutti i voli
     const commercial: any[] = [];
     const privateFl: any[] = [];
     const jets: any[] = [];
@@ -193,7 +193,7 @@ export async function GET() {
       const flight = classifyFlight(raw);
       if (!flight) continue;
 
-      // GPS jamming detection
+      // Rilevamento jamming GPS
       if (typeof flight.nac_p === 'number' && flight.nac_p <= JAMMING_NACAP_THRESHOLD && !flight.grounded) {
         gpsJamming.push({
           lat: flight.lat,
@@ -211,7 +211,7 @@ export async function GET() {
       }
     }
 
-    // Aggregate GPS jamming zones (grid-based)
+    // Aggrega zone di jamming GPS (basate su griglia)
     const jammingZones = aggregateJamming(gpsJamming, JAMMING_NACAP_THRESHOLD);
 
     return {
@@ -269,7 +269,7 @@ function aggregateJamming(points: any[], threshold: number) {
   }
 
   return Array.from(grid.values())
-    .filter(z => z.count >= 3) // Minimum 3 aircraft with degraded NACp
+    .filter(z => z.count >= 3) // Minimo 3 aeromobili con NACp degradato
     .map(z => ({
       lat: z.lat,
       lng: z.lng,

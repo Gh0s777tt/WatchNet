@@ -21,13 +21,13 @@ import {
 import type { IntelligenceContext } from '@/lib/ai-engine';
 
 /* ═══════════════════════════════════════════════════════════════
-   OSIRIS — AI Intelligence Analyst Panel
-   Premium glass-panel chat interface for real-time intelligence
-   analysis powered by Gemini 2.0 Flash
+   OSIRIS — Pannello Analista Intelligence IA
+   Interfaccia chat premium glass-panel per analisi intelligence
+   in tempo reale basata su Gemini 2.0 Flash
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─────────────────────────────────────────────────────────────
-   Interfaces
+   Interfacce
    ───────────────────────────────────────────────────────────── */
 
 interface DashboardData {
@@ -103,8 +103,158 @@ interface AiAnalystProps {
   data: DashboardData;
 }
 
+interface ToolConfig {
+  pattern: RegExp
+  label: string
+  buildUrl: (match: RegExpMatchArray) => string
+  formatResult: (data: any, query: string) => string
+}
+
+const TOOL_DISPATCHES: ToolConfig[] = [
+  {
+    pattern: /(?:scansiona?|analizza?|cerca)\s+(?:l[')]?\s*)?(?:IP\s+)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/i,
+    label: 'Scansione IP',
+    buildUrl: (m) => `/api/scanner?target=${m[1]}&type=quick`,
+    formatResult: (data, _query) => {
+      const p = data.ports || [];
+      return `📡 RISULTATI SCANSIONE IP: ${data.ip || data.target || _query}\n` +
+        `Porte aperte: ${p.length > 0 ? p.map((x: any) => x.port || x).join(', ') : 'nessuna'}\n` +
+        `ISP: ${data.isp || data.org || 'N/D'}\n` +
+        `Paese: ${data.country || 'N/D'}`
+    },
+  },
+  {
+    pattern: /(?:whois|dominio)\s+([a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,})/i,
+    label: 'WHOIS Dominio',
+    buildUrl: (m) => `/api/osint/whois?domain=${m[1]}`,
+    formatResult: (data, _query) =>
+      `📋 RISULTATI WHOIS: ${data.domain || _query}\n` +
+      `Registrar: ${data.registrar || 'N/D'}\n` +
+      `Creazione: ${data.creation_date || 'N/D'}\n` +
+      `Scadenza: ${data.expiration_date || 'N/D'}\n` +
+      `Organizzazione: ${data.org || 'N/D'}\n` +
+      `Paese: ${data.country || 'N/D'}`,
+  },
+  {
+    pattern: /dns\s+(?:di\s+)?([a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,})/i,
+    label: 'DNS Lookup',
+    buildUrl: (m) => `/api/osint/dns?domain=${m[1]}`,
+    formatResult: (data, _query) => {
+      const recs = data.records || [];
+      return `🌐 RISULTATI DNS: ${data.domain || _query}\n` +
+        recs.map((r: any) => `  ${r.type || '?'} ${r.name || ''} → ${r.value || ''}`).join('\n')
+    },
+  },
+  {
+    pattern: /(?:mac|indirizzo\s+mac)\s+([0-9a-fA-F]{2}(?:[:-][0-9a-fA-F]{2}){5})/i,
+    label: 'Indirizzo MAC',
+    buildUrl: (m) => `/api/osint/mac?mac=${m[1]}`,
+    formatResult: (data, _query) =>
+      `🔍 RISULTATI MAC: ${data.mac || _query}\n` +
+      `Vendor: ${data.vendor || 'N/D'}\n` +
+      `Tipo: ${data.device_type || 'N/D'}`,
+  },
+  {
+    pattern: /(?:bluetooth|bt)\s+(.+)/i,
+    label: 'Bluetooth',
+    buildUrl: (m) => `/api/osint/bluetooth?q=${encodeURIComponent(m[1].trim())}`,
+    formatResult: (data, _query) => {
+      const devs = data.devices || [];
+      return `📶 RISULTATI BLUETOOTH (${devs.length} dispositivi)\n` +
+        devs.slice(0, 10).map((d: any) =>
+          `  ${d.name || '?'} | ${d.vendor || '?'} | MAC:${d.mac || '?'} | Segnale:${d.signal_strength ?? '?'}dBm | ${d.paired ? 'Accoppiato' : 'Non accoppiato'}`
+        ).join('\n')
+    },
+  },
+  {
+    pattern: /(?:rete|network|scan\s+rete)\s+(.+)/i,
+    label: 'Scansione Rete',
+    buildUrl: (m) => `/api/osint/network-scan?ip=${encodeURIComponent(m[1].trim())}`,
+    formatResult: (data, _query) => {
+      const devs = data.devices || [];
+      return `🌍 RISULTATI SCANSIONE RETE (${devs.length} dispositivi)\n` +
+        `Subnet: ${data.network?.subnet || 'N/D'}\n` +
+        devs.map((d: any) =>
+          `  ${d.ip || '?'} | ${d.hostname || d.mdns_name || '?'} | ${d.vendor || '?'} | ${d.os || '?'} | Porte: ${(d.open_ports || []).map((p: any) => p.port).join(',')}`
+        ).join('\n')
+    },
+  },
+  {
+    pattern: /(?:threats|minacce|threat)\s+(.+)/i,
+    label: 'Threat Intelligence',
+    buildUrl: (m) => `/api/osint/threats?query=${encodeURIComponent(m[1].trim())}`,
+    formatResult: (data, _query) => {
+      const t = data.threats || [];
+      return `🚨 RISULTATI THREAT INTELLIGENCE (${t.length} minacce)\n` +
+        t.slice(0, 15).map((x: any) =>
+          `  ${x.severity || '?'} | ${x.type || '?'} | ${x.ioc || x.ip || x.domain || '?'} | ${x.source || '?'}`
+        ).join('\n')
+    },
+  },
+  {
+    pattern: /(?:certificati|certs|ssl)\s+(.+)/i,
+    label: 'Certificati SSL',
+    buildUrl: (m) => `/api/osint/certs?domain=${encodeURIComponent(m[1].trim())}`,
+    formatResult: (data, _query) => {
+      const certs = data.certificates || [];
+      return `🔐 RISULTATI CERTIFICATI (${certs.length} trovati)\n` +
+        certs.slice(0, 10).map((c: any) =>
+          `  CN:${c.common_name || c.name || '?'} | Valido:${c.issued || c.not_before || '?'} → ${c.expires || c.not_after || '?'}`
+        ).join('\n')
+    },
+  },
+  {
+    pattern: /(?:username|user)\s+([a-zA-Z0-9_-]{3,})/i,
+    label: 'Username Search',
+    buildUrl: (m) => `/api/osint/username?username=${m[1]}`,
+    formatResult: (data, _query) => {
+      const sites = data.results || [];
+      const found = sites.filter((s: any) => s.found);
+      return `👤 RISULTATI USERNAME (${found.length}/${sites.length} trovati)\n` +
+        found.slice(0, 20).map((s: any) =>
+          `  ${s.site || '?'}: ${s.url || s.profile_url || 'trovato'}`
+        ).join('\n')
+    },
+  },
+  {
+    pattern: /(?:correla|correlation)\s+(.+)/i,
+    label: 'Correlazione BT+Rete',
+    buildUrl: (m) => `/api/osint/correlate?q=${encodeURIComponent(m[1].trim())}`,
+    formatResult: (data, _query) => {
+      const devs = data.devices || [];
+      const s = data.stats || {};
+      return `🔗 RISULTATI CORRELAZIONE (${devs.length} dispositivi)\n` +
+        `MAC match: ${s.mac_matches || 0} | Vendor match: ${s.vendor_matches || 0} | Solo BT: ${s.bt_only || 0} | Solo rete: ${s.net_only || 0}\n` +
+        devs.slice(0, 10).map((d: any) =>
+          `  ${d.name || d.hostname || d.mac || '?'} | ${d.vendor || '?'} | ${d.ip ? d.ip + ' ' : ''}${d.correlation_type === 'mac_match' ? '✅ MAC' : d.correlation_type === 'vendor_match' ? '🔶 VENDOR' : '⚪'}` + (d.ip ? ` | Porte: ${(d.open_ports || []).map((p: any) => p.port).join(',')}` : '') + (d.bluetooth_signal ? ` | BT:${d.bluetooth_signal}dBm` : '')
+        ).join('\n')
+    },
+  },
+]
+
+async function runOsintTool(query: string): Promise<{ toolResults: string; toolLabel: string } | null> {
+  for (const tool of TOOL_DISPATCHES) {
+    const match = query.match(tool.pattern)
+    if (match) {
+      const url = tool.buildUrl(match)
+      try {
+        const res = await fetch(url)
+        if (!res.ok) continue
+        const data = await res.json()
+        return {
+          toolResults: tool.formatResult(data, match[1]),
+          toolLabel: tool.label,
+        }
+      } catch {
+        continue
+      }
+    }
+  }
+  return null
+}
+
 /* ─────────────────────────────────────────────────────────────
-   Helpers
+   Helper
    ───────────────────────────────────────────────────────────── */
 
 function generateId(): string {
@@ -163,9 +313,9 @@ function buildContext(data: DashboardData): IntelligenceContext {
   };
 }
 
-/** Render markdown-lite: bold, headers, bullet points */
+/** Render markdown-lite: grassetto, intestazioni, elenchi */
 function renderMarkdown(text: string): string {
-  // Basic HTML escape to prevent XSS
+  // Escape HTML base per prevenire XSS
   const escaped = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -184,7 +334,7 @@ function renderMarkdown(text: string): string {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Component
+   Componente
    ───────────────────────────────────────────────────────────── */
 
 export default function AiAnalyst({ data }: AiAnalystProps) {
@@ -199,21 +349,21 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load saved key on mount
+  // Carica chiave salvata all'avvio
   useEffect(() => {
-    const saved = localStorage.getItem('osiris-gemini-key');
+    const saved = localStorage.getItem('osiris-openrouter-key');
     if (saved) {
       setApiKeyInput(saved);
       setKeySaved(true);
     }
   }, []);
 
-  // Auto-scroll to bottom
+  // Scorrimento automatico in basso
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when opened
+  // Focus input quando aperto
   useEffect(() => {
     if (isOpen && !showSettings) {
       setTimeout(() => inputRef.current?.focus(), 300);
@@ -222,9 +372,9 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
 
   const getHeaders = useCallback((): Record<string, string> => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    const savedKey = localStorage.getItem('osiris-gemini-key');
+    const savedKey = localStorage.getItem('osiris-openrouter-key');
     if (savedKey) {
-      headers['x-gemini-key'] = savedKey;
+      headers['x-openrouter-key'] = savedKey;
     }
     return headers;
   }, []);
@@ -245,10 +395,19 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
 
     try {
       const context = buildContext(data);
+
+      // Rileva ed esegui tool OSINT autonomamente
+      const toolResult = await runOsintTool(query);
+
+      let augmentedQuery = query;
+      if (toolResult) {
+        augmentedQuery = `${query}\n\n## RISULTATI STRUMENTO OSINT (${toolResult.toolLabel})\n${toolResult.toolResults}\n\nAnalizza questi risultati e fornisci una valutazione di intelligence.`;
+      }
+
       const res = await fetch('/api/ai/analyze', {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ query, context }),
+        body: JSON.stringify({ query: augmentedQuery, context }),
       });
 
       const json = await res.json();
@@ -272,7 +431,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
       const errorMsg: ChatMessage = {
         id: generateId(),
         role: 'analyst',
-        content: `⚠ INTELLIGENCE ANALYSIS ERROR\n\n${message}`,
+        content: `⚠ ERRORE ANALISI INTELLIGENCE\n\n${message}`,
         timestamp: new Date().toISOString(),
         isError: true,
       };
@@ -288,7 +447,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
     const userMsg: ChatMessage = {
       id: generateId(),
       role: 'user',
-      content: '📋 Generate full intelligence briefing from current operational data',
+      content: '📋 Genera briefing intelligence completo dai dati operativi correnti',
       timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMsg]);
@@ -323,7 +482,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
       const errorMsg: ChatMessage = {
         id: generateId(),
         role: 'analyst',
-        content: `⚠ BRIEFING GENERATION ERROR\n\n${message}`,
+        content: `⚠ ERRORE GENERAZIONE BRIEFING\n\n${message}`,
         timestamp: new Date().toISOString(),
         isError: true,
       };
@@ -346,14 +505,14 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
   const saveApiKey = useCallback(() => {
     const key = apiKeyInput.trim();
     if (key) {
-      localStorage.setItem('osiris-gemini-key', key);
+      localStorage.setItem('osiris-openrouter-key', key);
       setKeySaved(true);
       setTimeout(() => setShowSettings(false), 600);
     }
   }, [apiKeyInput]);
 
   const clearApiKey = useCallback(() => {
-    localStorage.removeItem('osiris-gemini-key');
+    localStorage.removeItem('osiris-openrouter-key');
     setApiKeyInput('');
     setKeySaved(false);
   }, []);
@@ -362,7 +521,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
     setMessages([]);
   }, []);
 
-  /* ── Floating Trigger Button ── */
+  /* ── Pulsante Trigger Fluttuante ── */
   const triggerButton = (
     <motion.button
       initial={{ scale: 0, opacity: 0 }}
@@ -378,10 +537,10 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
         boxShadow:
           '0 0 30px rgba(212, 175, 55, 0.2), 0 0 60px rgba(212, 175, 55, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5)',
       }}
-      aria-label="Open AI Intelligence Analyst"
+      aria-label="Apri Analista Intelligence IA"
     >
       <Brain className="w-6 h-6 text-[var(--gold-primary)]" />
-      {/* Pulse rings */}
+      {/* Anelli pulsanti */}
       <div className="absolute inset-0 rounded-full animate-glow-pulse" />
       <motion.div
         className="absolute inset-[-4px] rounded-full border border-[var(--gold-primary)]"
@@ -392,17 +551,17 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
     </motion.button>
   );
 
-  /* ── Panel ── */
+  /* ── Pannello ── */
   return (
     <>
-      {/* Trigger — only show when panel is closed */}
+      {/* Trigger — mostra solo quando pannello chiuso */}
       <AnimatePresence>{!isOpen && triggerButton}</AnimatePresence>
 
-      {/* Panel */}
+      {/* Pannello */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop on mobile */}
+            {/* Sfondo su mobile */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -411,7 +570,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Main Panel */}
+            {/* Pannello Principale */}
             <motion.div
               initial={{ opacity: 0, y: 40, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -426,7 +585,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                 backdropFilter: 'blur(40px) saturate(1.5)',
               }}
             >
-              {/* ── Header ── */}
+              {/* ── Intestazione ── */}
               <div
                 className="relative flex items-center justify-between px-4 py-3 shrink-0"
                 style={{
@@ -434,7 +593,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
                 }}
               >
-                {/* Scan line accent */}
+                {/* Accento linea scansione */}
                 <motion.div
                   className="absolute bottom-0 left-0 right-0 h-[1px]"
                   style={{ background: 'linear-gradient(90deg, transparent, var(--gold-primary), transparent)' }}
@@ -448,9 +607,9 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                     <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--alert-green)] animate-osiris-pulse" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="hud-text text-[11px] text-[var(--text-heading)]">OSIRIS ANALYST</span>
+                    <span className="hud-text text-[11px] text-[var(--text-heading)]">ANALISTA OSIRIS</span>
                     <span className="text-[7px] font-mono tracking-[0.2em] text-[var(--text-muted)]">
-                      GEMINI 2.0 FLASH • ONLINE
+                      PHI-3 MINI • HF INFERENCE
                     </span>
                   </div>
                 </div>
@@ -460,7 +619,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                     <button
                       onClick={clearMessages}
                       className="p-1.5 rounded-lg hover:bg-[var(--hover-accent)] transition-colors group"
-                      title="Clear conversation"
+                      title="Cancella conversazione"
                     >
                       <Trash2 className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--alert-red)]" />
                     </button>
@@ -468,7 +627,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   <button
                     onClick={() => setShowSettings(!showSettings)}
                     className="p-1.5 rounded-lg hover:bg-[var(--hover-accent)] transition-colors group"
-                    title="Settings"
+                    title="Impostazioni"
                   >
                     <Settings
                       className={`w-3.5 h-3.5 transition-colors ${
@@ -479,14 +638,14 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   <button
                     onClick={() => setIsOpen(false)}
                     className="p-1.5 rounded-lg hover:bg-[var(--hover-accent)] transition-colors group"
-                    title="Close"
+                    title="Chiudi"
                   >
                     <X className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
                   </button>
                 </div>
               </div>
 
-              {/* ── Settings Panel ── */}
+              {/* ── Pannello Impostazioni ── */}
               <AnimatePresence>
                 {showSettings && (
                   <motion.div
@@ -506,7 +665,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                       <div className="flex items-center gap-2">
                         <Key className="w-3 h-3 text-[var(--gold-dim)]" />
                         <span className="hud-label" style={{ fontSize: '8px' }}>
-                          GEMINI API KEY (OPTIONAL)
+                          CHIAVE API OPENROUTER (OPZIONALE)
                         </span>
                       </div>
                       <div className="flex gap-2">
@@ -517,7 +676,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                             setApiKeyInput(e.target.value);
                             setKeySaved(false);
                           }}
-                          placeholder="AIza..."
+                          placeholder="sk-or-v1-..."
                           className="flex-1 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg px-3 py-2 text-[11px] font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--gold-dim)] transition-colors"
                         />
                         {apiKeyInput.trim() && (
@@ -531,7 +690,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                                 color: keySaved ? 'var(--alert-green)' : 'var(--gold-primary)',
                               }}
                             >
-                              {keySaved ? <Check className="w-3 h-3" /> : 'SAVE'}
+                              {keySaved ? <Check className="w-3 h-3" /> : 'SALVA'}
                             </button>
                             <button
                               onClick={clearApiKey}
@@ -547,14 +706,14 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                         )}
                       </div>
                       <p className="text-[8px] font-mono text-[var(--text-muted)] leading-relaxed">
-                        Your key is stored locally and sent only to the OSIRIS server. Get a free key at{' '}
+                        La tua chiave è salvata localmente e inviata solo al server OSIRIS. Ottieni una chiave gratuita su{' '}
                         <a
-                          href="https://aistudio.google.com/apikey"
+                          href="https://openrouter.ai/keys"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[var(--cyan-primary)] hover:underline"
                         >
-                          aistudio.google.com
+                          openrouter.ai/keys
                         </a>
                       </p>
                     </div>
@@ -562,12 +721,12 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                 )}
               </AnimatePresence>
 
-              {/* ── Messages Area ── */}
+              {/* ── Area Messaggi ── */}
               <div className="flex-1 overflow-y-auto styled-scrollbar px-4 py-3 space-y-3">
-                {/* Empty state */}
+                {/* Stato vuoto */}
                 {messages.length === 0 && !isLoading && (
                   <div className="h-full flex flex-col items-center justify-center text-center px-6 gap-5">
-                    {/* Animated brain icon */}
+                    {/* Icona cervello animata */}
                     <div className="relative">
                       <motion.div
                         animate={{ rotate: [0, 360] }}
@@ -594,22 +753,24 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
 
                     <div className="space-y-2">
                       <h3 className="hud-text text-[12px] text-[var(--text-heading)]">
-                        INTELLIGENCE ANALYST READY
+                        ANALISTA INTELLIGENCE PRONTO
                       </h3>
                       <p className="text-[10px] font-mono text-[var(--text-muted)] leading-relaxed max-w-[280px]">
-                        I correlate live seismic, OSINT, threat, and cyber data to deliver actionable intelligence assessments.
+                        Correlo dati sismici, OSINT, minacce e cyber in tempo reale per fornire valutazioni di intelligence utilizzabili.
                       </p>
                     </div>
 
-                    {/* Quick prompts */}
+                    {/* Prompt rapidi */}
                     <div className="w-full space-y-1.5">
                       <span className="hud-label block text-center mb-2" style={{ fontSize: '7px' }}>
-                        SUGGESTED QUERIES
+                        RICERCHE SUGGERITE
                       </span>
                       {[
-                        'What are the top 3 threats right now?',
-                        'Are there seismic patterns correlating with conflicts?',
-                        'Assess cyber risks to critical infrastructure',
+                        'Quali sono le 3 principali minacce ora?',
+                        'Ci sono pattern sismici correlati ai conflitti?',
+                        'Scansiona IP 8.8.8.8',
+                        'Cerca minacce per esempio.com',
+                        'Whois dominio google.com',
                       ].map((prompt) => (
                         <button
                           key={prompt}
@@ -630,7 +791,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   </div>
                 )}
 
-                {/* Messages */}
+                {/* Messaggi */}
                 {messages.map((msg) => (
                   <motion.div
                     key={msg.id}
@@ -660,7 +821,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                             }
                       }
                     >
-                      {/* Message header */}
+                      {/* Intestazione messaggio */}
                       <div className="flex items-center gap-1.5 mb-1.5">
                         {msg.role === 'user' ? (
                           <User className="w-3 h-3 text-[var(--cyan-primary)]" />
@@ -679,7 +840,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                               : 'var(--gold-primary)',
                           }}
                         >
-                          {msg.role === 'user' ? 'OPERATOR' : 'OSIRIS ANALYST'}
+                          {msg.role === 'user' ? 'OPERATORE' : 'ANALISTA OSIRIS'}
                         </span>
                         <span className="text-[7px] font-mono text-[var(--text-muted)] ml-auto">
                           {new Date(msg.timestamp).toLocaleTimeString([], {
@@ -689,7 +850,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                         </span>
                       </div>
 
-                      {/* Message content */}
+                      {/* Contenuto messaggio */}
                       {msg.role === 'analyst' && !msg.isError ? (
                         <div
                           className="text-[11px] font-mono text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words"
@@ -704,7 +865,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   </motion.div>
                 ))}
 
-                {/* Loading indicator */}
+                {/* Indicatore caricamento */}
                 {isLoading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -721,7 +882,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                       <Loader2 className="w-3.5 h-3.5 text-[var(--gold-primary)] animate-spin" />
                       <div className="flex items-center gap-1">
                         <span className="text-[9px] font-mono tracking-[0.15em] text-[var(--gold-primary)] uppercase">
-                          Analyzing intelligence
+                          Analisi intelligence in corso
                         </span>
                         <motion.span
                           animate={{ opacity: [0, 1, 0] }}
@@ -738,7 +899,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* ── Input Area ── */}
+              {/* ── Area Input ── */}
               <div
                 className="shrink-0 px-3 py-2.5"
                 style={{
@@ -746,7 +907,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   background: 'rgba(6, 6, 12, 0.8)',
                 }}
               >
-                {/* Quick action */}
+                {/* Azione rapida */}
                 <div className="flex gap-2 mb-2">
                   <button
                     onClick={handleBriefing}
@@ -759,16 +920,16 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                     }}
                   >
                     <Sparkles className="w-3 h-3" />
-                    GENERATE BRIEFING
+                    GENERA BRIEFING
                   </button>
                   <div className="flex-1" />
                   <span className="flex items-center text-[7px] font-mono text-[var(--text-muted)] tracking-wider">
                     <ChevronDown className="w-2.5 h-2.5 mr-0.5" />
-                    SHIFT+ENTER FOR NEWLINE
+                    SHIFT+INVIO PER NUOVA RIGA
                   </span>
                 </div>
 
-                {/* Input row */}
+                {/* Riga input */}
                 <div className="flex gap-2 items-end">
                   <div
                     className="flex-1 rounded-xl overflow-hidden transition-colors"
@@ -782,7 +943,7 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="Query the intelligence analyst..."
+                      placeholder="Interroga l'analista intelligence..."
                       rows={1}
                       className="w-full bg-transparent px-3 py-2.5 text-[11px] font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none resize-none"
                       style={{ maxHeight: '120px', minHeight: '36px' }}
@@ -820,13 +981,13 @@ export default function AiAnalyst({ data }: AiAnalystProps) {
                   </motion.button>
                 </div>
 
-                {/* Footer */}
+                {/* Piè di pagina */}
                 <div className="flex items-center justify-between mt-1.5 px-1">
                   <span className="text-[7px] font-mono text-[var(--text-muted)] tracking-wider">
-                    {keySaved ? '🔑 CUSTOM KEY' : '🔧 SERVER KEY'} • {messages.filter((m) => m.role === 'user').length} QUERIES
+                    {keySaved ? '🔑 CHIAVE PERSONALE' : '🔧 CHIAVE SERVER'} • {messages.filter((m) => m.role === 'user').length} RICERCHE
                   </span>
                   <span className="text-[7px] font-mono text-[var(--text-muted)] tracking-wider">
-                    FEEDS: {(data.earthquakes?.length || 0) + (data.news?.length || 0) + (data.gdelt?.length || 0)} ITEMS
+                    FLUSSI: {(data.earthquakes?.length || 0) + (data.news?.length || 0) + (data.gdelt?.length || 0)} ITEMS
                   </span>
                 </div>
               </div>

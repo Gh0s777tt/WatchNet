@@ -1,24 +1,10 @@
-/**
- * ═══════════════════════════════════════════════════════════════
- *  OSIRIS — AI Intelligence Briefing Endpoint
- *  POST /api/ai/briefing
- *  Generates structured threat briefings via Gemini
- * ═══════════════════════════════════════════════════════════════
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  createGeminiClient,
-  rotateApiKey,
   generateBriefing,
   type IntelligenceContext,
 } from '@/lib/ai-engine';
 
 export const dynamic = 'force-dynamic';
-
-/* ─────────────────────────────────────────────────────────────
-   Rate Limiter — 5 requests per minute per IP
-   ───────────────────────────────────────────────────────────── */
 
 interface RateLimitEntry {
   count: number;
@@ -55,25 +41,6 @@ setInterval(() => {
   }
 }, 120_000);
 
-/* ─────────────────────────────────────────────────────────────
-   Environment Key Collection
-   ───────────────────────────────────────────────────────────── */
-
-function getEnvApiKeys(): string[] {
-  const keys: string[] = [];
-  for (let i = 1; i <= 8; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
-    if (key && key.trim().length > 0) {
-      keys.push(key.trim());
-    }
-  }
-  return keys;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Request / Response types
-   ───────────────────────────────────────────────────────────── */
-
 interface BriefingRequestBody {
   context: IntelligenceContext;
 }
@@ -88,10 +55,6 @@ interface ErrorResponse {
   code: string;
   retryAfter?: number;
 }
-
-/* ─────────────────────────────────────────────────────────────
-   POST Handler
-   ───────────────────────────────────────────────────────────── */
 
 export async function POST(
   request: NextRequest
@@ -119,24 +82,21 @@ export async function POST(
     );
   }
 
-  const userKey = request.headers.get('x-gemini-key')?.trim();
-  let apiKey: string;
+  const userKey = request.headers.get('x-openrouter-key')?.trim();
+  const envKey = process.env.OPENROUTER_API_KEY?.trim();
+  const aiBaseUrl = process.env.AI_BASE_URL?.trim() || 'http://127.0.0.1:8080';
+  const noKeyRequired = aiBaseUrl.includes('127.0.0.1') || aiBaseUrl.includes('localhost') || aiBaseUrl.includes('api-inference.huggingface.co');
+  const apiKey = (userKey || envKey) || (noKeyRequired ? 'free' : '');
 
-  if (userKey && userKey.length > 0) {
-    apiKey = userKey;
-  } else {
-    const envKeys = getEnvApiKeys();
-    if (envKeys.length === 0) {
-      return NextResponse.json(
-        {
-          error:
-            'No Gemini API key configured. Set GEMINI_API_KEY_1 in environment or provide a key via the settings panel.',
-          code: 'NO_API_KEY',
-        },
-        { status: 503 }
-      );
-    }
-    apiKey = rotateApiKey(envKeys);
+  if (!apiKey) {
+    return NextResponse.json(
+      {
+        error:
+          'No OpenRouter API key configured. Set OPENROUTER_API_KEY in environment or provide a key via the settings panel.',
+        code: 'NO_API_KEY',
+      },
+      { status: 503 }
+    );
   }
 
   let body: BriefingRequestBody;
@@ -157,8 +117,7 @@ export async function POST(
   }
 
   try {
-    const client = createGeminiClient(apiKey);
-    const briefing = await generateBriefing(client, body.context);
+    const briefing = await generateBriefing(apiKey, body.context);
 
     return NextResponse.json(
       {
@@ -172,32 +131,22 @@ export async function POST(
       }
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown Gemini API error';
+    const message = err instanceof Error ? err.message : 'Unknown AI API error';
 
-    if (message.includes('API_KEY_INVALID') || message.includes('API key not valid')) {
+    if (message.includes('API_KEY_INVALID') || message.includes('401')) {
       return NextResponse.json(
-        { error: 'Invalid Gemini API key. Please check your configuration.', code: 'INVALID_KEY' },
+        { error: 'Invalid OpenRouter API key.', code: 'INVALID_KEY' },
         { status: 401 }
       );
     }
 
-    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota')) {
+    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota') || message.includes('429')) {
       return NextResponse.json(
         {
-          error: 'Gemini API quota exhausted. Try again later or provide your own API key.',
+          error: 'API quota exhausted. Try again later or provide your own OpenRouter key.',
           code: 'QUOTA_EXHAUSTED',
         },
         { status: 429 }
-      );
-    }
-
-    if (message.includes('SAFETY')) {
-      return NextResponse.json(
-        {
-          error: 'Response blocked by Gemini safety filters. Try again.',
-          code: 'SAFETY_BLOCKED',
-        },
-        { status: 422 }
       );
     }
 

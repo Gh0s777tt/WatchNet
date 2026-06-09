@@ -66,6 +66,23 @@
   --edge-pad: 20px;
 }
 
+[data-theme="light"] {
+  --bg-void: #F5F3EF;
+  --bg-primary: #EFEDE8;
+  --bg-secondary: #E5E0D8;
+  --bg-tertiary: #D8D2C8;
+  --bg-panel: rgba(245, 243, 239, 0.92);
+  --bg-panel-solid: #EFEDE8;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #8A8A8A;
+  --text-heading: #0D0D0D;
+  --border-primary: rgba(0, 0, 0, 0.12);
+  --border-secondary: rgba(0, 0, 0, 0.06);
+  --border-active: rgba(212, 175, 55, 0.5);
+  --hover-accent: rgba(0, 0, 0, 0.04);
+}
+
 @theme inline {
   --color-background: var(--bg-void);
   --color-foreground: var(--text-primary);
@@ -76,7 +93,11 @@
 /* ── Base ── */
 * { box-sizing: border-box; }
 
-html, body {
+html {
+  font-size: 17px;
+}
+
+body {
   margin: 0; padding: 0; width: 100%; height: 100%;
   overflow: hidden;
   background: var(--bg-void);
@@ -148,7 +169,7 @@ html, body {
 
 .hud-label {
   font-family: var(--font-hud);
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -156,7 +177,7 @@ html, body {
 
 .hud-value {
   font-family: var(--font-hud);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--gold-primary);
   font-variant-numeric: tabular-nums;
@@ -305,7 +326,7 @@ html, body {
 .mobile-nav-btn {
   display: flex; flex-direction: column; align-items: center; gap: 1px;
   padding: 5px 6px; border-radius: 8px;
-  font-family: var(--font-hud); font-size: 6px; letter-spacing: 0.08em;
+  font-family: var(--font-hud); font-size: 9px; letter-spacing: 0.08em;
   color: var(--text-muted); background: transparent;
   border: none; cursor: pointer; transition: all 0.2s ease;
   text-transform: uppercase;
@@ -633,14 +654,14 @@ html, body {
   position: relative;
   overflow: hidden;
   font-family: var(--font-hud);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-primary);
   background: rgba(212, 175, 55, 0.08);
   border: 1px solid var(--border-primary);
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   cursor: pointer;
   transition:
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -756,11 +777,11 @@ html, body {
   align-items: center;
   gap: 6px;
   font-family: var(--font-hud);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
   border: 1px solid;
 }
@@ -801,7 +822,7 @@ html, body {
   border: 1px solid transparent;
   border-radius: 6px;
   font-family: var(--font-hud);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
   transition:
     background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
@@ -843,7 +864,7 @@ html, body {
   z-index: 9999;
   padding: 8px 14px;
   font-family: var(--font-hud);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   color: var(--text-primary);
   background: rgba(12, 14, 26, 0.92);
@@ -1097,7 +1118,7 @@ html, body {
   width: 18px;
   height: 18px;
   font-family: var(--font-hud);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   color: #fff;
 }
@@ -1463,7 +1484,7 @@ html, body {
 }
 
 .gotham-command-bar__title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1567,7 +1588,7 @@ html, body {
 
 .gotham-card__title {
   font-family: var(--font-hud);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1576,7 +1597,7 @@ html, body {
 
 .gotham-card__body {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -1635,7 +1656,7 @@ html, body {
 
 .gotham-stat__label {
   font-family: var(--font-hud);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1644,7 +1665,7 @@ html, body {
 
 .gotham-stat__delta {
   font-family: var(--font-hud);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--alert-green);
@@ -1662,11 +1683,11 @@ html, body {
 }
 
 .gotham-stat--compact .gotham-stat__value {
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .gotham-stat--compact .gotham-stat__label {
-  font-size: 7px;
+  font-size: 10px;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1710,7 +1731,7 @@ html, body {
   padding: 0 14px;
   background: var(--bg-secondary);
   font-family: var(--font-hud);
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -1751,7 +1772,7 @@ html, body {
   gap: 5px;
   padding: 3px 10px;
   font-family: var(--font-hud);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2020,7 +2041,7 @@ html, body {
 
 .gotham-sidebar__section-title {
   font-family: var(--font-hud);
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -2072,7 +2093,7 @@ html, body {
   align-items: center;
   padding: 2px 8px;
   font-family: var(--font-hud);
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;

@@ -1,24 +1,10 @@
-/**
- * ═══════════════════════════════════════════════════════════════
- *  OSIRIS — AI Intelligence Analysis Endpoint
- *  POST /api/ai/analyze
- *  Rate-limited, multi-key Gemini integration
- * ═══════════════════════════════════════════════════════════════
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  createGeminiClient,
-  rotateApiKey,
   analyzeIntelligence,
   type IntelligenceContext,
 } from '@/lib/ai-engine';
 
 export const dynamic = 'force-dynamic';
-
-/* ─────────────────────────────────────────────────────────────
-   Rate Limiter — 5 requests per minute per IP
-   ───────────────────────────────────────────────────────────── */
 
 interface RateLimitEntry {
   count: number;
@@ -26,7 +12,7 @@ interface RateLimitEntry {
 }
 
 const rateLimitMap = new Map<string, RateLimitEntry>();
-const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 
 function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetIn: number } {
@@ -46,7 +32,6 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number; rese
   return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count, resetIn: entry.resetAt - now };
 }
 
-// Periodic cleanup to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateLimitMap.entries()) {
@@ -55,25 +40,6 @@ setInterval(() => {
     }
   }
 }, 120_000);
-
-/* ─────────────────────────────────────────────────────────────
-   Collect API keys from environment
-   ───────────────────────────────────────────────────────────── */
-
-function getEnvApiKeys(): string[] {
-  const keys: string[] = [];
-  for (let i = 1; i <= 8; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
-    if (key && key.trim().length > 0) {
-      keys.push(key.trim());
-    }
-  }
-  return keys;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Request / Response types
-   ───────────────────────────────────────────────────────────── */
 
 interface AnalyzeRequestBody {
   query: string;
@@ -92,25 +58,19 @@ interface ErrorResponse {
   retryAfter?: number;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   POST Handler
-   ───────────────────────────────────────────────────────────── */
-
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<AnalyzeResponse | ErrorResponse>> {
-  // Extract client IP
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown';
 
-  // Rate limit check
   const rateCheck = checkRateLimit(ip);
   if (!rateCheck.allowed) {
     return NextResponse.json(
       {
-        error: 'Rate limit exceeded. Maximum 5 requests per minute.',
+        error: 'Rate limit exceeded. Maximum 10 requests per minute.',
         code: 'RATE_LIMITED',
         retryAfter: Math.ceil(rateCheck.resetIn / 1000),
       },
@@ -125,28 +85,23 @@ export async function POST(
     );
   }
 
-  // Determine API key — user-provided header takes priority
-  const userKey = request.headers.get('x-gemini-key')?.trim();
-  let apiKey: string;
+  const userKey = request.headers.get('x-openrouter-key')?.trim();
+  const envKey = process.env.OPENROUTER_API_KEY?.trim();
+  const aiBaseUrl = process.env.AI_BASE_URL?.trim() || 'http://127.0.0.1:8080';
+  const noKeyRequired = aiBaseUrl.includes('127.0.0.1') || aiBaseUrl.includes('localhost') || aiBaseUrl.includes('api-inference.huggingface.co');
+  const apiKey = (userKey || envKey) || (noKeyRequired ? 'free' : '');
 
-  if (userKey && userKey.length > 0) {
-    apiKey = userKey;
-  } else {
-    const envKeys = getEnvApiKeys();
-    if (envKeys.length === 0) {
-      return NextResponse.json(
-        {
-          error:
-            'No Gemini API key configured. Set GEMINI_API_KEY_1 in environment or provide a key via the settings panel.',
-          code: 'NO_API_KEY',
-        },
-        { status: 503 }
-      );
-    }
-    apiKey = rotateApiKey(envKeys);
+  if (!apiKey) {
+    return NextResponse.json(
+      {
+        error:
+          'No OpenRouter API key configured. Set OPENROUTER_API_KEY in environment or provide a key via the settings panel.',
+        code: 'NO_API_KEY',
+      },
+      { status: 503 }
+    );
   }
 
-  // Parse request body
   let body: AnalyzeRequestBody;
   try {
     body = (await request.json()) as AnalyzeRequestBody;
@@ -159,7 +114,7 @@ export async function POST(
 
   if (!body.query || typeof body.query !== 'string' || body.query.trim().length === 0) {
     return NextResponse.json(
-      { error: 'Query field is required and must be a non-empty string.', code: 'MISSING_QUERY' },
+      { error: 'Query field is required.', code: 'MISSING_QUERY' },
       { status: 400 }
     );
   }
@@ -171,15 +126,13 @@ export async function POST(
     );
   }
 
-  // Call Gemini
   try {
-    const client = createGeminiClient(apiKey);
-    const analysis = await analyzeIntelligence(client, body.context, body.query.trim());
+    const analysis = await analyzeIntelligence(apiKey, body.context, body.query.trim());
 
     return NextResponse.json(
       {
         analysis,
-        model: 'gemini-2.0-flash',
+        model: 'llama-3.1-8b-instruct (OpenRouter)',
         timestamp: new Date().toISOString(),
       },
       {
@@ -189,33 +142,23 @@ export async function POST(
       }
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown Gemini API error';
+    const message = err instanceof Error ? err.message : 'Unknown AI API error';
+    if (err instanceof Error) console.error('[OSIRIS AI] Analysis error stack:', err.stack);
 
-    // Detect specific Gemini error types
-    if (message.includes('API_KEY_INVALID') || message.includes('API key not valid')) {
+    if (message.includes('API_KEY_INVALID') || message.includes('401')) {
       return NextResponse.json(
-        { error: 'Invalid Gemini API key. Please check your configuration.', code: 'INVALID_KEY' },
+        { error: 'Invalid OpenRouter API key.', code: 'INVALID_KEY' },
         { status: 401 }
       );
     }
 
-    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota')) {
+    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota') || message.includes('429')) {
       return NextResponse.json(
         {
-          error: 'Gemini API quota exhausted. Try again later or provide your own API key.',
+          error: 'API quota exhausted. Try again later or provide your own OpenRouter key.',
           code: 'QUOTA_EXHAUSTED',
         },
         { status: 429 }
-      );
-    }
-
-    if (message.includes('SAFETY')) {
-      return NextResponse.json(
-        {
-          error: 'Response blocked by Gemini safety filters. Try rephrasing your query.',
-          code: 'SAFETY_BLOCKED',
-        },
-        { status: 422 }
       );
     }
 
