@@ -16,6 +16,7 @@ import { fetchFranceCameras } from './france';
 import { fetchSpainCameras } from './spain';
 import { fetchPolandCameras } from './poland';
 import { fetchJapanCameras } from './japan';
+import { fetchSwitzerlandCameras } from './switzerland';
 
 /**
  * OSIRIS — Worldwide CCTV Camera API v2
@@ -379,6 +380,7 @@ const REGION_FETCHERS: Record<string, () => Promise<any[]>> = {
   'spain': fetchSpainCameras,
   'poland': fetchPolandCameras,
   'japan': fetchJapanCameras,
+  'switzerland': fetchSwitzerlandCameras,
 };
 
 // Determina quali regioni caricare in base ai confini della viewport
@@ -408,8 +410,9 @@ function getRegionsForBounds(lat: number, lng: number, radius: number): string[]
   const inFrance = lat > 42.3 && lat < 51.1 && lng > -5 && lng < 8.3;
   const inSpain = lat > 27 && lat < 43.8 && lng > -18.2 && lng < 4.4;
   const inPoland = lat > 49.0 && lat < 54.8 && lng > 14.1 && lng < 24.1;
+  const inSwitzerland = lat > 45.8 && lat < 47.8 && lng > 5.9 && lng < 10.5;
   const inBalkans = inBulgaria || inGreece || inSerbia || inMacedonia || inRomania || inTurkey;
-  const inWesternEurope = inItaly || inCzechia || inSlovakia || inGermany || inFrance || inSpain || inPoland;
+  const inWesternEurope = inItaly || inCzechia || inSlovakia || inGermany || inFrance || inSpain || inPoland || inSwitzerland;
 
   if (lat > 35 && lat < 72 && lng > -11 && lng < 40 && !inBalkans && !inWesternEurope) {
     regions.push('europe');
@@ -427,6 +430,7 @@ function getRegionsForBounds(lat: number, lng: number, radius: number): string[]
   if (inFrance) regions.push('france');
   if (inSpain) regions.push('spain');
   if (inPoland) regions.push('poland');
+  if (inSwitzerland) regions.push('switzerland');
 
   // Medio Oriente
   const inMiddleEast = lat > 29 && lat < 34.5 && lng > 34 && lng < 36.5;

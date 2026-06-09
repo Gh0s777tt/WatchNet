@@ -3,6 +3,7 @@ import {
   analyzeIntelligence,
   type IntelligenceContext,
 } from '@/lib/ai-engine';
+import aiManager from '@/lib/ai/manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,11 +45,14 @@ setInterval(() => {
 interface AnalyzeRequestBody {
   query: string;
   context: IntelligenceContext;
+  provider?: string;
+  model?: string;
 }
 
 interface AnalyzeResponse {
   analysis: string;
   model: string;
+  provider: string;
   timestamp: string;
 }
 
@@ -85,23 +89,6 @@ export async function POST(
     );
   }
 
-  const userKey = request.headers.get('x-openrouter-key')?.trim();
-  const envKey = process.env.OPENROUTER_API_KEY?.trim();
-  const aiBaseUrl = process.env.AI_BASE_URL?.trim() || 'http://127.0.0.1:8080';
-  const noKeyRequired = aiBaseUrl.includes('127.0.0.1') || aiBaseUrl.includes('localhost') || aiBaseUrl.includes('api-inference.huggingface.co');
-  const apiKey = (userKey || envKey) || (noKeyRequired ? 'free' : '');
-
-  if (!apiKey) {
-    return NextResponse.json(
-      {
-        error:
-          'No OpenRouter API key configured. Set OPENROUTER_API_KEY in environment or provide a key via the settings panel.',
-        code: 'NO_API_KEY',
-      },
-      { status: 503 }
-    );
-  }
-
   let body: AnalyzeRequestBody;
   try {
     body = (await request.json()) as AnalyzeRequestBody;
@@ -127,12 +114,26 @@ export async function POST(
   }
 
   try {
-    const analysis = await analyzeIntelligence(apiKey, body.context, body.query.trim());
+    const useProvider = body.provider || aiManager.getActiveProvider();
+    const useModel = body.model || undefined;
+
+    const context = body.context;
+    const contextStr = `EARTHQUAKES: ${JSON.stringify(context.earthquakes || [])}\nNEWS: ${JSON.stringify(context.news || [])}\nTHREATS: ${JSON.stringify(context.threats || [])}\nCYBER: ${JSON.stringify(context.cyberAlerts || [])}\nTIMESTAMP: ${context.timestamp}`;
+
+    const response = await aiManager.complete({
+      provider: useProvider as any,
+      model: useModel,
+      messages: [
+        { role: 'system', content: 'You are OSIRIS Intelligence Analyst. Analyze intelligence data and provide assessments with BLUF, confidence levels, and recommended actions.' },
+        { role: 'user', content: `Intelligence Context:\n${contextStr}\n\nAnalyst Query: ${body.query.trim()}\n\nProvide assessment with BLUF, confidence levels, and recommended actions.` },
+      ],
+    });
 
     return NextResponse.json(
       {
-        analysis,
-        model: 'llama-3.1-8b-instruct (OpenRouter)',
+        analysis: response.content,
+        model: response.model,
+        provider: response.provider,
         timestamp: new Date().toISOString(),
       },
       {
@@ -147,17 +148,14 @@ export async function POST(
 
     if (message.includes('API_KEY_INVALID') || message.includes('401')) {
       return NextResponse.json(
-        { error: 'Invalid OpenRouter API key.', code: 'INVALID_KEY' },
+        { error: 'Invalid AI provider API key.', code: 'INVALID_KEY' },
         { status: 401 }
       );
     }
 
-    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota') || message.includes('429')) {
+    if (message.includes('quota') || message.includes('429') || message.includes('RESOURCE_EXHAUSTED')) {
       return NextResponse.json(
-        {
-          error: 'API quota exhausted. Try again later or provide your own OpenRouter key.',
-          code: 'QUOTA_EXHAUSTED',
-        },
+        { error: 'API quota exhausted. Try another provider or provide your own key.', code: 'QUOTA_EXHAUSTED' },
         { status: 429 }
       );
     }
