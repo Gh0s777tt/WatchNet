@@ -135,14 +135,21 @@ Questo fork è basato sul progetto originale [simplifaisoul/osiris](https://gith
 | 91 | `osint/crypto` | ₿ **Crypto wallet**. Ricerca wallet BTC/ETH via Blockchair (saldo, transazioni). | `GET ?coin=&address=` ✦ |
 | 92 | `osint/dns` | 🌐 **DNS lookup**. A/AAAA/MX/NS/TXT/CNAME/SOA via Google DoH. | `GET ?domain=` |
 
+### AI — Funzionamento Offline con Luana
+
+L'AI Analyst è configurato per funzionare **completamente offline** usando:
+- **Luana (Mark-XXXIX-OR)** — assistente vocale AI italiana che fa da interfaccia
+- **Modello locale** — llama.cpp su `127.0.0.1:8080` (nessuna chiave API, nessuna connessione internet)
+- **Tutto offline** — analisi intelligence, briefing, esecuzione strumenti OSINT
+
 ### API — AI e SDK
 
 | # | Endpoint | Descrizione | Metodo |
 |---|----------|-------------|--------|
-| 93 | `ai/analyze` | 🤖 **Analisi AI**. Analizza intelligence con LLM OpenRouter. Rate: 10 richieste/minuto. | `POST ?query=&context=` |
-| 94 | `ai/briefing` | 📝 **Briefing AI**. Genera report intelligence con LLM OpenRouter. Rate: 5/minuto. | `POST ?context=` |
-| 95 | `sdk/ingest` | 📦 **SDK ingest**. Polybolos — importa entità JSON nello store condiviso. | `POST` (JSON body) |
-| 96 | `sdk/stream` | 📡 **SDK stream**. SSE real-time — aggiornamenti entità in tempo reale. | `GET` (SSE) |
+| 93 | `ai/analyze` | 🤖 **Analisi Intelligence con AI**. Usa OpenRouter o LLM locale per analizzare dati OSINT (terremoti, news, minacce, cyber). Invia query + contesto, ricevi assessment con confidence level. Rate: 10/min/IP. Supporta chiave OpenRouter **oppure** LLM locale (llama.cpp/Ollama su `127.0.0.1:8080`) — senza chiave va al locale. | `POST ?query=&context=` |
+| 94 | `ai/briefing` | 📝 **Briefing Intelligence Giornaliero**. Genera report strutturato stile CIA PDB/NSA: Executive Summary, PIRs, Seismic Assessment, Geopolitical Intel, Cyber Threat Landscape, Compound Risk, Forecast. Rate: 5/min/IP. Supporta stessa modalità duale (OpenRouter o locale) di `/ai/analyze`. | `POST ?context=` |
+| 95 | `sdk/ingest` | 📦 **SDK Polybolos ingest**. Importa entità JSON (aerei, navi, persone) nello store condiviso per il grafo entità. | `POST` (JSON body) |
+| 96 | `sdk/stream` | 📡 **SDK Polybolos stream**. SSE (Server-Sent Events) real-time — aggiornamenti entità in tempo reale. Connessione aperta persistente. | `GET` (SSE) |
 
 ---
 
@@ -150,7 +157,7 @@ Questo fork è basato sul progetto originale [simplifaisoul/osiris](https://gith
 
 | # | Componente | Descrizione |
 |---|------------|-------------|
-| 1 | **AiAnalyst** | 🤖 Interfaccia chat per analisi intelligence con Gemini 2.0 Flash. Pannello stile vetro premium. |
+| 1 | **AiAnalyst** | 🤖 **Analista Intelligence AI**. Interfaccia chat premium stile vetro con: **analisi intelligence** (valuta terremoti/news/minacce con confidence level), **generazione briefing** (report strutturato stile CIA PDB), **esecuzione strumenti OSINT** dal chat (port scan, DNS, WHOIS, CVE, Threat Intel, URL scan, subdomain enum tramite TOOL_DISPATCHES pattern matching). Gestione chiave OpenRouter (salva/cancella in localStorage). Supporta LLM **locale** (llama.cpp/Ollama su `127.0.0.1:8080`) senza chiave. Sistema prompt professionale da analista senior. Rate limiting integrato. 1000+ righe di codice. |
 | 2 | **BookmarksPanel** | 🔖 Salva e organizza posizioni mappa preferite (localStorage). Crea categorie e note. ✦ |
 | 3 | **CameraViewer** | 📹 Visualizzatore CCTV live stream con HLS, picture-in-picture, modalità fullscreen. |
 | 4 | **CorrelationPanel** | 🔗 Pannello correlazione OSINT: Bluetooth discovery, network sweep, esportazione Maltego. ✦ |
@@ -267,6 +274,31 @@ npm run build
 npm start
 ```
 
+### Variabili Ambiente
+
+OSIRIS funziona **senza chiavi API** per la maggior parte delle feature. L'AI è **completamente offline** usando il modello locale integrato con **Luana (Mark-XXXIX-OR)** — nessuna connessione internet necessaria.
+
+```env
+OSIRIS_PORT=3000
+
+# RECON scanner backend (opzionale — senza, toolkit dà 503)
+SCANNER_URL=
+SCANNER_KEY=
+
+# AI — OFFLINE (default): usa Luana + modello locale llama.cpp su 127.0.0.1:8080
+# AI — ONLINE: imposta AI_BASE_URL=https://openrouter.ai/api e inserisci chiave
+#              nell'interfaccia AiAnalyst → "Connect API" (Gemini/Claude/GPT)
+AI_BASE_URL=http://127.0.0.1:8080
+AI_MODEL=llama-3.2-1b-instruct
+
+# Opzionali — per rate limit più alti
+FIRMS_API_KEY=
+OPENSKY_CLIENT_ID=
+OPENSKY_CLIENT_SECRET=
+N2YO_API_KEY=
+AIS_API_KEY=
+```
+
 ### Docker
 
 ```bash
@@ -366,8 +398,14 @@ osiris/
 - `osint/cve`, `osint/mac`, `osint/github`, `osint/sanctions`, `osint/threats`
 - `osint/certs`, `osint/leaks`, `osint/sweep`, `osint/shodan`
 
+#### AI e SDK
+- `ai/analyze` — Analisi intelligence con AI (OpenRouter o LLM locale)
+- `ai/briefing` — Briefing intelligence giornaliero strutturato
+- `sdk/ingest` — Import entità Polybolos
+- `sdk/stream` — SSE real-time entità
+
 #### UI
-- `AiAnalyst`, `CameraViewer`, `EntityGraphPanel`, `ErrorBoundary`
+- `AiAnalyst` (chat AI con tool dispatching + Gemini/OpenRouter/locale), `CameraViewer`, `EntityGraphPanel`, `ErrorBoundary`
 - `GlobalStatusBar`, `IntelFeed`, `KeyboardShortcuts`, `LayerPanel`
 - `LiveAlerts`, `MarketsPanel`, `OsintPanel`, `OsirisMap`, `ScaleBar`
 - `ScmPanel`, `SearchBar`, `SharePanel`, `ViewPresets`
@@ -392,6 +430,8 @@ osiris/
 | `osint/urlscan` | URL scan submission | `curl /api/osint/urlscan?url=https://example.com` |
 | `osint/wayback` | Snapshot storici URL | `curl /api/osint/wayback?url=https://example.com` |
 | `osint/weather` | Meteo OSINT per target | `curl /api/osint/weather?lat=41.9&lng=12.5` |
+| `ai/analyze` | Analisi AI intelligence (richiede chiave OpenRouter O LLM locale su :8080) | `curl -X POST /api/ai/analyze -d '{"query":"analizza terremoti","context":{...}}'` |
+| `ai/briefing` | Briefing AI intelligence | `curl -X POST /api/ai/briefing -d '{"context":{...}}'` |
 | `search` | Ricerca unificata layer | `curl /api/search?q=roma&category=all` |
 | `cameras/italy` | Telecamere italiane | `curl /api/cameras/italy` |
 | `airports` | Database aeroporti | `curl /api/airports` |
