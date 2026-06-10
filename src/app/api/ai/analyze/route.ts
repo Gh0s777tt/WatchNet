@@ -4,6 +4,7 @@ import {
   type IntelligenceContext,
 } from '@/lib/ai-engine';
 import aiManager from '@/lib/ai/manager';
+import { localAnalyze } from '@/lib/ai/local-analyzer';
 
 export const dynamic = 'force-dynamic';
 
@@ -146,24 +147,22 @@ export async function POST(
     const message = err instanceof Error ? err.message : 'Unknown AI API error';
     if (err instanceof Error) console.error('[OSIRIS AI] Analysis error stack:', err.stack);
 
-    if (message.includes('API_KEY_INVALID') || message.includes('401')) {
-      return NextResponse.json(
-        { error: 'Invalid AI provider API key.', code: 'INVALID_KEY' },
-        { status: 401 }
-      );
-    }
+    console.warn('[OSIRIS AI] AI provider failed, falling back to local analysis:', message);
 
-    if (message.includes('quota') || message.includes('429') || message.includes('RESOURCE_EXHAUSTED')) {
-      return NextResponse.json(
-        { error: 'API quota exhausted. Try another provider or provide your own key.', code: 'QUOTA_EXHAUSTED' },
-        { status: 429 }
-      );
-    }
+    const analysis = localAnalyze(body.context, body.query.trim());
 
-    console.error('[OSIRIS AI] Analysis error:', message);
     return NextResponse.json(
-      { error: 'Intelligence analysis failed. Please try again.', code: 'ANALYSIS_FAILED' },
-      { status: 500 }
+      {
+        analysis,
+        model: 'local-analyzer',
+        provider: 'local',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': String(rateCheck.remaining),
+        },
+      }
     );
   }
 }
