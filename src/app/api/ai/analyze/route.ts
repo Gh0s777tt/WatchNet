@@ -2,17 +2,18 @@
  * ═══════════════════════════════════════════════════════════════
  *  OSIRIS — AI Intelligence Analysis Endpoint
  *  POST /api/ai/analyze
- *  Rate-limited, multi-key Gemini integration
+ *  Rate-limited, DeepSeek integration via OpenAI SDK
  * ═══════════════════════════════════════════════════════════════
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  createGeminiClient,
+  createDeepSeekClient,
   rotateApiKey,
   analyzeIntelligence,
   type IntelligenceContext,
 } from '@/lib/ai-engine';
+import { startLog } from '@/lib/event-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,7 +47,7 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number; rese
   return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count, resetIn: entry.resetAt - now };
 }
 
-// Periodic cleanup to prevent memory leaks
+// Periodic cleanup
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateLimitMap.entries()) {
@@ -63,7 +64,7 @@ setInterval(() => {
 function getEnvApiKeys(): string[] {
   const keys: string[] = [];
   for (let i = 1; i <= 8; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
+    const key = process.env[`DEEPSEEK_API_KEY_${i}`];
     if (key && key.trim().length > 0) {
       keys.push(key.trim());
     }
@@ -99,6 +100,8 @@ interface ErrorResponse {
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<AnalyzeResponse | ErrorResponse>> {
+  const routeLogDone = startLog('analyze-route', 'POST /api/ai/analyze', 'client→server', `rate-check`);
+
   // Extract client IP
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -108,6 +111,7 @@ export async function POST(
   // Rate limit check
   const rateCheck = checkRateLimit(ip);
   if (!rateCheck.allowed) {
+    routeLogDone({ status: 'FAIL', error: 'RATE_LIMITED', level: 'WARN' });
     return NextResponse.json(
       {
         error: 'Rate limit exceeded. Maximum 5 requests per minute.',
@@ -126,7 +130,7 @@ export async function POST(
   }
 
   // Determine API key — user-provided header takes priority
-  const userKey = request.headers.get('x-gemini-key')?.trim();
+  const userKey = request.headers.get('x-deepseek-key')?.trim();
   let apiKey: string;
 
   if (userKey && userKey.length > 0) {
@@ -137,7 +141,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            'No Gemini API key configured. Set GEMINI_API_KEY_1 in environment or provide a key via the settings panel.',
+            'No DeepSeek API key configured. Set DEEPSEEK_API_KEY_1 in environment or provide a key via the x-deepseek-key header.',
           code: 'NO_API_KEY',
         },
         { status: 503 }
@@ -171,15 +175,17 @@ export async function POST(
     );
   }
 
-  // Call Gemini
+  // Call DeepSeek
   try {
-    const client = createGeminiClient(apiKey);
+    routeLogDone({ requestContext: `query:${body.query.slice(0, 80)}` });
+    const client = createDeepSeekClient(apiKey);
     const analysis = await analyzeIntelligence(client, body.context, body.query.trim());
 
+    routeLogDone({ status: 'OK', responseSummary: `analysis ${analysis.length} chars` });
     return NextResponse.json(
       {
         analysis,
-        model: 'gemini-2.0-flash',
+        model: 'deepseek-v4-flash',
         timestamp: new Date().toISOString(),
       },
       {
@@ -189,37 +195,28 @@ export async function POST(
       }
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown Gemini API error';
+    const message = err instanceof Error ? err.message : 'Unknown DeepSeek API error';
 
-    // Detect specific Gemini error types
-    if (message.includes('API_KEY_INVALID') || message.includes('API key not valid')) {
+    // Detect common OpenAI-compatible error types
+    if (message.includes('401') || message.includes('unauthorized') || message.includes('auth') || message.includes('API key')) {
       return NextResponse.json(
-        { error: 'Invalid Gemini API key. Please check your configuration.', code: 'INVALID_KEY' },
+        { error: 'Invalid DeepSeek API key. Please check your configuration.', code: 'INVALID_KEY' },
         { status: 401 }
       );
     }
 
-    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota')) {
+    if (message.includes('429') || message.includes('rate') || message.includes('quota') || message.includes('insufficient_quota')) {
       return NextResponse.json(
         {
-          error: 'Gemini API quota exhausted. Try again later or provide your own API key.',
+          error: 'DeepSeek API quota exhausted. Try again later or provide your own API key via x-deepseek-key header.',
           code: 'QUOTA_EXHAUSTED',
         },
         { status: 429 }
       );
     }
 
-    if (message.includes('SAFETY')) {
-      return NextResponse.json(
-        {
-          error: 'Response blocked by Gemini safety filters. Try rephrasing your query.',
-          code: 'SAFETY_BLOCKED',
-        },
-        { status: 422 }
-      );
-    }
-
     console.error('[OSIRIS AI] Analysis error:', message);
+    routeLogDone({ status: 'FAIL', error: message });
     return NextResponse.json(
       { error: 'Intelligence analysis failed. Please try again.', code: 'ANALYSIS_FAILED' },
       { status: 500 }

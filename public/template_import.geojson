@@ -1,0 +1,76 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [30.5234, 50.4501]
+      },
+      "properties": {
+        "title": "KYIV OBSERVATION POST",
+        "description": "Suspicious RF signals detected near grid substation",
+        "severity": "alert",
+        "category": "threat",
+        "tags": "sigint, ukraine, grid"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [36.2346, 49.9935]
+      },
+      "properties": {
+        "title": "KHARKIV DRONE ACTIVITY",
+        "description": "UAV loitering over industrial zone",
+        "severity": "critical",
+        "category": "observation",
+        "tags": "uav, surveillance"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.0297, 49.8428]
+      },
+      "properties": {
+        "title": "LVIV SATELLITE DOWNLINK",
+        "description": "Unknown signal intercept at 12.4GHz",
+        "severity": "watch",
+        "category": "source",
+        "tags": "satcom, intercept"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [33.4223, 44.4950]
+      },
+      "properties": {
+        "title": "SEVASTOPOL NAVAL MOVEMENT",
+        "description": "Unusual naval traffic pattern detected",
+        "severity": "info",
+        "category": "general",
+        "tags": "naval, black-sea"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [34.8000, 46.8000]
+      },
+      "properties": {
+        "title": "ENERGODAR INFRASTRUCTURE",
+        "description": "Power plant perimeter breach reported",
+        "severity": "critical",
+        "category": "infrastructure",
+        "tags": "energy, breach",
+        "expiry_hours": 48
+      }
+    }
+  ]
+}

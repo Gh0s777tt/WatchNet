@@ -10,8 +10,8 @@ interface OsirisMapProps {
   onEntityClick?: (entity: any) => void;
   onMouseCoords?: (coords: { lat: number; lng: number }) => void;
   onRightClick?: (coords: { lat: number; lng: number }) => void;
-  onViewStateChange?: (vs: { zoom: number; latitude: number }) => void;
-  flyToLocation?: { lat: number; lng: number; ts: number } | null;
+  onViewStateChange?: (vs: { zoom: number; latitude: number; longitude: number }) => void;
+  flyToLocation?: { lat: number; lng: number; ts: number; zoom?: number } | null;
   projection?: 'mercator' | 'globe';
   mapStyle?: string;
   sweepData?: any;
@@ -136,6 +136,15 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
+    // Force preserveDrawingBuffer on WebGL context for screenshot reliability
+    const origGetContext = (HTMLCanvasElement.prototype.getContext as any);
+    (HTMLCanvasElement.prototype as any).getContext = function(type: string, attrs?: any) {
+      if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
+        attrs = { ...attrs, preserveDrawingBuffer: true };
+      }
+      return origGetContext.call(this, type, attrs);
+    };
+
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
@@ -153,6 +162,8 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     });
 
     map.on('load', () => {
+      // Restore original getContext so other components aren't affected
+      (HTMLCanvasElement.prototype as any).getContext = origGetContext;
       mapRef.current = map;
       // Create icons
       createIcon(map, 'plane-cyan', '#00E5FF', 24);
@@ -602,7 +613,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       }
     });
     map.on('contextmenu', e => { e.preventDefault(); onRightClick?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }); });
-    map.on('moveend', () => { const c = map.getCenter(); onViewStateChange?.({ zoom: map.getZoom(), latitude: c.lat }); });
+    map.on('moveend', () => { const c = map.getCenter(); onViewStateChange?.({ zoom: map.getZoom(), latitude: c.lat, longitude: c.lng }); });
 
     // ── POPUP HELPER ──
     const popup = (coords: any, html: string) => {
@@ -1432,33 +1443,56 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     });
   }, [mapReady, pins]);
 
-  // Screenshot capture
+  // Screenshot capture — copy canvas via 2D context for reliable WebGL read
   useEffect(() => {
     if (!mapReady || !mapRef.current || screenshotTick === 0) return;
     const map = mapRef.current;
-    // Wait a frame for UI to settle
-    requestAnimationFrame(() => {
+    const srcCanvas = map.getCanvas();
+    console.log('[OSIRIS] Screenshot triggered', { tick: screenshotTick, cw: srcCanvas.width, ch: srcCanvas.height, ready: map.loaded() });
+    setTimeout(() => {
       try {
-        const canvas = map.getCanvas();
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        const now = new Date();
-        const ts = now.toISOString().slice(0, 19).replace(/[:-]/g, '');
-        link.download = `osiris_screenshot_${ts}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        map.triggerRepaint();
+        console.log('[OSIRIS] triggerRepaint called');
+        setTimeout(() => {
+          try {
+            const srcCanvas = map.getCanvas();
+            const w = srcCanvas.width;
+            const h = srcCanvas.height;
+            console.log('[OSIRIS] Capturing canvas', { w, h });
+            if (w === 0 || h === 0) {
+              console.warn('[OSIRIS] Canvas has zero dimensions, screenshot aborted');
+              return;
+            }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(srcCanvas, 0, 0);
+            const dataUrl = tempCanvas.toDataURL('image/png');
+            console.log('[OSIRIS] Data URL length:', dataUrl.length);
+            const link = document.createElement('a');
+            const now = new Date();
+            const ts = now.toISOString().slice(0, 19).replace(/[:-]/g, '');
+            link.download = `osiris_screenshot_${ts}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            console.log('[OSIRIS] Screenshot downloaded successfully');
+          } catch (e) {
+            console.warn('[OSIRIS] Screenshot inner failed:', e);
+          }
+        }, 500);
       } catch (e) {
-        console.warn('[OSIRIS] Screenshot failed:', e);
+        console.warn('[OSIRIS] Screenshot trigger failed:', e);
       }
-    });
+    }, 500);
   }, [mapReady, screenshotTick]);
 
   // Fly-to
   useEffect(() => {
     if (!mapReady || !mapRef.current || !flyToLocation) return;
-    mapRef.current.flyTo({ center: [flyToLocation.lng, flyToLocation.lat], zoom: 8, duration: 2000 });
+    mapRef.current.flyTo({ center: [flyToLocation.lng, flyToLocation.lat], zoom: flyToLocation.zoom ?? 8, duration: 2000 });
   }, [mapReady, flyToLocation]);
 
   // Dynamic projection switching (lightweight — no terrain DEM)

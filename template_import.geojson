@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[30.52,50.45]},"properties":{"title":"TEST PIN","description":"Test import","severity":"info","category":"general","tags":"test"}}]}

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, BarChart3, Newspaper, Search, X, Globe, MapPinned, Radar, Satellite, Moon, ExternalLink, AlertTriangle, Activity, Camera, Database, Wifi, Play, Network } from 'lucide-react';
+import { Layers, BarChart3, Newspaper, Search, X, Globe, MapPinned, Radar, Satellite, Moon, ExternalLink, AlertTriangle, Activity, Camera, Database, Wifi, Play, Network, Eye, EyeOff } from 'lucide-react';
 import IntelFeed from '@/components/IntelFeed';
 import MarketsPanel from '@/components/MarketsPanel';
 import ScmPanel from '@/components/ScmPanel';
@@ -18,6 +18,14 @@ import ViewPresets from '@/components/ViewPresets';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import GlobalStatusBar from '@/components/GlobalStatusBar';
 import LiveAlerts from '@/components/LiveAlerts';
+import GothamDashboard from '@/components/GothamDashboard';
+import AIChatPanel from '@/components/AIChatPanel';
+import CorrelationPanel from '@/components/CorrelationPanel';
+import WorkspacePanel from '@/components/WorkspacePanel';
+import PlaybookPanel from '@/components/PlaybookPanel';
+import ClausedPipelinePanel from '@/components/ClausedPipelinePanel';
+import PersonalGraphPanel from '@/components/PersonalGraphPanel';
+import { evaluatePlaybooks, type Playbook } from '@/lib/playbook-engine';
 
 const OsirisMap = dynamic(() => import('@/components/OsirisMap'), { ssr: false });
 const LayerPanel = dynamic(() => import('@/components/LayerPanel'));
@@ -91,8 +99,8 @@ export default function Dashboard() {
   const data = dataRef.current;
 
   const [backendStatus, setBackendStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
-  const [mapView, setMapView] = useState({ zoom: 2.5, latitude: 20 });
-  const [flyToLocation, setFlyToLocation] = useState<{ lat: number; lng: number; ts: number } | null>(null);
+  const [mapView, setMapView] = useState({ zoom: 2.5, latitude: 20, longitude: 25.48 });
+  const [flyToLocation, setFlyToLocation] = useState<{ lat: number; lng: number; ts: number; zoom?: number } | null>(null);
   const [globalStats, setGlobalStats] = useState<any>(null);
   const mouseCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
   const coordsDisplayRef = useRef<HTMLDivElement>(null);
@@ -108,11 +116,38 @@ export default function Dashboard() {
   const [showScmPanel, setShowScmPanel] = useState(true);
   const [showIntel, setShowIntel] = useState(false);
   const [showEntityGraph, setShowEntityGraph] = useState(false);
+  const [showPersonalGraph, setShowPersonalGraph] = useState(false);
   const [showWatchlist, setShowWatchlist] = useState(false);
     const [pins, setPins] = useState<any[]>([]);
   // Load pins from localStorage on mount, persist on change
   useEffect(() => { setPins(loadPins()); }, []);
   useEffect(() => { if (pins.length > 0 || localStorage.getItem('osiris_intel_pins')) savePins(pins); }, [pins]);
+
+  // Playbooks state
+  const [playbooks, setPlaybooks] = useState<Playbook[]>(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('osiris_playbooks') : null;
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('osiris_playbooks', JSON.stringify(playbooks)); } catch {}
+  }, [playbooks]);
+  // Playbook evaluator — runs on each data refresh
+  const prevDataStamp = useRef(0);
+  useEffect(() => {
+    const stamp = Date.now();
+    if (stamp - prevDataStamp.current < 30000) return;
+    prevDataStamp.current = stamp;
+    const events = evaluatePlaybooks(playbooks, data);
+    for (const ev of events) {
+      console.log(`[PLAYBOOK] FIRED: ${ev.playbookName} at ${ev.location.lat.toFixed(2)},${ev.location.lng.toFixed(2)}`);
+      setFlyToLocation({ lat: ev.location.lat, lng: ev.location.lng, zoom: 10, ts: Date.now() });
+    }
+  }, [data, playbooks]);
+
+  // CLAUSED PIPELINE panel state (opened from CLAUSED-PIPELINE menu in LayerPanel)
+  const [showClausedPipeline, setShowClausedPipeline] = useState(false);
   const [pendingPin, setPendingPin] = useState<{ lat: number; lng: number } | null>(null);
   const [screenshotTick, setScreenshotTick] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -123,6 +158,7 @@ export default function Dashboard() {
   const [scanTargets, setScanTargets] = useState<any[]>([]);
   const [entityGraphTarget, setEntityGraphTarget] = useState<{ type: string; id: string; label?: string; properties?: Record<string, any> } | null>(null);
   const [demoMode, setDemoMode] = useState(false);
+  const [showMap, setShowMap] = useState(true);
 
   const isMobile = useIsMobile();
   const startTime = useRef(Date.now());
@@ -162,11 +198,19 @@ export default function Dashboard() {
   const [liveFeedName, setLiveFeedName] = useState('');
   const [liveFeedEmbedAllowed, setLiveFeedEmbedAllowed] = useState(true);
 
+// Helper: save state to localStorage
+function saveOsirisState(v: any) {
+  try { localStorage.setItem('osiris_state', JSON.stringify(v)); }
+  catch (e) { /* ignore */ }
+}
+
   // Splash screen
   useEffect(() => {
     const splashTimer = setTimeout(() => setShowSplash(false), 2500);
     return () => clearTimeout(splashTimer);
   }, []);
+
+
 
   // URL state: parse on mount
   useEffect(() => {
@@ -177,7 +221,8 @@ export default function Dashboard() {
     const zoom = parseFloat(p.get('zoom') || '');
     if (!isNaN(lat) && !isNaN(lon)) {
       setFlyToLocation({ lat, lng: lon, ts: Date.now() });
-      if (!isNaN(zoom)) setMapView(v => ({ ...v, zoom }));
+      if (!isNaN(zoom)) setMapView(v => ({ ...v, zoom, latitude: lat, longitude: lon }));
+      else setMapView(v => ({ ...v, latitude: lat, longitude: lon }));
     }
     const layers = p.get('layers');
     if (layers) {
@@ -198,7 +243,7 @@ export default function Dashboard() {
     urlTimer.current = setTimeout(() => {
       const p = new URLSearchParams();
       p.set('lat', (mapView.latitude ?? 20).toFixed(4));
-      p.set('lon', '0');
+      p.set('lon', (mapView.longitude ?? 0).toFixed(4));
       p.set('zoom', mapView.zoom.toFixed(2));
       const active = Object.entries(activeLayers).filter(([,v]) => v).map(([k]) => k).join(',');
       p.set('layers', active);
@@ -206,6 +251,30 @@ export default function Dashboard() {
       window.history.replaceState(null, '', url);
     }, 1500);
   }, [mapView, activeLayers]);
+
+  // Restore full state from localStorage on mount (runs after URL parse takes priority)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem('osiris_state');
+      if (!saved) return;
+      const st = JSON.parse(saved);
+      // Only restore what URL params didn't already set
+      const p = new URLSearchParams(window.location.search);
+      const hasUrlCoords = p.has('lat') && p.has('lon');
+      if (!hasUrlCoords && st.mapView) setMapView(st.mapView);
+      if (st.activeLayers && Object.keys(st.activeLayers).length > 0) setActiveLayers(st.activeLayers);
+      if (st.projection && st.projection !== 'globe') setMapProjection(st.projection);
+      if (st.mapStyle && st.mapStyle !== 'dark') setMapStyle(st.mapStyle);
+      if (st.showLayers === false) setShowLayers(false);
+    } catch (e) { console.warn('[OSIRIS] State restore failed:', e); }
+  }, []);
+
+  // Save state to localStorage immediately on any meaningful change
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    saveOsirisState({ mapView, activeLayers, projection: mapProjection, mapStyle: mapStyle, showLayers });
+  }, [mapView, activeLayers, mapProjection, mapStyle, showLayers]);
 
   // Global Stats Fetch
   useEffect(() => {
@@ -284,6 +353,15 @@ export default function Dashboard() {
       setLiveFeedName(entity.name);
       setLiveFeedEmbedAllowed(entity.embed_allowed !== false);
     }
+  }, []);
+
+  // Workspace loader — restores full dashboard state
+  const handleLoadWorkspace = useCallback((ws: any) => {
+    if (ws.pins) setPins(ws.pins);
+    if (ws.activeLayers) setActiveLayers(ws.activeLayers);
+    if (ws.mapView) setMapView(ws.mapView);
+    if (ws.mapProjection) setMapProjection(ws.mapProjection);
+    if (ws.mapStyle) setMapStyle(ws.mapStyle);
   }, []);
 
   // Global handler for map popups to manually open the Intel Graph
@@ -750,6 +828,7 @@ export default function Dashboard() {
 
 
       {/* ── MAP ── */}
+      {showMap && (
       <ErrorBoundary name="Map">
         <OsirisMap 
           data={data} 
@@ -768,6 +847,25 @@ export default function Dashboard() {
           demoMode={demoMode}
         />
       </ErrorBoundary>
+      )}
+
+      {/* ── GOTHAM DASHBOARD (when map is hidden) ── */}
+      {!showMap && (
+        <GothamDashboard
+          data={data}
+          activeLayers={activeLayers}
+          globalStats={globalStats}
+          spaceWeather={spaceWeather}
+          mapView={mapView}
+          onLocate={(lat, lng) => {
+            setFlyToLocation({ lat, lng, ts: Date.now() });
+            setShowMap(true);
+          }}
+          onRefresh={() => {
+            setDataVersion(v => v + 1);
+          }}
+        />
+      )}
 
 
       {/* ── MAP VIEW CONTROLS (3D/2D + SATELLITE TOGGLE) ── */}
@@ -871,10 +969,17 @@ export default function Dashboard() {
 
 
       {/* ── NEW SIDEBAR (Root Level) ── */}
-      {showLayers && !isMobile && <LayerPanel data={data} activeLayers={activeLayers} setActiveLayers={setActiveLayers} />}
+      {showLayers && !isMobile && <LayerPanel data={data} activeLayers={activeLayers} setActiveLayers={setActiveLayers} onOpenPipeline={() => setShowClausedPipeline(true)} />}
 
       {/* ── RIGHT TOOL STRIP (desktop only — mobile uses bottom nav) ── */}
       {!isMobile && <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-[250] pointer-events-auto bg-black/40 backdrop-blur-sm p-1 rounded-full border border-white/5">
+        {/* Hide/Show Map Toggle */}
+        <div className="relative group">
+          <button onClick={() => setShowMap(p => !p)} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${!showMap ? 'bg-[var(--gold-primary)]/20' : 'hover:bg-white/10'}`} title={showMap ? 'HIDE MAP' : 'SHOW MAP'}>
+            {showMap ? <EyeOff className="w-4 h-4 text-white/60" /> : <Eye className="w-4 h-4 text-[var(--gold-primary)]" />}
+          </button>
+        </div>
+
         <div className="relative group">
           <button onClick={() => setScreenshotTick(t => t + 1)} className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-white/10" title="CAPTURE SCREENSHOT">
             <Camera className="w-4 h-4 text-white/60" />
@@ -930,10 +1035,16 @@ export default function Dashboard() {
         </div>
 
         <div className="relative group">
-          <button onClick={() => { setShowEntityGraph(!showEntityGraph); setShowIntel(false); setShowMarkets(false); setShowAlerts(false); }} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showEntityGraph ? 'bg-[#D4AF37]/20' : 'hover:bg-white/10'}`}>
-            <Network className={`w-4 h-4 ${showEntityGraph ? 'text-[#D4AF37]' : 'text-white/60'}`} />
+          <button onClick={() => { setShowPersonalGraph(!showPersonalGraph); setShowIntel(false); setShowMarkets(false); setShowAlerts(false); }} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showPersonalGraph ? 'bg-[#D4AF37]/20' : 'hover:bg-white/10'}`}>
+            <Network className={`w-4 h-4 ${showPersonalGraph ? 'text-[#D4AF37]' : 'text-white/60'}`} />
           </button>
         </div>
+
+        {/* Intelligence Correlations Button */}
+        <CorrelationPanel
+          data={data}
+          onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })}
+        />
 
         {/* Watchlist Button */}
         <div className="relative">
@@ -946,17 +1057,63 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Workspace Button */}
+        <div className="relative">
+          <WorkspacePanel
+            currentState={{ pins, activeLayers, mapView, mapProjection, mapStyle }}
+            onLoadWorkspace={handleLoadWorkspace}
+          />
+        </div>
+
+        {/* Playbooks Button */}
+        <PlaybookPanel
+          playbooks={playbooks}
+          setPlaybooks={setPlaybooks}
+          onFirePlaybook={(pb, loc) => {
+            setFlyToLocation({ lat: loc.lat, lng: loc.lng, zoom: 10, ts: Date.now() });
+          }}
+        />
+
         {/* Intel Pins Button */}
         <div className="relative">
           <IntelPinsPanel
             pins={pins}
             setPins={setPins}
-            onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })}
+            onLocate={(lat, lng) => setFlyToLocation({ lat, lng, zoom: 18, ts: Date.now() })}
             pendingPin={pendingPin}
             clearPendingPin={() => setPendingPin(null)}
+            data={data}
           />
         </div>
+
+        {/* AI Chat Button */}
+        <AIChatPanel
+          pins={pins}
+          activeLayers={activeLayers}
+          mapView={mapView}
+          onFlyTo={(lat, lng, zoom) => setFlyToLocation({ lat, lng, zoom: zoom || 15, ts: Date.now() })}
+        />
       </div>}
+
+      {/* CLAUSED PIPELINE Overlay (opened from CLAUSED-PIPELINE sidebar menu) */}
+      {showClausedPipeline && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowClausedPipeline(false)}>
+          <div className="relative" onClick={e => e.stopPropagation()}>
+            <ClausedPipelinePanel
+              onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })}
+              onIngest={(item) => {
+                if (item.lat && item.lng) {
+                  setFlyToLocation({ lat: item.lat, lng: item.lng, zoom: 12, ts: Date.now() });
+                }
+              }}
+              embedded={true}
+              onClose={() => setShowClausedPipeline(false)}
+              onOpenPersonalGraph={() => { setShowClausedPipeline(false); setShowPersonalGraph(true); }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── LIVE FEED VIEWER OVERLAY ── */}
       <AnimatePresence>
@@ -1135,15 +1292,28 @@ export default function Dashboard() {
               <span ref={coordsDisplayRef} className="text-[var(--gold-primary)] font-bold tabular-nums">—</span>
               <button
                 onClick={() => {
-                  const c = mouseCoordsRef.current;
+                  const c = mouseCoordsRef.current || { lat: mapView.latitude, lng: mapView.longitude ?? 0 };
                   const loc = document.querySelector('[data-loc-label]')?.textContent || '';
-                  if (c) {
-                    const text = `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}${loc && loc !== 'HOVER MAP' ? ' - ' + loc : ''}`;
-                    navigator.clipboard.writeText(text).then(() => {
-                      const btn = document.getElementById('copy-toast');
-                      if (btn) { btn.textContent = 'COPIED'; setTimeout(() => { if(btn) btn.textContent = 'COPY'; }, 1500); }
-                    }).catch(() => {});
-                  }
+                  const text = `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}${loc && loc !== 'HOVER MAP' ? ' - ' + loc : ''}`;
+                  // Try modern clipboard API first, fall back to execCommand for HTTP origins
+                  const copyFallback = () => {
+                    try {
+                      const ta = document.createElement('textarea');
+                      ta.value = text;
+                      ta.style.position = 'fixed';
+                      ta.style.opacity = '0';
+                      document.body.appendChild(ta);
+                      ta.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(ta);
+                    } catch (e) { console.warn('[OSIRIS] Copy failed:', e); }
+                  };
+                  navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.getElementById('copy-toast');
+                    if (btn) { btn.textContent = 'COPIED'; setTimeout(() => { if(btn) btn.textContent = 'COPY'; }, 1500); }
+                  }).catch(copyFallback);
+                  // Also run fallback immediately for HTTP origins
+                  if (!window.isSecureContext) copyFallback();
                 }}
                 className="p-1 text-[var(--text-muted)] hover:text-[var(--cyan-primary)] transition-colors"
                 title="COPY COORDINATES"
@@ -1215,6 +1385,17 @@ export default function Dashboard() {
         <EntityGraphPanel
           entity={entityGraphTarget}
           onClose={() => setShowEntityGraph(false)}
+        />
+      )}
+
+      {/* ── Personal Ontology Graph (full-screen) ── */}
+      {showPersonalGraph && (
+        <PersonalGraphPanel
+          show={showPersonalGraph}
+          onClose={() => setShowPersonalGraph(false)}
+          onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })}
+          mapVisible={showMap}
+          onToggleMap={() => setShowMap(p => !p)}
         />
       )}
 

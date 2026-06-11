@@ -2,17 +2,18 @@
  * ═══════════════════════════════════════════════════════════════
  *  OSIRIS — AI Intelligence Briefing Endpoint
  *  POST /api/ai/briefing
- *  Generates structured threat briefings via Gemini
+ *  Generates structured threat briefings via DeepSeek
  * ═══════════════════════════════════════════════════════════════
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  createGeminiClient,
+  createDeepSeekClient,
   rotateApiKey,
   generateBriefing,
   type IntelligenceContext,
 } from '@/lib/ai-engine';
+import { startLog } from '@/lib/event-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,7 +63,7 @@ setInterval(() => {
 function getEnvApiKeys(): string[] {
   const keys: string[] = [];
   for (let i = 1; i <= 8; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
+    const key = process.env[`DEEPSEEK_API_KEY_${i}`];
     if (key && key.trim().length > 0) {
       keys.push(key.trim());
     }
@@ -96,6 +97,8 @@ interface ErrorResponse {
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<BriefingResponse | ErrorResponse>> {
+  const routeLogDone = startLog('briefing-route', 'POST /api/ai/briefing', 'client→server', 'rate-check');
+
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -103,6 +106,7 @@ export async function POST(
 
   const rateCheck = checkRateLimit(ip);
   if (!rateCheck.allowed) {
+    routeLogDone({ status: 'FAIL', error: 'RATE_LIMITED', level: 'WARN' });
     return NextResponse.json(
       {
         error: 'Rate limit exceeded. Maximum 5 requests per minute.',
@@ -119,7 +123,7 @@ export async function POST(
     );
   }
 
-  const userKey = request.headers.get('x-gemini-key')?.trim();
+  const userKey = request.headers.get('x-deepseek-key')?.trim();
   let apiKey: string;
 
   if (userKey && userKey.length > 0) {
@@ -130,7 +134,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            'No Gemini API key configured. Set GEMINI_API_KEY_1 in environment or provide a key via the settings panel.',
+            'No DeepSeek API key configured. Set DEEPSEEK_API_KEY_1 in environment or provide a key via the x-deepseek-key header.',
           code: 'NO_API_KEY',
         },
         { status: 503 }
@@ -157,9 +161,11 @@ export async function POST(
   }
 
   try {
-    const client = createGeminiClient(apiKey);
+    routeLogDone({ requestContext: `briefing context` });
+    const client = createDeepSeekClient(apiKey);
     const briefing = await generateBriefing(client, body.context);
 
+    routeLogDone({ status: 'OK', responseSummary: `briefing ${briefing.length} chars` });
     return NextResponse.json(
       {
         briefing,
@@ -172,36 +178,27 @@ export async function POST(
       }
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown Gemini API error';
+    const message = err instanceof Error ? err.message : 'Unknown DeepSeek API error';
 
-    if (message.includes('API_KEY_INVALID') || message.includes('API key not valid')) {
+    if (message.includes('401') || message.includes('unauthorized') || message.includes('auth') || message.includes('API key')) {
       return NextResponse.json(
-        { error: 'Invalid Gemini API key. Please check your configuration.', code: 'INVALID_KEY' },
+        { error: 'Invalid DeepSeek API key. Please check your configuration.', code: 'INVALID_KEY' },
         { status: 401 }
       );
     }
 
-    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('quota')) {
+    if (message.includes('429') || message.includes('rate') || message.includes('quota') || message.includes('insufficient_quota')) {
       return NextResponse.json(
         {
-          error: 'Gemini API quota exhausted. Try again later or provide your own API key.',
+          error: 'DeepSeek API quota exhausted. Try again later or provide your own API key via x-deepseek-key header.',
           code: 'QUOTA_EXHAUSTED',
         },
         { status: 429 }
       );
     }
 
-    if (message.includes('SAFETY')) {
-      return NextResponse.json(
-        {
-          error: 'Response blocked by Gemini safety filters. Try again.',
-          code: 'SAFETY_BLOCKED',
-        },
-        { status: 422 }
-      );
-    }
-
     console.error('[OSIRIS AI] Briefing error:', message);
+    routeLogDone({ status: 'FAIL', error: message });
     return NextResponse.json(
       { error: 'Briefing generation failed. Please try again.', code: 'BRIEFING_FAILED' },
       { status: 500 }

@@ -1,6 +1,6 @@
 const API_BASE = 'http://localhost:3000/api';
 const INGEST_URL = `${API_BASE}/sdk/ingest`;
-const API_KEY = 'OSIRIS-dev-key';
+const API_KEY = 'YOUR_OSIRIS_API_KEY'; // Replace with your API key
 
 async function fetchJson(url) {
   try {

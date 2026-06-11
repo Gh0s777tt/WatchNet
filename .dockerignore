@@ -1,6 +1,6 @@
 # Dependencies & build output (rebuilt inside image)
 node_modules
-.next
+#.next  # Uncomment if building from source inside Docker; keep commented for pre-built deploy
 out
 build
 

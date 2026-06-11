@@ -1,15 +1,13 @@
 /**
  * ═══════════════════════════════════════════════════════════════
  *  OSIRIS — AI Intelligence Engine
- *  Gemini 2.0 Flash integration for real-time intelligence analysis
- *  Designed to correlate multi-domain feeds into actionable briefings
+ *  DeepSeek via native fetch (OpenAI-compatible API)
+ *  No npm deps required — uses built-in fetch
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { GoogleGenerativeAI, type GenerativeModel } from '@google/generative-ai';
-
 /* ─────────────────────────────────────────────────────────────
-   Data Interfaces — Zero `any` types
+   Data Interfaces
    ───────────────────────────────────────────────────────────── */
 
 export interface EarthquakeEvent {
@@ -68,6 +66,19 @@ export interface IntelligenceContext {
   cyberAlerts: CyberAlert[];
   timestamp: string;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Event Logger
+   ───────────────────────────────────────────────────────────── */
+
+import { startLog } from '@/lib/event-logger';
+
+/* ─────────────────────────────────────────────────────────────
+   Configuration
+   ───────────────────────────────────────────────────────────── */
+
+const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
+const DEEPSEEK_MODEL = 'deepseek-v4-flash';
 
 /* ─────────────────────────────────────────────────────────────
    System Prompt — Palantir-grade analyst persona
@@ -140,11 +151,15 @@ State overall confidence level and key analytical gaps.
 Analyze the provided data thoroughly. Be specific — reference actual events, magnitudes, locations, and CVE IDs from the context.`;
 
 /* ─────────────────────────────────────────────────────────────
-   Client Factory
+   Client — lightweight wrapper using native fetch
    ───────────────────────────────────────────────────────────── */
 
-export function createGeminiClient(apiKey: string): GoogleGenerativeAI {
-  return new GoogleGenerativeAI(apiKey);
+export interface DeepSeekClient {
+  apiKey: string;
+}
+
+export function createDeepSeekClient(apiKey: string): DeepSeekClient {
+  return { apiKey };
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -214,57 +229,92 @@ function serializeContext(context: IntelligenceContext): string {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Intelligence Analysis
+   Raw DeepSeek Chat Completion via fetch
    ───────────────────────────────────────────────────────────── */
 
 export async function analyzeIntelligence(
-  client: GoogleGenerativeAI,
+  client: DeepSeekClient,
   context: IntelligenceContext,
   userQuery: string
 ): Promise<string> {
-  const model: GenerativeModel = client.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PROMPT,
+  const contextData = serializeContext(context);
+  const logDone = startLog('ai-engine', 'analyzeIntelligence', 'https://api.deepseek.com/v1/chat/completions', `query:${userQuery.slice(0, 80)}`);
+
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: `## CURRENT OPERATIONAL DATA\n${contextData}\n\n## ANALYST QUERY\n${userQuery}\n\nProvide your intelligence assessment based on the operational data above and the analyst's query.`,
+    },
+  ];
+
+  const res = await fetch(`${DEEPSEEK_BASE_URL}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${client.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: DEEPSEEK_MODEL,
+      messages,
+      temperature: 0.3,
+      max_tokens: 4096,
+    }),
   });
 
-  const contextData = serializeContext(context);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    logDone({ status: 'FAIL', error: `DeepSeek API ${res.status}: ${errText.slice(0, 200)}` });
+    throw new Error(`DeepSeek API ${res.status}: ${errText.slice(0, 200)}`);
+  }
 
-  const prompt = `## CURRENT OPERATIONAL DATA
-${contextData}
-
-## ANALYST QUERY
-${userQuery}
-
-Provide your intelligence assessment based on the operational data above and the analyst's query.`;
-
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || 'No response generated.';
+  logDone({ responseSummary: `${content.slice(0, 100)}...` });
+  return content;
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Daily Briefing Generation
+   Daily Briefing Generation — DeepSeek
    ───────────────────────────────────────────────────────────── */
 
 export async function generateBriefing(
-  client: GoogleGenerativeAI,
+  client: DeepSeekClient,
   context: IntelligenceContext
 ): Promise<string> {
-  const model: GenerativeModel = client.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PROMPT,
+  const contextData = serializeContext(context);
+  const logDone = startLog('ai-engine', 'generateBriefing', 'https://api.deepseek.com/v1/chat/completions', `earthquakes:${context.earthquakes.length} news:${context.news.length} threats:${context.threats.length}`);
+
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: `${BRIEFING_PROMPT}\n\n## CURRENT OPERATIONAL DATA\n${contextData}\n\nGenerate the briefing now.`,
+    },
+  ];
+
+  const res = await fetch(`${DEEPSEEK_BASE_URL}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${client.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: DEEPSEEK_MODEL,
+      messages,
+      temperature: 0.3,
+      max_tokens: 4096,
+    }),
   });
 
-  const contextData = serializeContext(context);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    logDone({ status: 'FAIL', error: `DeepSeek API ${res.status}: ${errText.slice(0, 200)}` });
+    throw new Error(`DeepSeek API ${res.status}: ${errText.slice(0, 200)}`);
+  }
 
-  const prompt = `${BRIEFING_PROMPT}
-
-## CURRENT OPERATIONAL DATA
-${contextData}
-
-Generate the briefing now.`;
-
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || 'No response generated.';
+  logDone({ responseSummary: `briefing ${content.length} chars` });
+  return content;
 }
