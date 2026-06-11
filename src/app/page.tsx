@@ -26,6 +26,9 @@ import PlaybookPanel from '@/components/PlaybookPanel';
 import ClausedPipelinePanel from '@/components/ClausedPipelinePanel';
 import PersonalGraphPanel from '@/components/PersonalGraphPanel';
 import { evaluatePlaybooks, type Playbook } from '@/lib/playbook-engine';
+import { AuthProvider } from '@/components/AuthProvider';
+import LoginModal from '@/components/LoginModal';
+import UserMenu from '@/components/UserMenu';
 
 const OsirisMap = dynamic(() => import('@/components/OsirisMap'), { ssr: false });
 const LayerPanel = dynamic(() => import('@/components/LayerPanel'));
@@ -159,6 +162,7 @@ export default function Dashboard() {
   const [entityGraphTarget, setEntityGraphTarget] = useState<{ type: string; id: string; label?: string; properties?: Record<string, any> } | null>(null);
   const [demoMode, setDemoMode] = useState(false);
   const [showMap, setShowMap] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const isMobile = useIsMobile();
   const startTime = useRef(Date.now());
@@ -631,7 +635,8 @@ function saveOsirisState(v: any) {
 
 
   return (
-    <main className="fixed inset-0 w-full h-full bg-[var(--bg-void)] overflow-hidden">
+    <AuthProvider>
+      <main className="fixed inset-0 w-full h-full bg-[var(--bg-void)] overflow-hidden">
 
       {/* ── SPLASH ── */}
       <AnimatePresence>
@@ -937,6 +942,7 @@ function saveOsirisState(v: any) {
         </span>
 
         <UptimeClock />
+        <UserMenu onOpenLogin={() => setShowLoginModal(true)} />
         <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-50 ml-2">V.4.1</span>
       </motion.div>
 
@@ -1421,6 +1427,9 @@ function saveOsirisState(v: any) {
       {/* ── GLOBAL STATUS TICKER (bottom) ── */}
       <GlobalStatusBar />
 
+      {/* ── LOGIN MODAL ── */}
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+
       {/* Shortcut hint */}
       <div className="desktop-only absolute bottom-[26px] right-5 z-[200] pointer-events-none text-[6px] font-mono text-[var(--text-muted)]/40 tracking-widest">
         [?] SHORTCUTS · [F] FULLSCREEN · [S] SHARE · [R] RESET VIEW
@@ -1428,5 +1437,6 @@ function saveOsirisState(v: any) {
 
 
     </main>
+    </AuthProvider>
   );
 }
