@@ -1,0 +1,23 @@
+name: Refresh Pages data cache
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0,30 * * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build Pages cache
+        run: node .github/scripts/build-pages-data-cache.mjs
+      - name: Commit cache files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Refresh GitHub Pages data cache
+          file_pattern: docs/data/*.json

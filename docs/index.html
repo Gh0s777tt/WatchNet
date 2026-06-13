@@ -7,7 +7,7 @@
   <title>OSIRIS — Global Map Command</title>
   <meta name="description" content="OSIRIS interactive globe for GitHub Pages.">
   <meta name="github-pages-fallback" content="root index.html mirrors this page for branch based Pages deployments.">
-  <link rel="stylesheet" href="./styles.css?v=20260613-lod-boundaries">
+  <link rel="stylesheet" href="./styles.css?v=20260613-live-cache">
 </head>
 <body>
   <div class="boot" id="boot" aria-live="polite">
@@ -32,20 +32,20 @@
 
     <section class="telemetry-card" aria-label="Live telemetry">
       <span id="zulu">ZULU --:--:--Z</span>
-      <span>SYS <strong id="systemState">CONNECTED</strong></span>
-      <span><strong id="feedCount">128</strong> FEEDS</span>
-      <span id="readout">NORTH AMERICA · RECON</span>
+      <span>SYS <strong id="systemState">LOADING</strong></span>
+      <span><strong id="feedCount">0</strong> FEEDS</span>
+      <span id="readout">LOADING REPO CACHE</span>
     </section>
 
     <section class="event-card" aria-label="Selected event">
       <span class="event-kicker">RECON LAYER</span>
-      <strong id="eventTitle">GLOBAL TRACKS ONLINE</strong>
+      <strong id="eventTitle">CONNECTING TO REPO DATA CACHE</strong>
       <span id="eventMeta">DRAG TO ORBIT · PINCH OR WHEEL TO ZOOM</span>
     </section>
 
     <div class="floating-actions" aria-label="Globe controls">
       <button type="button" id="locateBtn" aria-label="Focus North America"><span class="pin-icon"></span></button>
-      <button type="button" id="orbitBtn" aria-label="Toggle orbital paths"><span class="orbit-icon"></span></button>
+      <button type="button" id="orbitBtn" aria-label="Toggle repository routes"><span class="orbit-icon"></span></button>
     </div>
 
     <nav class="bottom-nav" aria-label="OSIRIS navigation">
@@ -57,6 +57,6 @@
     </nav>
   </main>
 
-  <script src="./osiris-page.js?v=20260613-lod-boundaries"></script>
+  <script src="./osiris-live-cache.js?v=20260613-live-cache"></script>
 </body>
 </html>
