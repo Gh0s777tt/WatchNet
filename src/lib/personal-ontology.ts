@@ -46,6 +46,7 @@ export interface PersonalEntity {
   source: string;              // how it was ingested
   createdAt: string;
   updatedAt: string;
+  graphPos?: { x: number; y: number };  // persisted layout position for the Link Editor (optional, ignored elsewhere)
 }
 
 // ── Relationship Types ──
@@ -335,4 +336,58 @@ export function crossReferenceStore(store: PersonalStore): PersonalRelationship[
 // ── Entity ID Generator ──
 export function generateEntityId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+// ── Type Glyphs (2-char badge labels for the interactive Link Editor) ──
+// Ported from the OSINT-Mapping-Tool identifier registry concept so each
+// person-data node carries a compact, recognisable badge on the canvas.
+export const PERSONAL_TYPE_GLYPHS: Record<PersonalEntityType, string> = {
+  person: 'PR',
+  phone_number: '☎',
+  social_profile: '@',
+  personal_id: 'ID',
+  vehicle: 'CR',
+  place: 'PL',
+  mac_address: 'MAC',
+  wifi_network: 'WiFi',
+  event: 'EV',
+  image_media: 'IMG',
+};
+
+// Common relationship labels offered when wiring two nodes together by hand.
+export const RELATIONSHIP_LABELS: string[] = [
+  'linked_to',
+  'owns',
+  'owned_by',
+  'registered_to',
+  'contact_of',
+  'profile_of',
+  'identifies',
+  'located_at',
+  'residence_of',
+  'connected_to',
+  'device_of',
+  'involved',
+  'family_of',
+  'associate_of',
+];
+
+/**
+ * Build a brand-new relationship record between two entities.
+ * Used by the interactive Link Editor when an analyst draws an edge.
+ */
+export function makeRelationship(
+  sourceId: string,
+  targetId: string,
+  label: string = 'linked_to',
+  strength: number = 1,
+): PersonalRelationship {
+  return {
+    id: `rel_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    sourceId,
+    targetId,
+    label,
+    strength,
+    createdAt: new Date().toISOString(),
+  };
 }

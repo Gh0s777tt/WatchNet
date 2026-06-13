@@ -8,7 +8,7 @@ import {
   User, Phone, AtSign, CreditCard, Car, MapPin,
   Wifi, Globe, Calendar, Image, Search, Plus,
   Network, Eye, EyeOff, Crosshair, RefreshCw, Layers,
-  MessageCircle, Send, Bot
+  MessageCircle, Send, Bot, Share2, GitBranch
 } from 'lucide-react';
 import {
   PersonalEntity, PersonalEntityType, PersonalGraphData,
@@ -16,10 +16,13 @@ import {
   PERSONAL_TYPE_COLORS, PERSONAL_TYPE_LABELS,
   PersonalStore, PersonalDomain,
   loadPersonalStore, savePersonalStore, buildGraph,
-  crossReferenceStore, generateEntityId,
+  crossReferenceStore, generateEntityId, makeRelationship,
 } from '@/lib/personal-ontology';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
+const LinkEditorGraph = dynamic(() => import('./LinkEditorGraph'), { ssr: false });
+
+type GraphViewMode = 'force' | 'editor';
 
 // ── Icon Map ──
 const TYPE_ICONS: Record<string, React.ComponentType<any>> = {
@@ -45,6 +48,7 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeFilter, setActiveFilter] = useState<PersonalEntityType | 'all'>('all');
+  const [viewMode, setViewMode] = useState<GraphViewMode>('force');
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -146,6 +150,42 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
     setSelectedNode(null);
   }, [store, rebuildGraph]);
 
+  // ── Link Editor handlers (shared store) ──
+  // Draw a relationship by hand. Skip exact duplicates (same pair + label).
+  const handleCreateRelationship = useCallback((sourceId: string, targetId: string) => {
+    const rel = makeRelationship(sourceId, targetId, 'linked_to', 1);
+    const dup = store.relationships.some(
+      r => r.sourceId === sourceId && r.targetId === targetId && r.label === rel.label,
+    );
+    if (dup) return;
+    const updated = { ...store, relationships: [...store.relationships, rel] };
+    setStore(updated);
+    savePersonalStore(updated);
+    rebuildGraph(updated);
+  }, [store, rebuildGraph]);
+
+  const handleDeleteRelationship = useCallback((id: string) => {
+    const updated = { ...store, relationships: store.relationships.filter(r => r.id !== id) };
+    setStore(updated);
+    savePersonalStore(updated);
+    rebuildGraph(updated);
+  }, [store, rebuildGraph]);
+
+  // Persist a node's canvas position so the hand-drawn layout survives reloads.
+  const handleMoveEntity = useCallback((id: string, pos: { x: number; y: number }) => {
+    const updated = {
+      ...store,
+      entities: store.entities.map(e => (e.id === id ? { ...e, graphPos: pos } : e)),
+    };
+    setStore(updated);
+    savePersonalStore(updated);
+  }, [store]);
+
+  const handleSelectEntityById = useCallback((id: string) => {
+    const node = graphData.nodes.find(n => n.id === id);
+    if (node) setSelectedNode(node);
+  }, [graphData.nodes]);
+
   // Search filter
   const filteredNodes = searchQuery
     ? graphData.nodes.filter(n =>
@@ -240,6 +280,29 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
           {loading && <Loader2 className="w-3 h-3 text-[var(--gold-primary)] animate-spin" />}
         </div>
         <div className="flex items-center gap-2">
+          {/* View mode toggle: auto-layout force graph ⇄ interactive link editor */}
+          <div className="flex items-center rounded overflow-hidden border border-white/10">
+            <button onClick={() => setViewMode('force')}
+              title="Auto-layout force graph"
+              className="flex items-center gap-1 px-2 py-1 text-[8px] font-mono transition-colors"
+              style={{
+                backgroundColor: viewMode === 'force' ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.03)',
+                color: viewMode === 'force' ? '#D4AF37' : 'rgba(255,255,255,0.5)',
+              }}>
+              <Share2 className="w-3 h-3" />
+              FORCE
+            </button>
+            <button onClick={() => setViewMode('editor')}
+              title="Interactive link editor — drag to connect"
+              className="flex items-center gap-1 px-2 py-1 text-[8px] font-mono transition-colors"
+              style={{
+                backgroundColor: viewMode === 'editor' ? 'rgba(0,229,255,0.15)' : 'rgba(255,255,255,0.03)',
+                color: viewMode === 'editor' ? '#00E5FF' : 'rgba(255,255,255,0.5)',
+              }}>
+              <GitBranch className="w-3 h-3" />
+              LINK EDITOR
+            </button>
+          </div>
           {/* Map toggle */}
           <button onClick={onToggleMap}
             className="flex items-center gap-1 px-2 py-1 rounded text-[8px] font-mono transition-colors"
@@ -367,8 +430,18 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
       </div>
 
       {/* MAIN AREA: Graph */}
-      <div className="flex-1 relative">
-        {displayGraph.nodes.length > 0 ? (
+      <div ref={containerRef} className="flex-1 relative">
+        {viewMode === 'editor' ? (
+          <LinkEditorGraph
+            entities={store.entities}
+            relationships={store.relationships}
+            onConnect={handleCreateRelationship}
+            onDeleteRelationship={handleDeleteRelationship}
+            onDeleteEntity={handleDeleteEntity}
+            onMoveEntity={handleMoveEntity}
+            onSelectEntity={handleSelectEntityById}
+          />
+        ) : displayGraph.nodes.length > 0 ? (
           <ForceGraph2D
             ref={graphRef}
             graphData={displayGraph}
