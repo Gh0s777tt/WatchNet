@@ -132,17 +132,27 @@ export interface PersonalStore {
   version: number;
 }
 
-export function loadPersonalStore(): PersonalStore {
+/**
+ * Per-user workspace isolation: when a user id is supplied the store is
+ * namespaced to that account, so each analyst's personal graph is kept
+ * separate on the same browser. Logged-out / anonymous sessions fall back
+ * to the shared base key (backward compatible with older saves).
+ */
+function storeKey(userId?: string): string {
+  return userId ? `${STORE_KEY}:${userId}` : STORE_KEY;
+}
+
+export function loadPersonalStore(userId?: string): PersonalStore {
   try {
-    const raw = localStorage.getItem(STORE_KEY);
+    const raw = localStorage.getItem(storeKey(userId));
     if (raw) return JSON.parse(raw);
   } catch {}
   return { entities: [], relationships: [], version: 1 };
 }
 
-export function savePersonalStore(store: PersonalStore) {
+export function savePersonalStore(store: PersonalStore, userId?: string) {
   try {
-    localStorage.setItem(STORE_KEY, JSON.stringify({ ...store, version: (store.version || 0) + 1 }));
+    localStorage.setItem(storeKey(userId), JSON.stringify({ ...store, version: (store.version || 0) + 1 }));
   } catch {}
 }
 

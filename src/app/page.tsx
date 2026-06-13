@@ -29,6 +29,7 @@ import { evaluatePlaybooks, type Playbook } from '@/lib/playbook-engine';
 import { AuthProvider } from '@/components/AuthProvider';
 import LoginModal from '@/components/LoginModal';
 import UserMenu from '@/components/UserMenu';
+import AdminPanel from '@/components/AdminPanel';
 
 const OsirisMap = dynamic(() => import('@/components/OsirisMap'), { ssr: false });
 const LayerPanel = dynamic(() => import('@/components/LayerPanel'));
@@ -163,6 +164,7 @@ export default function Dashboard() {
   const [demoMode, setDemoMode] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   const isMobile = useIsMobile();
   const startTime = useRef(Date.now());
@@ -942,7 +944,7 @@ function saveOsirisState(v: any) {
         </span>
 
         <UptimeClock />
-        <UserMenu onOpenLogin={() => setShowLoginModal(true)} />
+        <UserMenu onOpenLogin={() => setShowLoginModal(true)} onOpenAdmin={() => setShowAdminPanel(true)} />
         <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-50 ml-2">V.4.1</span>
       </motion.div>
 
@@ -1429,6 +1431,9 @@ function saveOsirisState(v: any) {
 
       {/* ── LOGIN MODAL ── */}
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+
+      {/* ── Admin Console (admin-only; self-gates internally) ── */}
+      <AdminPanel show={showAdminPanel} onClose={() => setShowAdminPanel(false)} />
 
       {/* Shortcut hint */}
       <div className="desktop-only absolute bottom-[26px] right-5 z-[200] pointer-events-none text-[6px] font-mono text-[var(--text-muted)]/40 tracking-widest">

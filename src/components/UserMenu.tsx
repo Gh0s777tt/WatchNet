@@ -17,7 +17,7 @@ const ROLE_BADGES: Record<UserRole, string> = {
   admin: 'ADMIN',
 };
 
-export default function UserMenu({ onOpenLogin }: { onOpenLogin: () => void }) {
+export default function UserMenu({ onOpenLogin, onOpenAdmin }: { onOpenLogin: () => void; onOpenAdmin?: () => void }) {
   const { user, logout, hasRole } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export default function UserMenu({ onOpenLogin }: { onOpenLogin: () => void }) {
                 <button
                   onClick={() => {
                     setIsOpen(false);
-                    // Could open admin panel
+                    onOpenAdmin?.();
                   }}
                   className="w-full flex items-center gap-2 px-2 py-1.5 text-[8px] font-mono text-white/60 hover:text-white/80 hover:bg-white/5 rounded transition-colors"
                 >

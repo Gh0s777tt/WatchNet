@@ -18,6 +18,7 @@ import {
   loadPersonalStore, savePersonalStore, buildGraph,
   crossReferenceStore, generateEntityId, makeRelationship,
 } from '@/lib/personal-ontology';
+import { useAuth } from './AuthProvider';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 const LinkEditorGraph = dynamic(() => import('./LinkEditorGraph'), { ssr: false });
@@ -40,6 +41,8 @@ interface Props {
 }
 
 function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggleMap }: Props) {
+  const { user } = useAuth();
+  const uid = user?.id;  // namespaces this analyst's workspace (isolation)
   const [store, setStore] = useState<PersonalStore>({ entities: [], relationships: [], version: 1 });
   const [graphData, setGraphData] = useState<PersonalGraphData>({ nodes: [], links: [] });
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,13 +62,13 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Load store on mount
+  // Load store on mount (and when the active user changes — workspace isolation)
   useEffect(() => {
     if (!show) return;
-    const loaded = loadPersonalStore();
+    const loaded = loadPersonalStore(uid);
     setStore(loaded);
     rebuildGraph(loaded);
-  }, [show]);
+  }, [show, uid]);
 
   const rebuildGraph = useCallback((s: PersonalStore) => {
     const graph = buildGraph(s);
@@ -80,7 +83,7 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
     if (newRels.length > 0) {
       const updated = { ...store, relationships: [...store.relationships, ...newRels] };
       setStore(updated);
-      savePersonalStore(updated);
+      savePersonalStore(updated, uid);
       rebuildGraph(updated);
     }
   }, [store.entities.length]);
@@ -118,7 +121,7 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
   const handleAddEntity = useCallback(async (entity: PersonalEntity) => {
     const updated = { ...store, entities: [...store.entities, entity] };
     setStore(updated);
-    savePersonalStore(updated);
+    savePersonalStore(updated, uid);
     rebuildGraph(updated);
     setShowAddForm(false);
   }, [store, rebuildGraph]);
@@ -145,7 +148,7 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
       relationships: store.relationships.filter(r => r.sourceId !== id && r.targetId !== id),
     };
     setStore(updated);
-    savePersonalStore(updated);
+    savePersonalStore(updated, uid);
     rebuildGraph(updated);
     setSelectedNode(null);
   }, [store, rebuildGraph]);
@@ -160,14 +163,14 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
     if (dup) return;
     const updated = { ...store, relationships: [...store.relationships, rel] };
     setStore(updated);
-    savePersonalStore(updated);
+    savePersonalStore(updated, uid);
     rebuildGraph(updated);
   }, [store, rebuildGraph]);
 
   const handleDeleteRelationship = useCallback((id: string) => {
     const updated = { ...store, relationships: store.relationships.filter(r => r.id !== id) };
     setStore(updated);
-    savePersonalStore(updated);
+    savePersonalStore(updated, uid);
     rebuildGraph(updated);
   }, [store, rebuildGraph]);
 
@@ -178,7 +181,7 @@ function PersonalGraphPanelInner({ show, onClose, onLocate, mapVisible, onToggle
       entities: store.entities.map(e => (e.id === id ? { ...e, graphPos: pos } : e)),
     };
     setStore(updated);
-    savePersonalStore(updated);
+    savePersonalStore(updated, uid);
   }, [store]);
 
   const handleSelectEntityById = useCallback((id: string) => {

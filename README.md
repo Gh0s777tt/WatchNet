@@ -22,6 +22,7 @@
 - [How It's Built](#how-its-built)
 - [What's New (Main Updates)](#whats-new-main-updates)
 - [Features Overview](#features-overview)
+- [Authentication & Access Control](#authentication--access-control)
 - [Installation](#installation)
 - [Environment Variables](#environment-variables)
 - [Docker Deployment](#docker-deployment)
@@ -135,6 +136,12 @@ A force-directed graph for tracking personal intelligence targets across 9 domai
 
 Cross-referencing engine with 10 rule types (Haversine proximity, temporal adjacency, shared identifiers, etc.)
 
+The graph has **two modes**, toggled in the panel header:
+- **FORCE** — the auto-layout, force-directed view (above), with the AI cross-referencer computing links automatically.
+- **LINK EDITOR** — an interactive [React Flow](https://reactflow.dev) canvas (inspired by the [OSINT Mapping Tool](https://github.com/rioned/OSINT-Mapping-Tool)) where each entity is a typed, draggable node. Drag a node handle onto another node to **wire a relationship by hand**, press `Delete`/`Backspace` to remove a node or edge, and click a node to open its details (with a one-click **LOCATE** on the map for geolocated entities). Hand-drawn layouts persist per node.
+
+Each analyst's Personal Graph is **isolated per user** (namespaced by account), so investigations don't bleed across logins on a shared browser.
+
 ### 3. AI Chat Panel
 Side panel for querying ontology data using natural language. Streaming responses from DeepSeek with full conversation history and context from stored entities.
 
@@ -168,6 +175,12 @@ In-memory ring buffer (500 entries) for debugging AI pipeline flows. Accessible 
 - Nginx cache layer (osiris-cache on port 8080)
 - Cross-compile build workflow (ARM build on Pi, deploy to x86 VM)
 - WebGL canvas screenshot interceptor for reliable map capture
+
+### 11. Multi-User Auth, RBAC & Admin Console
+Zero-dependency JWT authentication with **viewer / analyst / admin** tiers, per-user panel configuration, and per-user workspace isolation for the Personal Graph. Admins get an **Admin Console** to manage users/roles and a **live Ontology Builder** — an interactive Link Editor wired to the shared server ontology, so the ontology can be reshaped on the fly and applied to the already-running system. See [Authentication & Access Control](#authentication--access-control).
+
+### 12. Interactive Link Editor (Manual Link Analysis)
+A React Flow canvas added to the Personal Ontology Graph (and reused by the Admin Console): typed draggable nodes, drag-to-connect relationships, and a one-click map LOCATE — bringing hands-on link analysis alongside the auto-layout force graph.
 
 ---
 
@@ -217,6 +230,56 @@ In-memory ring buffer (500 entries) for debugging AI pipeline flows. Accessible 
 - Entity catalog with locate-to-map
 - Network intelligence view
 - Recent events timeline
+
+---
+
+## Authentication & Access Control
+
+OSIRIS ships with a self-contained, **zero-dependency** multi-user auth system (built on Node's native `crypto` — no `bcrypt`, no `jsonwebtoken`).
+
+### Role tiers (RBAC)
+
+| Role | Badge | Capabilities |
+|------|-------|--------------|
+| **viewer** | 🟢 V | Read-only access to maps, feeds, and intelligence layers |
+| **analyst** | 🔵 A | Full investigation toolkit: ontology graph, Link Editor, RECON, pins, AI chat |
+| **admin** | 🔴 ADMIN | Everything, plus the **Admin Console** — user/role management and live ontology control |
+
+Roles are carried in a signed **JWT** (HMAC-SHA256, 7-day expiry). Passwords are hashed with `scrypt` + per-user salt and compared in constant time.
+
+### Sessions & per-user configuration
+
+- Login/register from the **LOGIN** button (top-right `UserMenu`). Sessions are restored from `localStorage` and re-validated against `/api/auth/me`.
+- Each account stores its own **panel configuration** (active layers, panel states, map projection/style, theme) via `/api/auth/config`, so every analyst gets their own workspace layout.
+- The **Personal Ontology Graph** is namespaced per user (workspace isolation).
+
+### Admin Console
+
+Admins get a **Shield → ADMIN PANEL** entry in the user menu, opening a console with two tabs:
+
+1. **Users** — list every account and change role tiers inline (`PATCH /api/auth/users`). A safeguard prevents demoting the **last** admin (avoids lock-out).
+2. **Ontology Builder** — a **live, server-backed** link-analysis canvas (the same React Flow editor) wired to `/api/ontology/entities`. Unlike the per-user Personal Graph (browser-local), this writes to the **shared, process-wide ontology store**, so an admin can **build and reshape the ontology on the fly and have it apply to the already-running system** for everyone. Add entities, draw relationships, run the **AUTO-LINK** cross-referencer, and refresh — all against the live store (Postgres when configured, in-memory otherwise).
+
+### Bootstrap admin
+
+On first login/registration, if no users exist, a default admin is created:
+
+```
+username: admin
+password: admin123        # override with ADMIN_PASSWORD
+```
+
+> ⚠️ **Change this immediately in any non-local deployment.** Set `ADMIN_PASSWORD` and a strong `JWT_SECRET` (see [Environment Variables](#environment-variables)).
+
+### Auth API summary
+
+| Endpoint | Method | Access | Purpose |
+|----------|--------|--------|---------|
+| `/api/auth/register` | POST | public | Create account (auto-login) |
+| `/api/auth/login` | POST | public | Authenticate → JWT |
+| `/api/auth/me` | GET | token | Current user from token |
+| `/api/auth/config` | GET/PUT | token | Read/update per-user config |
+| `/api/auth/users` | GET/PATCH | **admin** | List users / change roles |
 
 ---
 
@@ -271,6 +334,12 @@ OSIRIS works **partially without any API keys** — all core feeds use public, k
 ```env
 # Published host port (container always listens on 3000). Default: 3000
 OSIRIS_PORT=3000
+
+# Authentication (multi-user / RBAC)
+JWT_SECRET=                  # HMAC signing secret — set a long random value in production
+                             # (falls back to an ephemeral random key, which logs everyone out on restart)
+ADMIN_PASSWORD=admin123      # password for the auto-created bootstrap admin — CHANGE THIS
+USERS_DIR=/app/data/users    # where the JSON user store lives (default shown)
 
 # AI Intelligence (DeepSeek) — at least one key required for AI features
 DEEPSEEK_API_KEY_1=sk-...    # platform.deepseek.com/api_keys
