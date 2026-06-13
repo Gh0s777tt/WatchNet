@@ -64,41 +64,21 @@
       <button class="ghost">GHOST PROTOCOL</button>
     </nav>
 
-    <section class="map-frame" aria-label="Tactical world map display">
+    <section class="map-frame" aria-label="Tactical 3D world map display">
       <div class="map-tabs">
-        <button class="active">2D MAP</button>
-        <button>SATELLITE</button>
+        <button class="active" data-mode="world">3D WORLD</button>
+        <button data-mode="satellite">SATELLITE</button>
       </div>
 
       <div class="map-stage" id="mapStage">
         <div class="lat-lines"></div>
         <div class="lon-lines"></div>
-        <div class="world-orb"></div>
+        <canvas class="globe-canvas" id="globeCanvas" aria-label="Animated OSIRIS 3D world map"></canvas>
         <div class="orbit orbit-one"></div>
         <div class="orbit orbit-two"></div>
         <div class="orbit orbit-three"></div>
-
-        <svg class="network-lines" viewBox="0 0 1200 720" role="img" aria-label="Simulated OSIRIS sensor network">
-          <defs>
-            <linearGradient id="lineGlow" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0" stop-color="#00e5ff" stop-opacity=".1"></stop>
-              <stop offset=".55" stop-color="#d4af37" stop-opacity=".9"></stop>
-              <stop offset="1" stop-color="#00ff88" stop-opacity=".15"></stop>
-            </linearGradient>
-          </defs>
-          <path d="M120 480 C260 250 420 210 600 330 S920 520 1080 250" />
-          <path d="M160 190 C350 310 520 115 710 235 S930 365 1120 145" />
-          <path d="M180 600 C360 470 490 545 640 410 S870 230 1020 360" />
-          <path d="M330 90 C390 250 460 310 590 370 S810 465 970 630" />
-        </svg>
-
-        <div class="node node-a"><span></span></div>
-        <div class="node node-b"><span></span></div>
-        <div class="node node-c alert"><span></span></div>
-        <div class="node node-d"><span></span></div>
-        <div class="node node-e green"><span></span></div>
-        <div class="node node-f"><span></span></div>
         <div class="scan-sweep"></div>
+        <div class="map-vignette"></div>
       </div>
 
       <aside class="status-panel left-panel">
@@ -121,7 +101,7 @@
     <section class="bottom-console" aria-label="Command console">
       <div class="console-feed" id="consoleFeed">
         <span>[OSIRIS] ROUTE TABLE LOCKED</span>
-        <span>[SDK] SENSOR LATTICE ACTIVE</span>
+        <span>[MAP] 3D WORLD LAYER ONLINE</span>
         <span>[NET] LYCAN NETWORK READY</span>
       </div>
       <div class="shortcuts">[?] SHORTCUTS · [F] FULLSCREEN · [S] SHARE · [R] RESET VIEW</div>
