@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#05060a">
+  <title>OSIRIS — Global Intelligence Platform</title>
+  <meta name="description" content="OSIRIS global intelligence command dashboard for GitHub Pages.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="boot" id="boot" aria-live="polite">
+    <div class="boot-noise"></div>
+    <div class="boot-badge">V4.2</div>
+    <div class="boot-logo" aria-hidden="true">
+      <span class="ring ring-a"></span>
+      <span class="ring ring-b"></span>
+      <span class="ring ring-c"></span>
+      <span class="core"></span>
+    </div>
+    <h1>O S I R I S</h1>
+    <p>GLOBAL INTELLIGENCE PLATFORM</p>
+    <div class="boot-sequence" id="bootSequence">ESTABLISHING SECURE CONNECTION...</div>
+  </div>
+
+  <main class="osiris-shell" aria-label="OSIRIS global intelligence command dashboard">
+    <div class="crt"></div>
+    <div class="grid-bg"></div>
+
+    <header class="top-command">
+      <section class="brand-card">
+        <div class="version">V4.2</div>
+        <div class="brand-row">
+          <div class="hex-mark" aria-hidden="true"></div>
+          <div>
+            <h2># OSIRIS</h2>
+            <p>GLOBAL INTELLIGENCE COMMAND</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mission-strip">
+        <p>POWERED BY OSIRIS OPEN SOURCE INTELLIGENCE · C2 ENGINE: PHYSICAL COMMAND CORE · SENSORS: ORBITAL LATTICE · NET: LYCAN NETWORK</p>
+      </section>
+
+      <section class="telemetry-strip" aria-label="System telemetry">
+        <span id="zulu">ZULU --:--:--Z</span>
+        <span>SYS: <strong id="systemState">CONNECTING</strong></span>
+        <span><strong id="feedCount">11</strong> FEEDS</span>
+        <span>UPTIME: <strong id="uptime">00:00:00</strong></span>
+        <span>V.4.1</span>
+      </section>
+    </header>
+
+    <nav class="rail" aria-label="OSIRIS tools">
+      <button class="active">SDK</button>
+      <button>AVIATION</button>
+      <button>MARITIME</button>
+      <button>SURVEIL</button>
+      <button>HAZARD</button>
+      <button>THREAT</button>
+      <button>NETWORK</button>
+      <button>DISPLAY</button>
+      <button class="ghost">GHOST PROTOCOL</button>
+    </nav>
+
+    <section class="map-frame" aria-label="Tactical world map display">
+      <div class="map-tabs">
+        <button class="active">2D MAP</button>
+        <button>SATELLITE</button>
+      </div>
+
+      <div class="map-stage" id="mapStage">
+        <div class="lat-lines"></div>
+        <div class="lon-lines"></div>
+        <div class="world-orb"></div>
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="orbit orbit-three"></div>
+
+        <svg class="network-lines" viewBox="0 0 1200 720" role="img" aria-label="Simulated OSIRIS sensor network">
+          <defs>
+            <linearGradient id="lineGlow" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#00e5ff" stop-opacity=".1"></stop>
+              <stop offset=".55" stop-color="#d4af37" stop-opacity=".9"></stop>
+              <stop offset="1" stop-color="#00ff88" stop-opacity=".15"></stop>
+            </linearGradient>
+          </defs>
+          <path d="M120 480 C260 250 420 210 600 330 S920 520 1080 250" />
+          <path d="M160 190 C350 310 520 115 710 235 S930 365 1120 145" />
+          <path d="M180 600 C360 470 490 545 640 410 S870 230 1020 360" />
+          <path d="M330 90 C390 250 460 310 590 370 S810 465 970 630" />
+        </svg>
+
+        <div class="node node-a"><span></span></div>
+        <div class="node node-b"><span></span></div>
+        <div class="node node-c alert"><span></span></div>
+        <div class="node node-d"><span></span></div>
+        <div class="node node-e green"><span></span></div>
+        <div class="node node-f"><span></span></div>
+        <div class="scan-sweep"></div>
+      </div>
+
+      <aside class="status-panel left-panel">
+        <div class="panel-title">COORD—</div>
+        <div class="coord-readout" id="coords">34.4200, -77.3100</div>
+        <div class="panel-title muted">LOC HOVER MAP</div>
+        <div class="loc-readout" id="locLabel">ATLANTIC GRID</div>
+      </aside>
+
+      <aside class="status-panel right-panel">
+        <div class="panel-title">Z <strong id="zoomLevel">2.5</strong></div>
+        <div class="range-scale"><span></span></div>
+        <div class="scale-label">2000 km</div>
+        <div class="signal-stack">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </aside>
+    </section>
+
+    <section class="bottom-console" aria-label="Command console">
+      <div class="console-feed" id="consoleFeed">
+        <span>[OSIRIS] ROUTE TABLE LOCKED</span>
+        <span>[SDK] SENSOR LATTICE ACTIVE</span>
+        <span>[NET] LYCAN NETWORK READY</span>
+      </div>
+      <div class="shortcuts">[?] SHORTCUTS · [F] FULLSCREEN · [S] SHARE · [R] RESET VIEW</div>
+    </section>
+  </main>
+
+  <script src="./osiris-page.js"></script>
+</body>
+</html>
