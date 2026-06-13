@@ -2,112 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#05060a">
-  <title>OSIRIS — Global Intelligence Platform</title>
-  <meta name="description" content="OSIRIS global intelligence command dashboard for GitHub Pages.">
-  <link rel="stylesheet" href="./docs/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#d4af37">
+  <title>OSIRIS — Global Intelligence Command</title>
+  <meta name="description" content="OSIRIS global intelligence command globe for GitHub Pages.">
+  <link rel="stylesheet" href="./docs/styles.css?v=20260613-globe-mobile">
 </head>
 <body>
   <div class="boot" id="boot" aria-live="polite">
     <div class="boot-noise"></div>
-    <div class="boot-badge">V4.2</div>
-    <div class="boot-logo" aria-hidden="true">
-      <span class="ring ring-a"></span>
-      <span class="ring ring-b"></span>
-      <span class="ring ring-c"></span>
-      <span class="core"></span>
-    </div>
-    <h1>O S I R I S</h1>
-    <p>GLOBAL INTELLIGENCE PLATFORM</p>
-    <div class="boot-sequence" id="bootSequence">ESTABLISHING SECURE CONNECTION...</div>
+    <div class="boot-mark">OSIRIS</div>
+    <div class="boot-sequence" id="bootSequence">INITIALIZING GLOBAL INTELLIGENCE COMMAND...</div>
   </div>
 
-  <main class="osiris-shell" aria-label="OSIRIS global intelligence command dashboard">
-    <div class="crt"></div>
-    <div class="grid-bg"></div>
+  <main class="osiris-live" aria-label="OSIRIS global intelligence command globe">
+    <canvas id="globeCanvas" class="globe-canvas" aria-label="Interactive 3D OSIRIS world map"></canvas>
+    <div class="space-vignette" aria-hidden="true"></div>
+    <div class="scan-lines" aria-hidden="true"></div>
 
-    <header class="top-command">
-      <section class="brand-card">
-        <div class="version">V4.2</div>
-        <div class="brand-row">
-          <div class="hex-mark" aria-hidden="true"></div>
-          <div>
-            <h2># OSIRIS</h2>
-            <p>GLOBAL INTELLIGENCE COMMAND</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="mission-strip">
-        <p>POWERED BY OSIRIS OPEN SOURCE INTELLIGENCE · C2 ENGINE: PHYSICAL COMMAND CORE · SENSORS: ORBITAL LATTICE · NET: LYCAN NETWORK</p>
-      </section>
-
-      <section class="telemetry-strip" aria-label="System telemetry">
-        <span id="zulu">ZULU --:--:--Z</span>
-        <span>SYS: <strong id="systemState">CONNECTING</strong></span>
-        <span><strong id="feedCount">11</strong> FEEDS</span>
-        <span>UPTIME: <strong id="uptime">00:00:00</strong></span>
-        <span>V.4.1</span>
-      </section>
+    <header class="live-header">
+      <div class="brand-row">
+        <h1>OSIRIS</h1>
+        <p>GLOBAL INTELLIGENCE COMMAND</p>
+        <a class="support-pill" href="https://github.com/DeerSpotter/osiris-v2" target="_blank" rel="noreferrer">● SUPPORT PROJECT</a>
+      </div>
+      <div class="system-copy">POWERED BY OSIRIS OPEN SOURCE INTELLIGENCE · C2 ENGINE: PHYSICAL COMMAND CORE · SENSORS: ORBITAL LATTICE · NET: LYCAN NETWORK</div>
     </header>
 
-    <nav class="rail" aria-label="OSIRIS tools">
-      <button class="active">SDK</button>
-      <button>AVIATION</button>
-      <button>MARITIME</button>
-      <button>SURVEIL</button>
-      <button>HAZARD</button>
-      <button>THREAT</button>
-      <button>NETWORK</button>
-      <button>DISPLAY</button>
-      <button class="ghost">GHOST PROTOCOL</button>
+    <section class="telemetry-card" aria-label="Live telemetry">
+      <span id="zulu">ZULU --:--:--Z</span>
+      <span>SYS <strong id="systemState">CONNECTED</strong></span>
+      <span><strong id="feedCount">128</strong> FEEDS</span>
+      <span id="readout">NORTH AMERICA · RECON</span>
+    </section>
+
+    <section class="event-card" aria-label="Selected event">
+      <span class="event-kicker">RECON LAYER</span>
+      <strong id="eventTitle">GLOBAL TRACKS ONLINE</strong>
+      <span id="eventMeta">DRAG TO ORBIT · PINCH OR WHEEL TO ZOOM</span>
+    </section>
+
+    <div class="floating-actions" aria-label="Globe controls">
+      <button type="button" id="locateBtn" aria-label="Focus North America"><span class="pin-icon"></span></button>
+      <button type="button" id="orbitBtn" aria-label="Toggle orbital paths"><span class="orbit-icon"></span></button>
+    </div>
+
+    <nav class="bottom-nav" aria-label="OSIRIS navigation">
+      <button type="button" data-layer="layers"><span class="nav-icon">▱</span><small>LAYERS</small></button>
+      <button type="button" data-layer="markets"><span class="nav-icon">▥</span><small>MARKETS</small></button>
+      <button type="button" data-layer="intel"><span class="nav-icon">▤</span><small>INTEL</small></button>
+      <button type="button" class="active" data-layer="recon"><span class="nav-icon">◎</span><small>RECON</small></button>
+      <button type="button" data-layer="search"><span class="nav-icon">⌕</span><small>SEARCH</small></button>
     </nav>
-
-    <section class="map-frame" aria-label="Tactical 3D world map display">
-      <div class="map-tabs">
-        <button class="active" data-mode="world">3D WORLD</button>
-        <button data-mode="satellite">SATELLITE</button>
-      </div>
-
-      <div class="map-stage" id="mapStage">
-        <div class="lat-lines"></div>
-        <div class="lon-lines"></div>
-        <canvas class="globe-canvas" id="globeCanvas" aria-label="Animated OSIRIS 3D world map"></canvas>
-        <div class="orbit orbit-one"></div>
-        <div class="orbit orbit-two"></div>
-        <div class="orbit orbit-three"></div>
-        <div class="scan-sweep"></div>
-        <div class="map-vignette"></div>
-      </div>
-
-      <aside class="status-panel left-panel">
-        <div class="panel-title">COORD—</div>
-        <div class="coord-readout" id="coords">34.4200, -77.3100</div>
-        <div class="panel-title muted">LOC HOVER MAP</div>
-        <div class="loc-readout" id="locLabel">ATLANTIC GRID</div>
-      </aside>
-
-      <aside class="status-panel right-panel">
-        <div class="panel-title">Z <strong id="zoomLevel">2.5</strong></div>
-        <div class="range-scale"><span></span></div>
-        <div class="scale-label">2000 km</div>
-        <div class="signal-stack">
-          <i></i><i></i><i></i><i></i><i></i>
-        </div>
-      </aside>
-    </section>
-
-    <section class="bottom-console" aria-label="Command console">
-      <div class="console-feed" id="consoleFeed">
-        <span>[OSIRIS] ROUTE TABLE LOCKED</span>
-        <span>[MAP] 3D WORLD LAYER ONLINE</span>
-        <span>[NET] LYCAN NETWORK READY</span>
-      </div>
-      <div class="shortcuts">[?] SHORTCUTS · [F] FULLSCREEN · [S] SHARE · [R] RESET VIEW</div>
-    </section>
   </main>
 
-  <script src="./docs/osiris-page.js"></script>
+  <script src="./docs/osiris-page.js?v=20260613-globe-mobile"></script>
 </body>
 </html>
