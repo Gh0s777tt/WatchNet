@@ -4,7 +4,7 @@
 
 ### Open Source Intelligence & Reconnaissance Integrated System
 
-[![Live Demo](https://img.shields.io/badge/osirisai.live-00E5FF?style=for-the-badge&logo=vercel&logoColor=white)](https://osirislive.app)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-osiris--v2-00E5FF?style=for-the-badge&logo=githubpages&logoColor=white)](https://deerspotter.github.io/osiris-v2/)
 [![Support OSIRIS](https://img.shields.io/badge/Support_Project-Patreon-FF424D?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/posts/159077425)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
@@ -13,7 +13,7 @@
 
 **A real-time global intelligence dashboard that aggregates live flight tracking, CCTV networks, earthquake monitoring, conflict zone mapping, and 24/7 news feeds into a single GPU-accelerated interface.**
 
-[Live Demo](https://osirisai.live) · [Report Bug](https://github.com/simplifaisoul/osiris/issues) · [Request Feature](https://github.com/simplifaisoul/osiris/issues) · [Join Discord](https://discord.gg/umBykEpb98)
+[GitHub Pages](https://deerspotter.github.io/osiris-v2/) · [Report Bug](https://github.com/DeerSpotter/osiris-v2/issues) · [Request Feature](https://github.com/DeerSpotter/osiris-v2/issues) · [Join Discord](https://discord.gg/umBykEpb98)
 
 </div>
 
@@ -132,8 +132,8 @@ Osiris is a production-grade OSINT platform that provides situational awareness 
 ## Quick Start
 
 ```bash
-git clone https://github.com/simplifaisoul/osiris.git
-cd osiris
+git clone https://github.com/DeerSpotter/osiris-v2.git
+cd osiris-v2
 npm install
 npm run dev
 ```
@@ -143,8 +143,8 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Docker / Self-Hosting
 
 ```bash
-git clone https://github.com/simplifaisoul/osiris.git
-cd osiris
+git clone https://github.com/DeerSpotter/osiris-v2.git
+cd osiris-v2
 cp .env.template .env     # optional — configure keys / port
 docker compose up -d
 ```
@@ -204,7 +204,7 @@ AIS_API_KEY=                 # aisstream.io maritime
 | Animations | Framer Motion |
 | Icons | Lucide React |
 | Styling | Custom CSS Design System |
-| Deployment | Vercel Edge Network |
+| Deployment | GitHub Pages static shell + Next.js self-hosting |
 
 ---
 
