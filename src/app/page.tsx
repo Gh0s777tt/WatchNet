@@ -164,35 +164,12 @@ export default function Dashboard() {
     return () => clearTimeout(splashTimer);
   }, []);
 
-  // URL state: parse on mount + IP geolocation for fresh sessions
+  // On mount: geolocate user by IP and fly to their city
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const isFreshSession = !sessionStorage.getItem('osiris_session');
+
+    // Restore active layers from URL if present
     const p = new URLSearchParams(window.location.search);
-
-    if (isFreshSession) {
-      // Brand new session — always geolocate by IP to user's city
-      sessionStorage.setItem('osiris_session', '1');
-      fetch('http://ip-api.com/json/?fields=status,lat,lon,city,regionName,country')
-        .then(r => r.json())
-        .then(geo => {
-          if (geo.status === 'success' && geo.lat && geo.lon) {
-            setFlyToLocation({ lat: geo.lat, lng: geo.lon, ts: Date.now() });
-            setMapView(v => ({ ...v, zoom: 12 }));
-          }
-        })
-        .catch(() => { /* silent — keep default global view */ });
-    } else {
-      // Same session refresh — restore from URL params
-      const lat = parseFloat(p.get('lat') || '');
-      const lon = parseFloat(p.get('lon') || '');
-      const zoom = parseFloat(p.get('zoom') || '');
-      if (!isNaN(lat) && !isNaN(lon)) {
-        setFlyToLocation({ lat, lng: lon, ts: Date.now() });
-        if (!isNaN(zoom)) setMapView(v => ({ ...v, zoom }));
-      }
-    }
-
     const layers = p.get('layers');
     if (layers) {
       const active = layers.split(',');
@@ -202,24 +179,32 @@ export default function Dashboard() {
         return next;
       });
     }
+
+    // Always geolocate by IP on page load
+    fetch('http://ip-api.com/json/?fields=status,lat,lon,city,regionName,country')
+      .then(r => r.json())
+      .then(geo => {
+        if (geo.status === 'success' && geo.lat && geo.lon) {
+          setFlyToLocation({ lat: geo.lat, lng: geo.lon, ts: Date.now() });
+          setMapView(v => ({ ...v, zoom: 12 }));
+        }
+      })
+      .catch(() => { /* silent — keep default global view */ });
   }, []);
 
-  // URL state: update URL on view change (debounced)
+  // URL state: persist active layers only (no lat/lon/zoom — those come from IP geolocation)
   const urlTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (urlTimer.current) clearTimeout(urlTimer.current);
     urlTimer.current = setTimeout(() => {
       const p = new URLSearchParams();
-      p.set('lat', (mapView.latitude ?? 20).toFixed(4));
-      p.set('lon', '0');
-      p.set('zoom', mapView.zoom.toFixed(2));
       const active = Object.entries(activeLayers).filter(([,v]) => v).map(([k]) => k).join(',');
       p.set('layers', active);
       const url = `${window.location.pathname}?${p.toString()}`;
       window.history.replaceState(null, '', url);
     }, 1500);
-  }, [mapView, activeLayers]);
+  }, [activeLayers]);
 
   // Global Stats Fetch
   useEffect(() => {
