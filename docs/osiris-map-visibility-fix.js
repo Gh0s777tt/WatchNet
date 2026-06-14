@@ -12,6 +12,26 @@
         background:#0b0f14!important;
         filter:none!important;
       }
+      body.primary-real-map:not(.osiris-map-ready) .real-map-layer,
+      body.real-map-mode:not(.osiris-map-ready) .real-map-layer{
+        opacity:0!important;
+        pointer-events:none!important;
+      }
+      body.primary-real-map:not(.osiris-map-ready) .globe-canvas,
+      body.real-map-mode:not(.osiris-map-ready) .globe-canvas{
+        opacity:1!important;
+        pointer-events:auto!important;
+      }
+      body.osiris-map-ready.primary-real-map .real-map-layer,
+      body.osiris-map-ready.real-map-mode .real-map-layer{
+        opacity:1!important;
+        pointer-events:auto!important;
+      }
+      body.osiris-map-ready.primary-real-map .globe-canvas,
+      body.osiris-map-ready.real-map-mode .globe-canvas{
+        opacity:0!important;
+        pointer-events:none!important;
+      }
       body.primary-real-map .maplibregl-canvas,
       body.real-map-mode .maplibregl-canvas{
         filter:none!important;
@@ -20,6 +40,10 @@
       body.primary-real-map .space-vignette,
       body.real-map-mode .space-vignette{
         background:linear-gradient(180deg,rgba(2,3,10,.18),rgba(2,3,10,0) 16%,rgba(2,3,10,0) 82%,rgba(2,3,10,.22))!important;
+      }
+      body.primary-real-map:not(.osiris-map-ready) .space-vignette,
+      body.real-map-mode:not(.osiris-map-ready) .space-vignette{
+        background:linear-gradient(180deg,rgba(2,3,10,.76),rgba(2,3,10,.12) 22%,rgba(2,3,10,.12) 72%,rgba(2,3,10,.72))!important;
       }
       body.primary-real-map .scan-lines,
       body.real-map-mode .scan-lines{
@@ -39,6 +63,23 @@
         opacity:.42!important;
         color:rgba(240,246,250,.48)!important;
       }
+      .osiris-map-status{
+        position:fixed;
+        left:max(22px,env(safe-area-inset-left));
+        bottom:calc(118px + env(safe-area-inset-bottom));
+        z-index:520;
+        color:#f5d96b;
+        background:rgba(3,5,12,.78);
+        border:1px solid rgba(215,183,57,.32);
+        border-radius:12px;
+        padding:8px 10px;
+        font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        opacity:.82;
+        pointer-events:none;
+      }
+      body.osiris-map-ready .osiris-map-status{display:none!important;}
     `;
     document.head.appendChild(style);
   }
@@ -47,8 +88,48 @@
     try { return fn(); } catch { return undefined; }
   }
 
+  function status(text) {
+    let el = document.getElementById('osirisMapStatus');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'osirisMapStatus';
+      el.className = 'osiris-map-status';
+      document.body.appendChild(el);
+    }
+    el.textContent = text;
+  }
+
+  function markMapReady(map) {
+    if (!map) return;
+    document.body.classList.add('osiris-map-ready');
+    safeCall(() => map.resize());
+    const readout = document.getElementById('readout');
+    if (readout && map.getZoom) readout.textContent = `MAP READY · Z ${map.getZoom().toFixed(2)}`;
+  }
+
+  function installTileReadiness(map) {
+    if (!map || map.__osirisTileReadinessInstalled) return;
+    map.__osirisTileReadinessInstalled = true;
+    const ready = () => markMapReady(map);
+    safeCall(() => map.once('load', ready));
+    safeCall(() => map.once('idle', ready));
+    safeCall(() => map.once('sourcedata', ready));
+    setTimeout(() => {
+      if (safeCall(() => map.loaded()) || safeCall(() => map.isStyleLoaded())) ready();
+    }, 1800);
+    setTimeout(() => {
+      if (!document.body.classList.contains('osiris-map-ready')) {
+        const eventTitle = document.getElementById('eventTitle');
+        if (eventTitle) eventTitle.textContent = 'MAP TILES STILL LOADING';
+        status('Map loading · globe fallback active');
+      }
+    }, 4500);
+  }
+
   function addReadableLabelOverlay(map) {
-    if (!map || map.__osirisVisibilityFixed) return true;
+    if (!map) return false;
+    installTileReadiness(map);
+    if (map.__osirisVisibilityFixed) return true;
     if (!safeCall(() => map.isStyleLoaded())) return false;
     map.__osirisVisibilityFixed = true;
 
@@ -58,6 +139,30 @@
     safeCall(() => map.setPaintProperty('osiris-labels', 'text-halo-color', '#05070b'));
     safeCall(() => map.setPaintProperty('osiris-labels', 'text-halo-width', 2.2));
     safeCall(() => map.setPaintProperty('osiris-labels', 'text-opacity', 1));
+
+    if (!safeCall(() => map.getSource('osmFallback'))) {
+      safeCall(() => map.addSource('osmFallback', {
+        type: 'raster',
+        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        attribution: '© OpenStreetMap contributors'
+      }));
+    }
+
+    if (!safeCall(() => map.getLayer('osm-fallback-base'))) {
+      safeCall(() => map.addLayer({
+        id: 'osm-fallback-base',
+        type: 'raster',
+        source: 'osmFallback',
+        paint: {
+          'raster-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.08, 6, 0.14, 11, 0.22, 15, 0.34],
+          'raster-saturation': -0.65,
+          'raster-contrast': 0.2,
+          'raster-brightness-min': 0,
+          'raster-brightness-max': 0.9
+        }
+      }, 'osiris-cables'));
+    }
 
     if (!safeCall(() => map.getSource('cartoReadableLabels'))) {
       safeCall(() => map.addSource('cartoReadableLabels', {
@@ -107,14 +212,19 @@
 
     safeCall(() => map.setMaxZoom(20));
     safeCall(() => map.resize());
+    markMapReady(map);
     return true;
   }
 
   function install() {
     addVisibilityCss();
+    if (!document.body.classList.contains('osiris-map-ready')) status('Loading map data');
     const map = window.__osirisRealMap;
     if (addReadableLabelOverlay(map)) return;
-    if (Date.now() - startedAt > MAX_WAIT_MS) return;
+    if (Date.now() - startedAt > MAX_WAIT_MS) {
+      status('Map unavailable · globe fallback active');
+      return;
+    }
     setTimeout(install, 120);
   }
 
