@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#d4af37">
   <title>OSIRIS</title>
   <meta name="description" content="Interactive OSIRIS map for GitHub Pages.">
-  <link rel="stylesheet" href="./styles.css?v=20260614-map-visibility">
+  <link rel="stylesheet" href="./styles.css?v=20260614-map-load-guard">
 </head>
 <body>
   <div class="boot" id="boot" aria-live="polite">
     <div class="boot-noise"></div>
     <div class="boot-mark">OSIRIS</div>
-    <div class="boot-sequence" id="bootSequence">INITIALIZING MAP...</div>
+    <div class="boot-sequence" id="bootSequence">INITIALIZING GLOBAL MAP...</div>
   </div>
 
-  <main class="osiris-live" aria-label="Interactive OSIRIS map">
-    <canvas id="globeCanvas" class="globe-canvas" aria-label="Interactive 3D world map"></canvas>
+  <main class="osiris-live" aria-label="OSIRIS interactive globe">
+    <canvas id="globeCanvas" class="globe-canvas" aria-label="Interactive 3D OSIRIS world map"></canvas>
     <div class="space-vignette" aria-hidden="true"></div>
     <div class="scan-lines" aria-hidden="true"></div>
 
@@ -26,7 +26,6 @@
         <p>MAP COMMAND</p>
         <a class="support-pill" href="https://github.com/DeerSpotter/osiris-v2" target="_blank" rel="noreferrer">● SUPPORT PROJECT</a>
       </div>
-      <div class="system-copy">POWERED BY OPEN SOURCE MAP ENGINE · LIVE REPO CACHE</div>
     </header>
 
     <section class="telemetry-card" aria-label="Live telemetry">
@@ -36,18 +35,18 @@
       <span id="readout">LOADING REPO CACHE</span>
     </section>
 
-    <section class="event-card" aria-label="Selected layer">
-      <span class="event-kicker">MAP LAYER</span>
+    <section class="event-card" aria-label="Selected event">
+      <span class="event-kicker">RECON LAYER</span>
       <strong id="eventTitle">CONNECTING TO REPO DATA CACHE</strong>
-      <span id="eventMeta">PINCH TO ZOOM · PAN MAP · TAP NODES FOR DETAIL</span>
+      <span id="eventMeta">DRAG TO ORBIT · PINCH OR WHEEL TO ZOOM</span>
     </section>
 
     <div class="floating-actions" aria-label="Globe controls">
       <button type="button" id="locateBtn" aria-label="Focus North America"><span class="pin-icon"></span></button>
-      <button type="button" id="orbitBtn" aria-label="Toggle cable routes"><span class="orbit-icon"></span></button>
+      <button type="button" id="orbitBtn" aria-label="Toggle repository routes"><span class="orbit-icon"></span></button>
     </div>
 
-    <nav class="bottom-nav" aria-label="Map navigation">
+    <nav class="bottom-nav" aria-label="OSIRIS navigation">
       <button type="button" data-layer="layers"><span class="nav-icon">▱</span><small>LAYERS</small></button>
       <button type="button" data-layer="markets"><span class="nav-icon">▥</span><small>MARKETS</small></button>
       <button type="button" data-layer="intel"><span class="nav-icon">▤</span><small>INTEL</small></button>
@@ -64,6 +63,6 @@
   <script src="./osiris-street-map-fix.js?v=20260614-primary-map"></script>
   <script src="./osiris-pan-fix.js?v=20260614-pan-fix"></script>
   <script src="./osiris-primary-map.js?v=20260614-primary-map"></script>
-  <script src="./osiris-map-visibility-fix.js?v=20260614-map-visibility"></script>
+  <script src="./osiris-map-visibility-fix.js?v=20260614-map-load-guard"></script>
 </body>
 </html>
