@@ -256,13 +256,23 @@ tasks:
       Maps directly to the documented Quick Start path.
       Container mode binds to `0.0.0.0` for host projection.
     category: dev
-    run: npm run dev
+    launch:
+      kind: command
+      exe: npm
+      args:
+        - run
+        - dev
     execution:
       default_mode: native
       modes:
         native:
           context: host
-          run: npm run dev
+          launch:
+            kind: command
+            exe: npm
+            args:
+              - run
+              - dev
           runtime:
             kind: service
             surfaces:
@@ -273,7 +283,17 @@ tasks:
               health: {}
         container:
           context: app
-          run: npm run dev -- --hostname 0.0.0.0 --port 3000
+          launch:
+            kind: command
+            exe: npm
+            args:
+              - run
+              - dev
+              - --
+              - --hostname
+              - 0.0.0.0
+              - --port
+              - "3000"
           runtime:
             kind: service
             surfaces:
@@ -315,13 +335,23 @@ tasks:
       Maps directly to `npm run start` after `npm run build`.
       Container mode binds to `0.0.0.0` for host projection.
     category: dev
-    run: npm run start
+    launch:
+      kind: command
+      exe: npm
+      args:
+        - run
+        - start
     execution:
       default_mode: native
       modes:
         native:
           context: host
-          run: npm run start
+          launch:
+            kind: command
+            exe: npm
+            args:
+              - run
+              - start
           runtime:
             kind: service
             surfaces:
@@ -332,7 +362,17 @@ tasks:
               health: {}
         container:
           context: app
-          run: npm run start -- --hostname 0.0.0.0 --port 3000
+          launch:
+            kind: command
+            exe: npm
+            args:
+              - run
+              - start
+              - --
+              - --hostname
+              - 0.0.0.0
+              - --port
+              - "3000"
           runtime:
             kind: service
             surfaces:
@@ -371,7 +411,13 @@ tasks:
       Maps directly to README and DOCKER.md.
       The documented self-host path is detached `docker compose up -d`, not an attached compose session.
     category: dev
-    run: docker compose up -d
+    launch:
+      kind: command
+      exe: docker
+      args:
+        - compose
+        - up
+        - -d
     requirements:
       tools:
         docker: "*"
@@ -516,8 +562,8 @@ agent:
   bootstrap:
     ota:
       note: Install ota when missing so contributors and agents can run the readiness workflows declared in this contract.
-      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.20 sh
-      powershell: $env:OTA_VERSION='v1.6.20'; irm https://dist.ota.run/install.ps1 | iex
+      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.21 sh
+      powershell: $env:OTA_VERSION='v1.6.21'; irm https://dist.ota.run/install.ps1 | iex
   notes: |
     Use `ota tasks --use .` to list runnable tasks and workflows before execution.
     Use `ota tasks --safe --use .` to confirm that this slice intentionally exposes no agent-safe task surface.
