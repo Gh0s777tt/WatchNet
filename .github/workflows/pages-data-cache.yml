@@ -20,4 +20,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Refresh GitHub Pages data cache
-          file_pattern: docs/data/*.json
+          file_pattern: docs/data/**/*.json docs/data/*.json
