@@ -12,6 +12,8 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Declarative ontology read at runtime by /api/ontology/types (not traced into standalone).
+COPY --from=builder --chown=nextjs:nodejs /app/osiris-foundation/ontology ./osiris-foundation/ontology
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000

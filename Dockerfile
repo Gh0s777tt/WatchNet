@@ -4,6 +4,10 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs &&
 COPY .next/standalone ./
 COPY --chown=nextjs:nodejs .next/static ./.next/static
 COPY public ./public
+# Declarative ontology (read at runtime by /api/ontology/types) — not traced
+# into the standalone bundle, so copy it explicitly or the data-entry UI falls
+# back to hardcoded types.
+COPY --chown=nextjs:nodejs osiris-foundation/ontology ./osiris-foundation/ontology
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
