@@ -79,8 +79,12 @@ function OsintPanelInner({ isMobile, onSweepVisualize, onScanGeolocate }: OsintP
 
     const handleSelfTrack = () => {
       setLoading(true);
-      fetch('http://ip-api.com/json/?fields=status,lat,lon,city,regionName,country,query,isp,org,as')
-        .then(r => r.json())
+      setError('');
+      fetch('/api/geo')
+        .then(r => {
+          if (!r.ok) throw new Error(`Server returned ${r.status}`);
+          return r.json();
+        })
         .then(geo => {
           setLoading(false);
           if (geo.status === 'success' && geo.lat && geo.lon && onScanGeolocate) {
@@ -710,12 +714,13 @@ function OsintPanelInner({ isMobile, onSweepVisualize, onScanGeolocate }: OsintP
             </button>
           ))}
           <button onClick={handleSelfTrack}
-            className="w-full py-4 rounded-lg border flex flex-col items-center justify-center gap-2 transition-all bg-[#0D0D0C] hover:bg-[var(--hover-accent)]"
+            disabled={loading}
+            className={`w-full py-4 rounded-lg border flex flex-col items-center justify-center gap-2 transition-all ${loading ? 'opacity-60 cursor-wait' : 'hover:bg-[var(--hover-accent)] hover:shadow-[0_0_20px_rgba(0,230,118,0.15)]'} bg-[#0D0D0C]`}
             style={{ borderColor: 'rgba(0, 230, 118, 0.2)' }}
           >
             <div className="flex items-center gap-3">
-              <LocateFixed className="w-5 h-5" style={{ color: '#00E676' }} />
-              <span className="font-mono font-bold tracking-[0.1em] text-[11px]" style={{ color: '#00E676' }}>SELF TRACK</span>
+              <LocateFixed className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} style={{ color: '#00E676' }} />
+              <span className="font-mono font-bold tracking-[0.1em] text-[11px]" style={{ color: '#00E676' }}>{loading ? 'TRACKING...' : 'SELF TRACK'}</span>
             </div>
           </button>
         </div>

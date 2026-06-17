@@ -49,7 +49,7 @@ async function fetchTfLCameras(): Promise<any[]> {
 // ── US-WEST: WSDOT Washington State (~500) ──
 async function fetchWSDOTCameras(): Promise<any[]> {
   try {
-    const res = await stealthFetch('https://data.wsdot.wa.gov/log/public/cameras.json', { signal: AbortSignal.timeout(2000) });
+    const res = await stealthFetch('https://data.wsdot.wa.gov/log/public/cameras.json', { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return [];
     const data = await res.json();
     return (data || []).map((cam: any) => ({
@@ -86,7 +86,7 @@ async function fetchCanadaCameras(): Promise<any[]> {
 
   // Ottawa Municipal Cameras (Comprehensive)
   try {
-    const res = await stealthFetch('https://traffic.ottawa.ca/beta/camera_list', { signal: AbortSignal.timeout(2000) });
+    const res = await stealthFetch('https://traffic.ottawa.ca/beta/camera_list', { signal: AbortSignal.timeout(12000) });
     if (res.ok) {
       const data = await res.json();
       for (const cam of (data || [])) {
