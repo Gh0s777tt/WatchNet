@@ -8,8 +8,10 @@ metadata:
     minimum_version: "1.6.18"
 toolchains:
   node:
-    provider: corepack
     version: "^22.13.0"
+    fulfillment:
+      source: corepack
+      mode: run
 execution:
   default_context: host
   contexts:
