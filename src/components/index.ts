@@ -44,6 +44,7 @@ export * from './InsightsPanel';
 export * from './ThreatTimelinePanel';
 export * from './TechReadinessPanel';
 export * from './SatelliteFiresPanel';
+export * from './ReconPanel';
 export * from './MacroSignalsPanel';
 export * from './ETFFlowsPanel';
 export * from './StablecoinPanel';

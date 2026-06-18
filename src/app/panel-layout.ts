@@ -90,6 +90,7 @@ import {
   MobilePanelNav,
 } from '@/components';
 import { SatelliteFiresPanel } from '@/components/SatelliteFiresPanel';
+import { ReconPanel } from '@/components/ReconPanel';
 import { focusInvestmentOnMap } from '@/services/investments-focus';
 import { debounce, saveToStorage } from '@/utils';
 import { escapeHtml } from '@/utils/sanitize';
@@ -1339,6 +1340,7 @@ export class PanelLayoutManager implements AppModule {
 
     this.createPanel('cascade', () => new CascadePanel());
     this.createPanel('satellite-fires', () => new SatelliteFiresPanel());
+    this.createPanel('recon', () => new ReconPanel());
 
     this.createPanel('defense-patents', () => new DefensePatentsPanel());
 
