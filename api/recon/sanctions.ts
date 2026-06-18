@@ -22,6 +22,7 @@ interface SdnEntity {
   p: string; // program ids
   c: string; // countries
   s: string; // precomputed lowercase search field
+  w: string[]; // tokenized words of the search field (for word-prefix matching)
 }
 let CACHE: { entities: SdnEntity[]; ts: number } | null = null;
 
@@ -81,8 +82,9 @@ async function loadEntities(): Promise<SdnEntity[] | null> {
   for (const v of vals) {
     if (!v) continue;
     try {
-      for (const e of JSON.parse(v) as Omit<SdnEntity, 's'>[]) {
-        entities.push({ ...e, s: `${e.n} ${e.a}`.toLowerCase() });
+      for (const e of JSON.parse(v) as Omit<SdnEntity, 's' | 'w'>[]) {
+        const s = `${e.n} ${e.a}`.toLowerCase();
+        entities.push({ ...e, s, w: s.split(/[\s,;.\-/()]+/).filter(Boolean) });
       }
     } catch {
       /* skip bad chunk */
@@ -103,9 +105,10 @@ export default async function handler(req: Request): Promise<Response> {
   const entities = await loadEntities();
   if (!entities) return json({ error: 'Sanctions index unavailable (not seeded?)' }, 503, origin);
 
+  const qWords = q.split(/\s+/).filter(Boolean);
   const matches: SdnEntity[] = [];
   for (const e of entities) {
-    if (e.s.includes(q)) {
+    if (qWords.every((qw) => e.w.some((w) => w.startsWith(qw)))) {
       matches.push(e);
       if (matches.length >= 25) break;
     }
