@@ -1,0 +1,91 @@
+/* RECON Toolkit panel styling (OSIRIS → WatchNet merge).
+   Matches the World Monitor dark/mono aesthetic; light-theme overrides below.
+   All selectors are .recon-* prefixed to avoid collisions. */
+
+.recon-panel {
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
+  color: #d4d4d4;
+}
+
+.recon-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  border-bottom: 1px solid #2a2a2a;
+  margin-bottom: 8px;
+}
+.recon-tab {
+  padding: 4px 10px;
+  cursor: pointer;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+.recon-tab:hover { color: #d4d4d4; }
+.recon-tab.active { color: #16a34a; border-bottom-color: #16a34a; }
+
+.recon-form { display: flex; gap: 6px; margin-bottom: 8px; }
+.recon-input {
+  flex: 1;
+  min-width: 0;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  color: #d4d4d4;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  border-radius: 3px;
+}
+.recon-input:focus { outline: none; border-color: #16a34a; }
+.recon-btn {
+  background: #16a34a;
+  color: #001a0e;
+  border: none;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 11px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+.recon-btn:disabled { opacity: 0.5; cursor: default; }
+
+.recon-table { width: 100%; border-collapse: collapse; margin: 4px 0; }
+.recon-table td { padding: 3px 6px; border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+.recon-k { color: #888; white-space: nowrap; width: 34%; }
+.recon-v { color: #d4d4d4; word-break: break-word; }
+
+.recon-subhead {
+  color: #16a34a;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 8px 0 2px;
+}
+.recon-dns, .recon-refs, .recon-entities { margin: 0; padding-left: 16px; }
+.recon-dns li, .recon-refs li { word-break: break-all; line-height: 1.5; }
+.recon-ttl { color: #666; font-size: 10px; }
+.recon-desc { margin: 6px 0; color: #bbb; line-height: 1.5; }
+.recon-hint { color: #666; font-style: italic; padding: 8px 0; }
+.recon-error { color: #ef4444; padding: 6px 0; }
+.recon-footer { color: #666; font-size: 10px; margin-top: 6px; }
+
+.recon-grade { margin: 6px 0; padding: 4px 8px; border-radius: 3px; font-weight: 600; }
+.recon-grade-A, .recon-grade-LOW { background: rgba(22, 163, 74, 0.15); color: #16a34a; }
+.recon-grade-B, .recon-grade-MEDIUM { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+.recon-grade-C, .recon-grade-HIGH { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.recon-grade-F, .recon-grade-CRITICAL { background: rgba(239, 68, 68, 0.18); color: #ef4444; }
+
+/* ---- light theme ---- */
+[data-theme="light"] .recon-panel { color: #1a1a1a; }
+[data-theme="light"] .recon-tabs { border-bottom-color: #e0e0e0; }
+[data-theme="light"] .recon-tab { color: #666; }
+[data-theme="light"] .recon-tab:hover { color: #1a1a1a; }
+[data-theme="light"] .recon-input { background: #fff; border-color: #d4d4d4; color: #1a1a1a; }
+[data-theme="light"] .recon-table td { border-bottom-color: #eee; }
+[data-theme="light"] .recon-v { color: #1a1a1a; }
+[data-theme="light"] .recon-desc { color: #444; }

@@ -38,6 +38,20 @@
       "removal_issue": "RECON-PROTO-MIGRATION"
     },
     {
+      "path": "api/recon/certs.ts",
+      "category": "deferred",
+      "reason": "RECON Certificate Transparency lookup (crt.sh) ported from OSIRIS. Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
+      "path": "api/recon/bgp.ts",
+      "category": "deferred",
+      "reason": "RECON BGP/ASN lookup (bgpview.io) ported from OSIRIS. Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
       "path": "api/mcp.ts",
       "category": "external-protocol",
       "reason": "MCP streamable-HTTP transport — JSON-RPC 2.0 envelope dictated by the Model Context Protocol spec, not something we can or should redefine as proto. After the api/mcp.ts → api/mcp/ structural split, this file is a thin re-export shim that preserves the Vercel edge route URL and the public export surface; the actual handler and supporting modules live under api/mcp/ (each listed below).",

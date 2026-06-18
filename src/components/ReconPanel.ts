@@ -71,7 +71,25 @@ const CRYPTO_TOOL: ReconTool = {
   validate: isCrypto,
   render: renderCrypto,
 };
-const TOOLS: ReconTool[] = [WHOIS_TOOL, DNS_TOOL, IP_TOOL, CVE_TOOL, CRYPTO_TOOL];
+const CERTS_TOOL: ReconTool = {
+  id: 'certs',
+  label: 'CERTS',
+  placeholder: 'domain (example.com)',
+  param: 'domain',
+  endpoint: '/api/recon/certs',
+  validate: isDomain,
+  render: renderCerts,
+};
+const BGP_TOOL: ReconTool = {
+  id: 'bgp',
+  label: 'BGP',
+  placeholder: 'IP or ASN (AS15169)',
+  param: 'query',
+  endpoint: '/api/recon/bgp',
+  validate: isBgp,
+  render: renderBgp,
+};
+const TOOLS: ReconTool[] = [WHOIS_TOOL, DNS_TOOL, IP_TOOL, CVE_TOOL, CRYPTO_TOOL, CERTS_TOOL, BGP_TOOL];
 
 export class ReconPanel extends Panel {
   private active = 'whois';
@@ -193,6 +211,9 @@ function isCve(v: string): boolean {
 function isCrypto(v: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(v) || /^(bc1[a-z0-9]{20,80}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(v);
 }
+function isBgp(v: string): boolean {
+  return /^(\d{1,3}\.){3}\d{1,3}$/.test(v) || /^(AS)?\d+$/i.test(v);
+}
 
 // ---- renderers (all dynamic values escaped) ----
 function kvTable(rows: [string, string | undefined][]): string {
@@ -300,6 +321,53 @@ function renderCrypto(d: Record<string, any>): string {
       ['Source', d.source],
     ]) + badge
   );
+}
+
+function renderCerts(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-hint">${esc(String(d.error))}</div>`;
+  const subs = Array.isArray(d.subdomains) ? d.subdomains : [];
+  const list = subs
+    .slice(0, 40)
+    .map((s: string) => `<li>${esc(String(s))}</li>`)
+    .join('');
+  return (
+    kvTable([
+      ['Domain', d.domain],
+      ['Total certs', d.total_certs != null ? String(d.total_certs) : undefined],
+      ['Subdomains found', d.unique_subdomains != null ? String(d.unique_subdomains) : undefined],
+    ]) + (list ? `<div class="recon-subhead">Subdomains</div><ul class="recon-dns">${list}</ul>` : '')
+  );
+}
+
+function renderBgp(d: Record<string, any>): string {
+  if (d.type === 'asn' && d.asn) {
+    return kvTable([
+      ['ASN', d.asn.asn != null ? `AS${d.asn.asn}` : undefined],
+      ['Name', d.asn.name],
+      ['Description', d.asn.description_short],
+      ['Country', d.asn.country_code],
+      ['IPv4 prefixes', d.prefixes ? String(d.prefixes.total_v4) : undefined],
+      ['IPv6 prefixes', d.prefixes ? String(d.prefixes.total_v6) : undefined],
+      ['Peers', d.peers ? String(d.peers.total) : undefined],
+    ]);
+  }
+  if (d.type === 'ip' && d.ip) {
+    const prefixes = Array.isArray(d.ip.prefixes) ? d.ip.prefixes : [];
+    const list = prefixes
+      .slice(0, 10)
+      .map(
+        (p: any) =>
+          `<li>${esc(String(p.prefix ?? ''))} — ${esc(String(p.asn?.name ?? p.asn?.description ?? ''))} (AS${esc(String(p.asn?.asn ?? '?'))})</li>`,
+      )
+      .join('');
+    return (
+      kvTable([
+        ['IP', d.ip.ip],
+        ['PTR', d.ip.ptr_record],
+      ]) + (list ? `<div class="recon-subhead">Announcing prefixes</div><ul class="recon-dns">${list}</ul>` : '')
+    );
+  }
+  return '<div class="recon-hint">No BGP data found.</div>';
 }
 
 // ---- escaping + format ----
