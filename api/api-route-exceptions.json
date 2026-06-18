@@ -94,6 +94,13 @@
       "removal_issue": "RECON-PROTO-MIGRATION"
     },
     {
+      "path": "api/recon/brief.ts",
+      "category": "deferred",
+      "reason": "RECON AI intelligence brief — calls the configured OpenAI-compatible LLM (LLM_API_URL/KEY) to generate an analyst-style OSINT brief on a topic. Built new for WatchNet (the 'AI briefings' capability). Self-contained Edge fetch; migrate to proto / the server LLM gateway once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
       "path": "api/mcp.ts",
       "category": "external-protocol",
       "reason": "MCP streamable-HTTP transport — JSON-RPC 2.0 envelope dictated by the Model Context Protocol spec, not something we can or should redefine as proto. After the api/mcp.ts → api/mcp/ structural split, this file is a thin re-export shim that preserves the Vercel edge route URL and the public export surface; the actual handler and supporting modules live under api/mcp/ (each listed below).",

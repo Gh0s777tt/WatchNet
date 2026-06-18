@@ -24,6 +24,7 @@ interface ReconTool {
   endpoint: string;
   validate: (v: string) => boolean;
   render: (data: Record<string, any>) => string;
+  timeoutMs?: number;
 }
 
 const WHOIS_TOOL: ReconTool = {
@@ -143,6 +144,16 @@ const MAC_TOOL: ReconTool = {
   validate: isMac,
   render: renderMac,
 };
+const BRIEF_TOOL: ReconTool = {
+  id: 'brief',
+  label: 'AI BRIEF',
+  placeholder: 'topic (e.g. Iran sanctions)',
+  param: 'topic',
+  endpoint: '/api/recon/brief',
+  validate: isTopic,
+  render: renderBrief,
+  timeoutMs: 30_000,
+};
 const TOOLS: ReconTool[] = [
   WHOIS_TOOL,
   DNS_TOOL,
@@ -157,6 +168,7 @@ const TOOLS: ReconTool[] = [
   LEAKS_TOOL,
   GITHUB_TOOL,
   MAC_TOOL,
+  BRIEF_TOOL,
 ];
 
 export class ReconPanel extends Panel {
@@ -221,7 +233,7 @@ export class ReconPanel extends Panel {
     try {
       const res = await fetch(`${t.endpoint}?${t.param}=${encodeURIComponent(q)}`, {
         headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(t.timeoutMs ?? 15_000),
       });
       const data = (await res.json()) as Record<string, any>;
       this.resultsHtml[t.id] =
@@ -296,6 +308,9 @@ function isGithubUser(v: string): boolean {
 }
 function isMac(v: string): boolean {
   return /^[0-9A-Fa-f]{2}([:-]?[0-9A-Fa-f]{2}){2,5}$/.test(v);
+}
+function isTopic(v: string): boolean {
+  return v.trim().length >= 3;
 }
 
 // ---- renderers (all dynamic values escaped) ----
@@ -562,6 +577,17 @@ function renderMac(d: Record<string, any>): string {
     ['MAC / OUI', d.mac],
     ['Vendor', d.vendor],
   ]);
+}
+
+function renderBrief(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  const text = String(d.briefing ?? '');
+  if (!text) return '<div class="recon-hint">No briefing generated.</div>';
+  const html = text
+    .split('\n')
+    .map((line) => esc(line))
+    .join('<br>');
+  return `<div class="recon-desc">${html}</div><div class="recon-footer">AI analysis (${esc(String(d.model ?? ''))}) — situational awareness, not verified intel</div>`;
 }
 
 // ---- escaping + format ----
