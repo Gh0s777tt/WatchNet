@@ -4,50 +4,70 @@ import { unsafeRawHtml } from '@/utils/sanitize';
 /**
  * RECON Toolkit panel — interactive OSINT lookups (ported from OSIRIS).
  *
- * Slice 1 ships the WHOIS / domain-intel tool, backed by the `/api/recon/whois`
- * edge endpoint (RDAP registration data + live HTTP security-header grading).
+ * Tabbed multi-tool panel. Each tool maps to a self-contained `/api/recon/*`
+ * edge function. Slice 2 ships WHOIS, DNS, IP intel, and CVE. Adding a tool =
+ * one ReconTool entry + one renderer + one `/api/recon/<id>.ts` endpoint.
  *
- * The OSIRIS OsintPanel had 14 tabs (DNS, IP, CVE, sweep, certs, threats, BGP,
- * …). This is the vanilla-TS rewrite scaffold — `ReconTool` widens to a union
- * and each new tool slots in as a tab + an `/api/recon/*` endpoint in later
- * slices.
- *
- * NOTES (slice-scoped, follow-ups tracked in the merge plan):
- *  - i18n: literal English strings for now. Extract to locale keys and run
- *    `npm run sync:locales` so all 24 languages stay in sync.
- *  - styling: `.recon-*` classes are unstyled until a `recon` stylesheet is
- *    added to the design system. The panel is functional regardless.
- *  - OFAC SDN cross-check of registrants arrives with the `entity` (intel)
- *    domain in a later slice.
+ * NOTES (slice-scoped):
+ *  - i18n: literal English strings for now; extract to locale keys later.
+ *  - styling: `.recon-*` classes are unstyled until a recon stylesheet lands.
+ *  - every dynamic value is escaped (we render via unsafeRawHtml).
+ *  - OFAC SDN cross-check (OSIRIS had it on whois/ip) arrives with the entity
+ *    (intel) domain in a later slice.
  */
 
-interface WhoisResponse {
-  domain: string;
-  timestamp?: string;
-  rdap?: {
-    handle?: string;
-    name?: string;
-    status?: string[];
-    nameservers?: string[];
-    entities?: { name?: string; org?: string; roles?: string[] }[];
-  };
-  registration?: string;
-  expiration?: string;
-  last_changed?: string;
-  http?: {
-    status: number;
-    headers: Record<string, string>;
-    redirected: boolean;
-    final_url: string;
-  };
-  security_score?: { score: number; max: number; grade: string };
-  error?: string;
+interface ReconTool {
+  id: string;
+  label: string;
+  placeholder: string;
+  param: string;
+  endpoint: string;
+  validate: (v: string) => boolean;
+  render: (data: Record<string, any>) => string;
 }
 
-const DOMAIN_RE = /^[a-z0-9][a-z0-9.-]+\.[a-z]{2,}$/;
+const WHOIS_TOOL: ReconTool = {
+  id: 'whois',
+  label: 'WHOIS',
+  placeholder: 'domain (example.com)',
+  param: 'domain',
+  endpoint: '/api/recon/whois',
+  validate: isDomain,
+  render: renderWhois,
+};
+const DNS_TOOL: ReconTool = {
+  id: 'dns',
+  label: 'DNS',
+  placeholder: 'domain (example.com)',
+  param: 'domain',
+  endpoint: '/api/recon/dns',
+  validate: isDomain,
+  render: renderDns,
+};
+const IP_TOOL: ReconTool = {
+  id: 'ip',
+  label: 'IP',
+  placeholder: 'IP address (8.8.8.8)',
+  param: 'ip',
+  endpoint: '/api/recon/ip',
+  validate: isIp,
+  render: renderIp,
+};
+const CVE_TOOL: ReconTool = {
+  id: 'cve',
+  label: 'CVE',
+  placeholder: 'CVE-2021-44228',
+  param: 'cve',
+  endpoint: '/api/recon/cve',
+  validate: isCve,
+  render: renderCve,
+};
+const TOOLS: ReconTool[] = [WHOIS_TOOL, DNS_TOOL, IP_TOOL, CVE_TOOL];
 
 export class ReconPanel extends Panel {
-  private query = '';
+  private active = 'whois';
+  private readonly queries: Record<string, string> = {};
+  private readonly resultsHtml: Record<string, string> = {};
   private busy = false;
 
   constructor() {
@@ -56,19 +76,29 @@ export class ReconPanel extends Panel {
       title: 'RECON Toolkit',
       showCount: false,
       trackActivity: true,
-      infoTooltip: 'Active OSINT lookups (WHOIS / RDAP). Ported from OSIRIS.',
+      infoTooltip: 'Active OSINT lookups (WHOIS, DNS, IP, CVE). Ported from OSIRIS.',
     });
-    // A single delegated listener on the stable `content` element survives the
-    // innerHTML swaps that setSafeContent() performs on every render.
     this.content.addEventListener('click', (e) => this.onClick(e));
     this.content.addEventListener('keydown', (e) => this.onKeydown(e as KeyboardEvent));
-    this.renderForm();
+    this.draw();
+  }
+
+  private tool(): ReconTool {
+    return TOOLS.find((t) => t.id === this.active) ?? WHOIS_TOOL;
   }
 
   private onClick(e: Event): void {
-    if ((e.target as HTMLElement).closest('[data-recon-scan]')) {
-      void this.runScan();
+    const target = e.target as HTMLElement;
+    const tab = target.closest('[data-recon-tab]');
+    if (tab) {
+      const id = tab.getAttribute('data-recon-tab');
+      if (id && id !== this.active) {
+        this.active = id;
+        this.draw();
+      }
+      return;
     }
+    if (target.closest('[data-recon-scan]')) void this.runScan();
   }
 
   private onKeydown(e: KeyboardEvent): void {
@@ -78,123 +108,176 @@ export class ReconPanel extends Panel {
     }
   }
 
-  private currentInputValue(): string {
-    const el = this.content.querySelector<HTMLInputElement>('[data-recon-input]');
-    return el?.value.trim().toLowerCase() ?? '';
+  private inputValue(): string {
+    return this.content.querySelector<HTMLInputElement>('[data-recon-input]')?.value.trim() ?? '';
   }
 
   private async runScan(): Promise<void> {
     if (this.busy) return;
-    const domain = this.currentInputValue();
-    this.query = domain;
-    if (!DOMAIN_RE.test(domain)) {
-      this.renderForm('Enter a valid domain, e.g. example.com');
+    const t = this.tool();
+    const q = this.inputValue();
+    this.queries[t.id] = q;
+    if (!t.validate(q)) {
+      this.draw(`Invalid input for ${t.label}.`);
       return;
     }
     this.busy = true;
-    this.renderForm(null, true);
+    this.draw(null, true);
     try {
-      const res = await fetch(`/api/recon/whois?domain=${encodeURIComponent(domain)}`, {
+      const res = await fetch(`${t.endpoint}?${t.param}=${encodeURIComponent(q)}`, {
         headers: { Accept: 'application/json' },
         signal: AbortSignal.timeout(15_000),
       });
-      const data = (await res.json()) as WhoisResponse;
-      if (!res.ok || data.error) {
-        this.renderForm(data.error ?? `Lookup failed (HTTP ${res.status})`);
-        return;
-      }
-      this.renderResults(data);
+      const data = (await res.json()) as Record<string, any>;
+      this.resultsHtml[t.id] =
+        !res.ok || data.error
+          ? `<div class="recon-error">${esc(data.error ?? `Lookup failed (HTTP ${res.status})`)}</div>`
+          : t.render(data);
     } catch {
-      this.renderForm('Network error or timeout — try again.');
+      this.resultsHtml[t.id] = '<div class="recon-error">Network error or timeout — try again.</div>';
     } finally {
       this.busy = false;
+      this.draw();
     }
   }
 
-  private renderForm(error: string | null = null, loading = false): void {
-    const q = escapeAttr(this.query);
-    const errHtml = error ? `<div class="recon-error">${escapeHtml(error)}</div>` : '';
+  private draw(error: string | null = null, loading = false): void {
+    const t = this.tool();
+    const tabs = TOOLS.map(
+      (x) =>
+        `<span class="recon-tab${x.id === this.active ? ' active' : ''}" data-recon-tab="${x.id}">${esc(x.label)}</span>`,
+    ).join('');
+    const q = escAttr(this.queries[t.id] ?? '');
     const btn = loading
       ? '<button class="recon-btn" disabled>Scanning…</button>'
       : '<button class="recon-btn" data-recon-scan>SCAN</button>';
+    const body = error
+      ? `<div class="recon-error">${esc(error)}</div>`
+      : (this.resultsHtml[t.id] ?? `<div class="recon-hint">${esc(t.placeholder)}</div>`);
     this.setSafeContent(
       unsafeRawHtml(
         `<div class="recon-panel">
-          <div class="recon-tabs"><span class="recon-tab active">WHOIS</span></div>
+          <div class="recon-tabs">${tabs}</div>
           <div class="recon-form">
-            <input class="recon-input" data-recon-input type="text" inputmode="url"
-                   placeholder="domain (example.com)" value="${q}"
-                   autocomplete="off" spellcheck="false" />
+            <input class="recon-input" data-recon-input type="text" placeholder="${escAttr(t.placeholder)}"
+                   value="${q}" autocomplete="off" spellcheck="false" />
             ${btn}
           </div>
-          ${errHtml}
-          <div class="recon-hint">RDAP registration data + live HTTP security-header grade.</div>
+          ${body}
         </div>`,
-        'RECON panel: every dynamic value is escaped; migrate to h()/safeHtml in a follow-up',
-      ),
-    );
-  }
-
-  private renderResults(d: WhoisResponse): void {
-    const rows: string[] = [];
-    const add = (k: string, v?: string): void => {
-      if (v) rows.push(`<tr><td class="recon-k">${escapeHtml(k)}</td><td class="recon-v">${escapeHtml(v)}</td></tr>`);
-    };
-    add('Domain', d.domain);
-    add('Registrar', d.rdap?.name);
-    add('Status', d.rdap?.status?.join(', '));
-    add('Registered', fmtDate(d.registration));
-    add('Expires', fmtDate(d.expiration));
-    add('Last changed', fmtDate(d.last_changed));
-    add('Nameservers', d.rdap?.nameservers?.join(', '));
-
-    const entities = (d.rdap?.entities ?? [])
-      .map((en) => {
-        const label = [en.org, en.name].filter(Boolean).join(' · ');
-        const roles = en.roles?.length ? ` (${en.roles.join('/')})` : '';
-        return label ? `<li>${escapeHtml(label + roles)}</li>` : '';
-      })
-      .filter(Boolean)
-      .join('');
-
-    let sec = '';
-    if (d.security_score) {
-      const g = d.security_score.grade;
-      sec = `<div class="recon-grade recon-grade-${escapeAttr(g)}">Security headers: <b>${escapeHtml(g)}</b> (${d.security_score.score}/${d.security_score.max})</div>`;
-      const hdrs = Object.entries(d.http?.headers ?? {})
-        .map(([k, v]) => `<tr><td class="recon-k">${escapeHtml(k)}</td><td class="recon-v">${escapeHtml(v)}</td></tr>`)
-        .join('');
-      if (hdrs) sec += `<table class="recon-table recon-headers">${hdrs}</table>`;
-    }
-
-    this.setSafeContent(
-      unsafeRawHtml(
-        `<div class="recon-panel">
-          <div class="recon-tabs"><span class="recon-tab active">WHOIS</span></div>
-          <div class="recon-form">
-            <input class="recon-input" data-recon-input type="text" value="${escapeAttr(d.domain)}"
-                   autocomplete="off" spellcheck="false" />
-            <button class="recon-btn" data-recon-scan>SCAN</button>
-          </div>
-          <table class="recon-table">${rows.join('')}</table>
-          ${entities ? `<div class="recon-subhead">Registrant entities</div><ul class="recon-entities">${entities}</ul>` : ''}
-          ${sec}
-          <div class="recon-footer">RDAP via rdap.org${d.timestamp ? ` · ${escapeHtml(fmtDate(d.timestamp) ?? '')}` : ''}</div>
-        </div>`,
-        'RECON panel: every dynamic value is escaped; migrate to h()/safeHtml in a follow-up',
+        'RECON panel: all dynamic values escaped; migrate to h()/safeHtml in a follow-up',
       ),
     );
   }
 }
 
-function escapeHtml(s: string): string {
+// ---- validators ----
+function isDomain(v: string): boolean {
+  return /^[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
+}
+function isIp(v: string): boolean {
+  return /^(\d{1,3}\.){3}\d{1,3}$/.test(v) || (/^[0-9a-fA-F:]+$/.test(v) && v.includes(':'));
+}
+function isCve(v: string): boolean {
+  return /^CVE-\d{4}-\d{4,}$/i.test(v);
+}
+
+// ---- renderers (all dynamic values escaped) ----
+function kvTable(rows: [string, string | undefined][]): string {
+  const body = rows
+    .filter((r) => r[1])
+    .map((r) => `<tr><td class="recon-k">${esc(r[0])}</td><td class="recon-v">${esc(r[1] as string)}</td></tr>`)
+    .join('');
+  return body ? `<table class="recon-table">${body}</table>` : '';
+}
+
+function renderWhois(d: Record<string, any>): string {
+  const sec = d.security_score
+    ? `<div class="recon-grade recon-grade-${escAttr(String(d.security_score.grade))}">Security headers: <b>${esc(String(d.security_score.grade))}</b> (${esc(String(d.security_score.score))}/${esc(String(d.security_score.max))})</div>`
+    : '';
+  return (
+    kvTable([
+      ['Domain', d.domain],
+      ['Registrar', d.rdap?.name],
+      ['Status', Array.isArray(d.rdap?.status) ? d.rdap.status.join(', ') : undefined],
+      ['Registered', fmtDate(d.registration)],
+      ['Expires', fmtDate(d.expiration)],
+      ['Nameservers', Array.isArray(d.rdap?.nameservers) ? d.rdap.nameservers.join(', ') : undefined],
+    ]) + sec
+  );
+}
+
+function renderDns(d: Record<string, any>): string {
+  const records: Record<string, any[]> = d.records ?? {};
+  const blocks = Object.keys(records)
+    .filter((type) => (records[type] ?? []).length > 0)
+    .map((type) => {
+      const items = (records[type] ?? [])
+        .map(
+          (r: any) =>
+            `<li>${esc(String(r.data ?? ''))}${r.ttl ? ` <span class="recon-ttl">ttl ${esc(String(r.ttl))}</span>` : ''}</li>`,
+        )
+        .join('');
+      return `<div class="recon-subhead">${esc(type)}</div><ul class="recon-dns">${items}</ul>`;
+    })
+    .join('');
+  return blocks || '<div class="recon-hint">No DNS records found.</div>';
+}
+
+function renderIp(d: Record<string, any>): string {
+  const g = d.geo ?? {};
+  const rep = d.reputation ?? {};
+  const flags = [rep.is_proxy ? 'PROXY' : '', rep.is_hosting ? 'HOSTING' : '', rep.is_mobile ? 'MOBILE' : '']
+    .filter(Boolean)
+    .join(' · ');
+  const risk = rep.risk_level
+    ? `<div class="recon-grade recon-grade-${escAttr(String(rep.risk_level))}">Risk: <b>${esc(String(rep.risk_level))}</b>${flags ? ` — ${esc(flags)}` : ''}</div>`
+    : '';
+  const loc = [g.city, g.region, g.country].filter(Boolean).join(', ');
+  return (
+    kvTable([
+      ['IP', d.ip],
+      ['Location', loc || undefined],
+      ['Coordinates', g.lat != null && g.lon != null ? `${esc(String(g.lat))}, ${esc(String(g.lon))}` : undefined],
+      ['Timezone', g.timezone],
+      ['ISP', g.isp],
+      ['Org', g.org],
+      ['ASN', g.as_number],
+    ]) + risk
+  );
+}
+
+function renderCve(d: Record<string, any>): string {
+  const sev = d.severity
+    ? `<div class="recon-grade recon-grade-${escAttr(String(d.severity))}">Severity: <b>${esc(String(d.severity))}</b>${d.cvss != null ? ` — CVSS ${esc(String(d.cvss))}` : ''}</div>`
+    : '';
+  const refs =
+    Array.isArray(d.references) && d.references.length
+      ? `<div class="recon-subhead">References</div><ul class="recon-refs">${d.references
+          .map((r: string) => `<li>${esc(String(r))}</li>`)
+          .join('')}</ul>`
+      : '';
+  const desc = d.description ? `<div class="recon-desc">${esc(String(d.description))}</div>` : '';
+  return (
+    kvTable([
+      ['CVE', d.id],
+      ['CWE', d.cwe],
+      ['Published', fmtDate(d.published)],
+      ['Source', d.source],
+    ]) +
+    sev +
+    desc +
+    refs
+  );
+}
+
+// ---- escaping + format ----
+function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-
-function escapeAttr(s: string): string {
-  return escapeHtml(s).replace(/"/g, '&quot;');
+function escAttr(s: string): string {
+  return esc(s).replace(/"/g, '&quot;');
 }
-
 function fmtDate(iso?: string): string | undefined {
   if (!iso) return undefined;
   const d = new Date(iso);

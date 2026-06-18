@@ -10,6 +10,27 @@
       "removal_issue": "RECON-PROTO-MIGRATION"
     },
     {
+      "path": "api/recon/dns.ts",
+      "category": "deferred",
+      "reason": "RECON DNS lookup (Google DNS-over-HTTPS) ported from OSIRIS during the OSIRIS->WatchNet merge. Self-contained keyless Edge fetch; migrate to a worldmonitor.recon.v1 proto service once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
+      "path": "api/recon/ip.ts",
+      "category": "deferred",
+      "reason": "RECON IP intelligence (ip-api.com geolocation + reputation) ported from OSIRIS. Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
+      "path": "api/recon/cve.ts",
+      "category": "deferred",
+      "reason": "RECON CVE intelligence (MITRE CVE 5.0 + CIRCL fallback) ported from OSIRIS. Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
       "path": "api/mcp.ts",
       "category": "external-protocol",
       "reason": "MCP streamable-HTTP transport — JSON-RPC 2.0 envelope dictated by the Model Context Protocol spec, not something we can or should redefine as proto. After the api/mcp.ts → api/mcp/ structural split, this file is a thin re-export shim that preserves the Vercel edge route URL and the public export surface; the actual handler and supporting modules live under api/mcp/ (each listed below).",
