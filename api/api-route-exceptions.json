@@ -3,6 +3,13 @@
   "schema_version": 1,
   "exceptions": [
     {
+      "path": "api/recon/whois.ts",
+      "category": "deferred",
+      "reason": "RECON WHOIS/RDAP domain-intel endpoint ported from OSIRIS during the OSIRIS->WatchNet merge (RECON toolkit, slice 1). Self-contained Edge fetch (RDAP + live security headers), no proto yet because the sebuf/buf+Go generation toolchain is unavailable on the current Windows dev box. Migrate to a worldmonitor.recon.v1 proto service once a Go-capable env (Linux/macOS/WSL) exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
       "path": "api/mcp.ts",
       "category": "external-protocol",
       "reason": "MCP streamable-HTTP transport — JSON-RPC 2.0 envelope dictated by the Model Context Protocol spec, not something we can or should redefine as proto. After the api/mcp.ts → api/mcp/ structural split, this file is a thin re-export shim that preserves the Vercel edge route URL and the public export surface; the actual handler and supporting modules live under api/mcp/ (each listed below).",
