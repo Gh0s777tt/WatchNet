@@ -587,7 +587,14 @@ function renderBrief(d: Record<string, any>): string {
     .split('\n')
     .map((line) => esc(line))
     .join('<br>');
-  return `<div class="recon-desc">${html}</div><div class="recon-footer">AI analysis (${esc(String(d.model ?? ''))}) — situational awareness, not verified intel</div>`;
+  const grounded =
+    Array.isArray(d.grounded_on) && d.grounded_on.length
+      ? `<div class="recon-subhead">Grounded on ${esc(String(d.grounded_count ?? d.grounded_on.length))} OFAC SDN match(es)</div><ul class="recon-dns">${d.grounded_on
+          .slice(0, 8)
+          .map((n: string) => `<li>${esc(String(n))}</li>`)
+          .join('')}</ul>`
+      : '';
+  return `<div class="recon-desc">${html}</div>${grounded}<div class="recon-footer">AI analysis (${esc(String(d.model ?? ''))}) — situational awareness, not verified intel</div>`;
 }
 
 // ---- escaping + format ----
