@@ -20,6 +20,7 @@ import {
   Classification,
 } from './types';
 import { LatticeAdapter } from './LatticeAdapter';
+import type { FeatureCollection } from 'geojson';
 
 // ── OSIRIS Feed → Entity Translators ───────────────────────────────
 
@@ -299,7 +300,7 @@ export class PolybolosClient {
   }
 
   /** Convert current entity store to GeoJSON FeatureCollection for MapLibre */
-  toGeoJSON(domain?: Domain): GeoJSON.FeatureCollection {
+  toGeoJSON(domain?: Domain): FeatureCollection {
     const entities = this.getEntities(domain);
     return {
       type: 'FeatureCollection',
