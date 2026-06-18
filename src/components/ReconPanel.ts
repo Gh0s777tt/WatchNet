@@ -62,7 +62,16 @@ const CVE_TOOL: ReconTool = {
   validate: isCve,
   render: renderCve,
 };
-const TOOLS: ReconTool[] = [WHOIS_TOOL, DNS_TOOL, IP_TOOL, CVE_TOOL];
+const CRYPTO_TOOL: ReconTool = {
+  id: 'crypto',
+  label: 'CRYPTO',
+  placeholder: 'BTC or ETH address',
+  param: 'address',
+  endpoint: '/api/recon/crypto',
+  validate: isCrypto,
+  render: renderCrypto,
+};
+const TOOLS: ReconTool[] = [WHOIS_TOOL, DNS_TOOL, IP_TOOL, CVE_TOOL, CRYPTO_TOOL];
 
 export class ReconPanel extends Panel {
   private active = 'whois';
@@ -181,6 +190,9 @@ function isIp(v: string): boolean {
 function isCve(v: string): boolean {
   return /^CVE-\d{4}-\d{4,}$/i.test(v);
 }
+function isCrypto(v: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(v) || /^(bc1[a-z0-9]{20,80}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(v);
+}
 
 // ---- renderers (all dynamic values escaped) ----
 function kvTable(rows: [string, string | undefined][]): string {
@@ -268,6 +280,25 @@ function renderCve(d: Record<string, any>): string {
     sev +
     desc +
     refs
+  );
+}
+
+function renderCrypto(d: Record<string, any>): string {
+  const badge =
+    d.sanctioned === true
+      ? `<div class="recon-grade recon-grade-CRITICAL">⚠ SANCTIONED — ${esc(String(d.sanctions_source ?? 'OFAC SDN'))}</div>`
+      : d.sanctioned === false
+        ? '<div class="recon-grade recon-grade-LOW">Not on OFAC SDN list</div>'
+        : '<div class="recon-hint">OFAC list unavailable</div>';
+  const bal = typeof d.balance === 'number' ? `${d.balance} ${String(d.balance_unit ?? '')}` : undefined;
+  return (
+    kvTable([
+      ['Address', d.address],
+      ['Chain', d.chain],
+      ['Balance', bal],
+      ['Transactions', d.tx_count != null ? String(d.tx_count) : undefined],
+      ['Source', d.source],
+    ]) + badge
   );
 }
 
