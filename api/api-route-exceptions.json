@@ -47,7 +47,14 @@
     {
       "path": "api/recon/bgp.ts",
       "category": "deferred",
-      "reason": "RECON BGP/ASN lookup (bgpview.io) ported from OSIRIS. Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "reason": "RECON BGP/ASN lookup (RIPEstat, re-sourced from OSIRIS's defunct bgpview.io). Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
+      "path": "api/recon/shodan.ts",
+      "category": "deferred",
+      "reason": "RECON passive host intel (Shodan InternetDB — open ports, CPEs, known CVEs) ported from OSIRIS. Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
       "owner": "@Damian",
       "removal_issue": "RECON-PROTO-MIGRATION"
     },

@@ -89,7 +89,25 @@ const BGP_TOOL: ReconTool = {
   validate: isBgp,
   render: renderBgp,
 };
-const TOOLS: ReconTool[] = [WHOIS_TOOL, DNS_TOOL, IP_TOOL, CVE_TOOL, CRYPTO_TOOL, CERTS_TOOL, BGP_TOOL];
+const SHODAN_TOOL: ReconTool = {
+  id: 'shodan',
+  label: 'SHODAN',
+  placeholder: 'IP address (1.1.1.1)',
+  param: 'ip',
+  endpoint: '/api/recon/shodan',
+  validate: isIp,
+  render: renderShodan,
+};
+const TOOLS: ReconTool[] = [
+  WHOIS_TOOL,
+  DNS_TOOL,
+  IP_TOOL,
+  CVE_TOOL,
+  CRYPTO_TOOL,
+  CERTS_TOOL,
+  BGP_TOOL,
+  SHODAN_TOOL,
+];
 
 export class ReconPanel extends Panel {
   private active = 'whois';
@@ -341,33 +359,58 @@ function renderCerts(d: Record<string, any>): string {
 
 function renderBgp(d: Record<string, any>): string {
   if (d.type === 'asn' && d.asn) {
-    return kvTable([
-      ['ASN', d.asn.asn != null ? `AS${d.asn.asn}` : undefined],
-      ['Name', d.asn.name],
-      ['Description', d.asn.description_short],
-      ['Country', d.asn.country_code],
-      ['IPv4 prefixes', d.prefixes ? String(d.prefixes.total_v4) : undefined],
-      ['IPv6 prefixes', d.prefixes ? String(d.prefixes.total_v6) : undefined],
-      ['Peers', d.peers ? String(d.peers.total) : undefined],
-    ]);
-  }
-  if (d.type === 'ip' && d.ip) {
-    const prefixes = Array.isArray(d.ip.prefixes) ? d.ip.prefixes : [];
-    const list = prefixes
-      .slice(0, 10)
-      .map(
-        (p: any) =>
-          `<li>${esc(String(p.prefix ?? ''))} — ${esc(String(p.asn?.name ?? p.asn?.description ?? ''))} (AS${esc(String(p.asn?.asn ?? '?'))})</li>`,
-      )
-      .join('');
+    const sample = Array.isArray(d.prefixes?.sample) ? d.prefixes.sample : [];
+    const list = sample.map((p: string) => `<li>${esc(String(p))}</li>`).join('');
     return (
       kvTable([
-        ['IP', d.ip.ip],
-        ['PTR', d.ip.ptr_record],
-      ]) + (list ? `<div class="recon-subhead">Announcing prefixes</div><ul class="recon-dns">${list}</ul>` : '')
+        ['ASN', d.asn.number ? `AS${d.asn.number}` : undefined],
+        ['Holder', d.asn.holder],
+        ['Announced', d.asn.announced != null ? String(d.asn.announced) : undefined],
+        ['Prefixes', d.prefixes ? String(d.prefixes.total) : undefined],
+      ]) + (list ? `<div class="recon-subhead">Sample prefixes</div><ul class="recon-dns">${list}</ul>` : '')
     );
   }
+  if (d.type === 'ip' && d.ip) {
+    const asns = Array.isArray(d.ip.asns) ? d.ip.asns.map((a: any) => `AS${a}`).join(', ') : '';
+    return kvTable([
+      ['IP', d.ip.address],
+      ['Prefix', d.ip.prefix],
+      ['ASN(s)', asns || undefined],
+      ['Holder', d.ip.holder],
+    ]);
+  }
   return '<div class="recon-hint">No BGP data found.</div>';
+}
+
+function renderShodan(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  const ports = Array.isArray(d.ports) ? d.ports : [];
+  const vulns = Array.isArray(d.vulns) ? d.vulns : [];
+  const cpes = Array.isArray(d.cpes) ? d.cpes : [];
+  const hostnames = Array.isArray(d.hostnames) ? d.hostnames : [];
+  const tags = Array.isArray(d.tags) ? d.tags : [];
+  const vulnBadge = vulns.length
+    ? `<div class="recon-grade recon-grade-HIGH">${esc(String(vulns.length))} known CVE(s)</div>`
+    : '';
+  const section = (title: string, items: any[], limit: number): string =>
+    items.length
+      ? `<div class="recon-subhead">${esc(title)}</div><ul class="recon-dns">${items
+          .slice(0, limit)
+          .map((x) => `<li>${esc(String(x))}</li>`)
+          .join('')}</ul>`
+      : '';
+  return (
+    kvTable([
+      ['IP', d.ip],
+      ['Open ports', ports.length ? ports.join(', ') : undefined],
+      ['Hostnames', hostnames.length ? hostnames.join(', ') : undefined],
+      ['Tags', tags.length ? tags.join(', ') : undefined],
+    ]) +
+    vulnBadge +
+    section('Known CVEs', vulns, 30) +
+    section('CPEs', cpes, 15) +
+    (ports.length === 0 && vulns.length === 0 ? `<div class="recon-hint">${esc(String(d.status ?? 'No records'))}</div>` : '')
+  );
 }
 
 // ---- escaping + format ----

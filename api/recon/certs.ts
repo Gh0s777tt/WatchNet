@@ -1,8 +1,9 @@
 /**
- * RECON · Certificate Transparency  (ported from OSIRIS `osint/certs`)
+ * RECON · Certificate Transparency  (OSIRIS port, re-sourced to Certspotter)
  *
- * Self-contained Vercel Edge Function. Queries crt.sh CT logs (keyless) for a
- * domain, deduplicates certificates, and extracts observed subdomains.
+ * Self-contained Vercel Edge Function. OSIRIS used crt.sh, which rate-limits /
+ * blocks cloud egress IPs — this uses Certspotter's keyless issuances API,
+ * which is more reliable. Extracts observed subdomains + certificate metadata.
  * Part of the OSIRIS → WatchNet merge. Hand-written (exceptions: `deferred`).
  */
 
@@ -39,41 +40,40 @@ export default async function handler(req: Request): Promise<Response> {
   if (!DOMAIN_RE.test(domain)) return json({ error: 'Invalid domain format' }, 400, origin);
 
   try {
-    const res = await fetch(`https://crt.sh/?q=%25.${encodeURIComponent(domain)}&output=json`, {
-      signal: AbortSignal.timeout(10000),
-      headers: { 'User-Agent': 'WatchNet-RECON/1.0', Accept: 'application/json' },
-    });
-    if (!res.ok) return json({ domain, certificates: [], subdomains: [], error: 'crt.sh unavailable' }, 200, origin);
+    const res = await fetch(
+      `https://api.certspotter.com/v1/issuances?domain=${encodeURIComponent(domain)}&include_subdomains=true&expand=dns_names&expand=issuer`,
+      { signal: AbortSignal.timeout(10000), headers: { Accept: 'application/json', 'User-Agent': 'WatchNet-RECON/1.0' } },
+    );
+    if (!res.ok) {
+      return json({ domain, certificates: [], subdomains: [], error: `Certspotter HTTP ${res.status}` }, 200, origin);
+    }
 
-    const certs = (await res.json()) as any[];
-    const seen = new Set<string>();
+    const issuances = (await res.json()) as any[];
     const subdomains = new Set<string>();
-    const unique: any[] = [];
+    const certificates: any[] = [];
 
-    for (const cert of certs.slice(0, 200)) {
-      const key = `${cert.common_name}-${cert.serial_number}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      for (const n of String(cert.name_value ?? '').split('\n')) {
-        const clean = n.trim().replace(/^\*\./, '');
-        if (clean.endsWith(domain)) subdomains.add(clean);
+    for (const c of issuances) {
+      for (const n of (c.dns_names ?? []) as string[]) {
+        const clean = String(n).trim().toLowerCase().replace(/^\*\./, '');
+        if (clean === domain || clean.endsWith(`.${domain}`)) subdomains.add(clean);
       }
-      unique.push({
-        id: cert.id,
-        issuer: cert.issuer_name,
-        common_name: cert.common_name,
-        not_before: cert.not_before,
-        not_after: cert.not_after,
-        serial: cert.serial_number,
-      });
+      if (certificates.length < 50) {
+        certificates.push({
+          id: c.id,
+          issuer: c.issuer?.name ?? null,
+          not_before: c.not_before,
+          not_after: c.not_after,
+          dns_names: (c.dns_names ?? []).slice(0, 10),
+        });
+      }
     }
 
     return json(
       {
         domain,
-        certificates: unique.slice(0, 50),
+        certificates,
         subdomains: Array.from(subdomains).sort(),
-        total_certs: certs.length,
+        total_certs: issuances.length,
         unique_subdomains: subdomains.size,
         timestamp: new Date().toISOString(),
       },
@@ -81,6 +81,6 @@ export default async function handler(req: Request): Promise<Response> {
       origin,
     );
   } catch {
-    return json({ domain, certificates: [], subdomains: [], error: 'Lookup failed' }, 500, origin);
+    return json({ domain, certificates: [], subdomains: [], error: 'Lookup failed' }, 200, origin);
   }
 }
