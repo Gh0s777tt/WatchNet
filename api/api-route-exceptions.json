@@ -101,6 +101,13 @@
       "removal_issue": "RECON-PROTO-MIGRATION"
     },
     {
+      "path": "api/recon/graph.ts",
+      "category": "deferred",
+      "reason": "RECON infrastructure graph — aggregates DNS (Google DoH) + ASN (RIPEstat) + subdomains (Certspotter) into a node/link graph laid out client-side with d3-force. Built new for WatchNet (the OSIRIS 'entity graph' capability). Self-contained keyless Edge fetch; migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
       "path": "api/mcp.ts",
       "category": "external-protocol",
       "reason": "MCP streamable-HTTP transport — JSON-RPC 2.0 envelope dictated by the Model Context Protocol spec, not something we can or should redefine as proto. After the api/mcp.ts → api/mcp/ structural split, this file is a thin re-export shim that preserves the Vercel edge route URL and the public export surface; the actual handler and supporting modules live under api/mcp/ (each listed below).",

@@ -89,3 +89,10 @@
 [data-theme="light"] .recon-table td { border-bottom-color: #eee; }
 [data-theme="light"] .recon-v { color: #1a1a1a; }
 [data-theme="light"] .recon-desc { color: #444; }
+
+/* ---- infrastructure graph (GRAPH tool) ---- */
+.recon-graph { width: 100%; height: auto; max-height: 320px; display: block; margin: 4px 0; }
+.recon-graph-link { stroke: #2a2a2a; stroke-width: 1; }
+.recon-graph-label { fill: #999; font-size: 8px; font-family: 'SF Mono', 'Monaco', monospace; }
+[data-theme="light"] .recon-graph-link { stroke: #d0d0d0; }
+[data-theme="light"] .recon-graph-label { fill: #555; }

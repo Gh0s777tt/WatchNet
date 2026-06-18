@@ -1,3 +1,4 @@
+import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation } from 'd3';
 import { Panel } from './Panel';
 import { unsafeRawHtml } from '@/utils/sanitize';
 
@@ -154,6 +155,16 @@ const BRIEF_TOOL: ReconTool = {
   render: renderBrief,
   timeoutMs: 30_000,
 };
+const GRAPH_TOOL: ReconTool = {
+  id: 'graph',
+  label: 'GRAPH',
+  placeholder: 'domain (example.com)',
+  param: 'domain',
+  endpoint: '/api/recon/graph',
+  validate: isDomain,
+  render: renderGraph,
+  timeoutMs: 20_000,
+};
 const TOOLS: ReconTool[] = [
   WHOIS_TOOL,
   DNS_TOOL,
@@ -169,6 +180,7 @@ const TOOLS: ReconTool[] = [
   GITHUB_TOOL,
   MAC_TOOL,
   BRIEF_TOOL,
+  GRAPH_TOOL,
 ];
 
 export class ReconPanel extends Panel {
@@ -595,6 +607,66 @@ function renderBrief(d: Record<string, any>): string {
           .join('')}</ul>`
       : '';
   return `<div class="recon-desc">${html}</div>${grounded}<div class="recon-footer">AI analysis (${esc(String(d.model ?? ''))}) — situational awareness, not verified intel</div>`;
+}
+
+function renderGraph(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  const rawNodes = Array.isArray(d.nodes) ? d.nodes : [];
+  const rawLinks = Array.isArray(d.links) ? d.links : [];
+  if (rawNodes.length <= 1) return '<div class="recon-hint">No infrastructure graph data found.</div>';
+
+  const W = 360;
+  const H = 300;
+  const nodes = rawNodes.map((n: any) => ({ id: n.id, label: n.label, type: n.type })) as any[];
+  const links = rawLinks.map((l: any) => ({ source: l.source, target: l.target })) as any[];
+
+  // Headless d3-force layout — compute final positions, then emit static SVG
+  // (avoids stateful d3-in-DOM, which conflicts with Panel.setSafeContent).
+  const sim = forceSimulation(nodes)
+    .force('link', forceLink(links).id((n: any) => n.id).distance(55).strength(0.6))
+    .force('charge', forceManyBody().strength(-240))
+    .force('center', forceCenter(W / 2, H / 2))
+    .force('collide', forceCollide(16))
+    .stop();
+  for (let i = 0; i < 320; i++) sim.tick();
+
+  const PAD = 24;
+  for (const n of nodes) {
+    n.x = Math.max(PAD, Math.min(W - PAD, Number.isFinite(n.x) ? n.x : W / 2));
+    n.y = Math.max(PAD, Math.min(H - PAD, Number.isFinite(n.y) ? n.y : H / 2));
+  }
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const COLORS: Record<string, string> = {
+    domain: '#16a34a',
+    ip: '#0891b2',
+    ns: '#a855f7',
+    asn: '#eab308',
+    subdomain: '#64748b',
+  };
+  const RADII: Record<string, number> = { domain: 9, ip: 6, ns: 5, asn: 7, subdomain: 4 };
+
+  const linkSvg = links
+    .map((l) => {
+      const s = typeof l.source === 'object' ? l.source : byId.get(l.source);
+      const t = typeof l.target === 'object' ? l.target : byId.get(l.target);
+      if (!s || !t) return '';
+      return `<line x1="${s.x.toFixed(1)}" y1="${s.y.toFixed(1)}" x2="${t.x.toFixed(1)}" y2="${t.y.toFixed(1)}" class="recon-graph-link"/>`;
+    })
+    .join('');
+  const nodeSvg = nodes
+    .map((n) => {
+      const c = COLORS[n.type as string] ?? '#888';
+      const r = RADII[n.type as string] ?? 5;
+      const label = esc(String(n.label ?? n.id).slice(0, 30));
+      return `<circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${r}" fill="${c}"/><text x="${(n.x + r + 2).toFixed(1)}" y="${(n.y + 3).toFixed(1)}" class="recon-graph-label">${label}</text>`;
+    })
+    .join('');
+
+  const counts = d.counts ?? {};
+  return (
+    `<svg viewBox="0 0 ${W} ${H}" class="recon-graph" xmlns="http://www.w3.org/2000/svg" role="img">${linkSvg}${nodeSvg}</svg>` +
+    `<div class="recon-footer">${esc(String(d.domain ?? ''))} — ${esc(String(counts.ips ?? 0))} IP · ${esc(String(counts.nameservers ?? 0))} NS · ${esc(String(counts.subdomains ?? 0))} subdomains${counts.asn ? ' · 1 ASN' : ''}</div>`
+  );
 }
 
 // ---- escaping + format ----
