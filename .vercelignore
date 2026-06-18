@@ -18,3 +18,10 @@ target/
 
 # Common local artifacts
 .DS_Store
+
+# Local secrets, Vercel link metadata, scratch logs — never upload
+# (runtime env is injected from Vercel project settings, not from files)
+.env
+.env.*
+.vercel
+_*.log
