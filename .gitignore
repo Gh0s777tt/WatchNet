@@ -83,3 +83,5 @@ tmp/
 docs/plans/
 docs/brainstorms/
 playground-pricing.html
+
+.vercel
