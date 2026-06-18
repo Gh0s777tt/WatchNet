@@ -107,6 +107,42 @@ const SANCTIONS_TOOL: ReconTool = {
   validate: isQuery,
   render: renderSanctions,
 };
+const THREATS_TOOL: ReconTool = {
+  id: 'threats',
+  label: 'THREATS',
+  placeholder: 'IP or domain',
+  param: 'query',
+  endpoint: '/api/recon/threats',
+  validate: isHost,
+  render: renderThreats,
+};
+const LEAKS_TOOL: ReconTool = {
+  id: 'leaks',
+  label: 'LEAKS',
+  placeholder: 'email address',
+  param: 'email',
+  endpoint: '/api/recon/leaks',
+  validate: isEmail,
+  render: renderLeaks,
+};
+const GITHUB_TOOL: ReconTool = {
+  id: 'github',
+  label: 'GITHUB',
+  placeholder: 'GitHub username',
+  param: 'user',
+  endpoint: '/api/recon/github',
+  validate: isGithubUser,
+  render: renderGithub,
+};
+const MAC_TOOL: ReconTool = {
+  id: 'mac',
+  label: 'MAC',
+  placeholder: 'MAC / OUI (00:1A:2B)',
+  param: 'mac',
+  endpoint: '/api/recon/mac',
+  validate: isMac,
+  render: renderMac,
+};
 const TOOLS: ReconTool[] = [
   WHOIS_TOOL,
   DNS_TOOL,
@@ -117,6 +153,10 @@ const TOOLS: ReconTool[] = [
   BGP_TOOL,
   SHODAN_TOOL,
   SANCTIONS_TOOL,
+  THREATS_TOOL,
+  LEAKS_TOOL,
+  GITHUB_TOOL,
+  MAC_TOOL,
 ];
 
 export class ReconPanel extends Panel {
@@ -244,6 +284,18 @@ function isBgp(v: string): boolean {
 }
 function isQuery(v: string): boolean {
   return v.trim().length >= 2;
+}
+function isHost(v: string): boolean {
+  return /^(\d{1,3}\.){3}\d{1,3}$/.test(v) || /^[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
+}
+function isEmail(v: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+}
+function isGithubUser(v: string): boolean {
+  return /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(v);
+}
+function isMac(v: string): boolean {
+  return /^[0-9A-Fa-f]{2}([:-]?[0-9A-Fa-f]{2}){2,5}$/.test(v);
 }
 
 // ---- renderers (all dynamic values escaped) ----
@@ -444,6 +496,72 @@ function renderSanctions(d: Record<string, any>): string {
     `<ul class="recon-dns">${items}</ul>` +
     `<div class="recon-footer">OpenSanctions us_ofac_sdn · ${esc(String(d.total_indexed ?? ''))} indexed</div>`
   );
+}
+
+function renderThreats(d: Record<string, any>): string {
+  const otx = d.otx ?? {};
+  const lvl = d.threat_level
+    ? `<div class="recon-grade recon-grade-${escAttr(String(d.threat_level))}">Threat: <b>${esc(String(d.threat_level))}</b></div>`
+    : '';
+  return (
+    kvTable([
+      ['Target', d.query],
+      ['Type', d.type],
+      ['OTX pulses', otx.pulse_count != null ? String(otx.pulse_count) : undefined],
+      ['Reputation', otx.reputation != null ? String(otx.reputation) : undefined],
+      ['Country', otx.country],
+      ['ASN', otx.asn],
+      ['Tor exit node', d.tor_exit_node === true ? 'YES' : d.tor_exit_node === false ? 'no' : undefined],
+    ]) + lvl
+  );
+}
+
+function renderLeaks(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  const breaches = Array.isArray(d.breaches) ? d.breaches : [];
+  const exposed = Array.isArray(d.data_exposed) ? d.data_exposed : [];
+  const badge = d.breached
+    ? `<div class="recon-grade recon-grade-HIGH">BREACHED — ${esc(String(d.breach_count ?? breaches.length))} breach(es)</div>`
+    : '<div class="recon-grade recon-grade-LOW">No known breaches</div>';
+  const list = (title: string, items: any[]): string =>
+    items.length
+      ? `<div class="recon-subhead">${esc(title)}</div><ul class="recon-dns">${items.map((x) => `<li>${esc(String(x))}</li>`).join('')}</ul>`
+      : '';
+  return badge + list('Breaches', breaches) + list('Data exposed', exposed);
+}
+
+function renderGithub(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  const repos = Array.isArray(d.recent_repos) ? d.recent_repos : [];
+  const list = repos
+    .map(
+      (r: any) =>
+        `<li>${esc(String(r.name ?? ''))}${r.language ? ` <span class="recon-ttl">${esc(String(r.language))}</span>` : ''}</li>`,
+    )
+    .join('');
+  return (
+    kvTable([
+      ['User', d.username],
+      ['Name', d.name],
+      ['Company', d.company],
+      ['Location', d.location],
+      ['Email', d.email],
+      ['Twitter', d.twitter],
+      ['Blog', d.blog],
+      ['Public repos', d.public_repos != null ? String(d.public_repos) : undefined],
+      ['Followers', d.followers != null ? String(d.followers) : undefined],
+      ['Joined', fmtDate(d.created_at)],
+    ]) + (list ? `<div class="recon-subhead">Recent repos</div><ul class="recon-dns">${list}</ul>` : '')
+  );
+}
+
+function renderMac(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  if (d.found === false || !d.vendor) return `<div class="recon-hint">No vendor found for ${esc(String(d.mac ?? ''))}.</div>`;
+  return kvTable([
+    ['MAC / OUI', d.mac],
+    ['Vendor', d.vendor],
+  ]);
 }
 
 // ---- escaping + format ----
