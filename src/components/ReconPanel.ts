@@ -98,6 +98,15 @@ const SHODAN_TOOL: ReconTool = {
   validate: isIp,
   render: renderShodan,
 };
+const SANCTIONS_TOOL: ReconTool = {
+  id: 'sanctions',
+  label: 'SANCTIONS',
+  placeholder: 'name / org / vessel',
+  param: 'q',
+  endpoint: '/api/recon/sanctions',
+  validate: isQuery,
+  render: renderSanctions,
+};
 const TOOLS: ReconTool[] = [
   WHOIS_TOOL,
   DNS_TOOL,
@@ -107,6 +116,7 @@ const TOOLS: ReconTool[] = [
   CERTS_TOOL,
   BGP_TOOL,
   SHODAN_TOOL,
+  SANCTIONS_TOOL,
 ];
 
 export class ReconPanel extends Panel {
@@ -231,6 +241,9 @@ function isCrypto(v: string): boolean {
 }
 function isBgp(v: string): boolean {
   return /^(\d{1,3}\.){3}\d{1,3}$/.test(v) || /^(AS)?\d+$/i.test(v);
+}
+function isQuery(v: string): boolean {
+  return v.trim().length >= 2;
 }
 
 // ---- renderers (all dynamic values escaped) ----
@@ -410,6 +423,26 @@ function renderShodan(d: Record<string, any>): string {
     section('Known CVEs', vulns, 30) +
     section('CPEs', cpes, 15) +
     (ports.length === 0 && vulns.length === 0 ? `<div class="recon-hint">${esc(String(d.status ?? 'No records'))}</div>` : '')
+  );
+}
+
+function renderSanctions(d: Record<string, any>): string {
+  if (d.error) return `<div class="recon-error">${esc(String(d.error))}</div>`;
+  const matches = Array.isArray(d.matches) ? d.matches : [];
+  if (!matches.length) return `<div class="recon-hint">No OFAC SDN matches for "${esc(String(d.query ?? ''))}".</div>`;
+  const items = matches
+    .map((m: any) => {
+      const meta = [m.type, m.countries, m.programs]
+        .filter(Boolean)
+        .map((x: any) => esc(String(x)))
+        .join(' · ');
+      return `<li><b>${esc(String(m.name))}</b>${meta ? `<br><span class="recon-ttl">${meta}</span>` : ''}</li>`;
+    })
+    .join('');
+  return (
+    `<div class="recon-grade recon-grade-CRITICAL">${esc(String(matches.length))} OFAC SDN match(es)</div>` +
+    `<ul class="recon-dns">${items}</ul>` +
+    `<div class="recon-footer">OpenSanctions us_ofac_sdn · ${esc(String(d.total_indexed ?? ''))} indexed</div>`
   );
 }
 

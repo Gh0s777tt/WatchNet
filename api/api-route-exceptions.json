@@ -59,6 +59,13 @@
       "removal_issue": "RECON-PROTO-MIGRATION"
     },
     {
+      "path": "api/recon/sanctions.ts",
+      "category": "deferred",
+      "reason": "RECON OFAC SDN sanctions search (OpenSanctions us_ofac_sdn ~20k entities seeded to Redis by scripts/seed-ofac-sdn.mjs). Self-contained Edge function reading the chunked index from Upstash; built new for WatchNet (searchable counterpart to OSIRIS /intel sanctions layer). Migrate to proto once a Go-capable toolchain exists.",
+      "owner": "@Damian",
+      "removal_issue": "RECON-PROTO-MIGRATION"
+    },
+    {
       "path": "api/mcp.ts",
       "category": "external-protocol",
       "reason": "MCP streamable-HTTP transport — JSON-RPC 2.0 envelope dictated by the Model Context Protocol spec, not something we can or should redefine as proto. After the api/mcp.ts → api/mcp/ structural split, this file is a thin re-export shim that preserves the Vercel edge route URL and the public export surface; the actual handler and supporting modules live under api/mcp/ (each listed below).",
