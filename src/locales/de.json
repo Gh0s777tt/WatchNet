@@ -536,7 +536,7 @@
         "needsKeys": "Konfigurieren Sie API-Schlüssel, um Funktionen freizuschalten",
         "some": "Für einige Funktionen sind API-Schlüssel erforderlich"
       },
-      "skipSetup": "Überspringen Sie das Setup — eine einzige World Monitor-Lizenz schaltet alles frei. Tragen Sie sich in die Warteliste ein, um frühzeitigen Zugang zu erhalten.",
+      "skipSetup": "Überspringen Sie das Setup — eine einzige WatchNet-Lizenz schaltet alles frei. Tragen Sie sich in die Warteliste ein, um frühzeitigen Zugang zu erhalten.",
       "summary": {
         "desktop": "Desktop-Modus",
         "web": "Webmodus (schreibgeschützt, serververwaltete Anmeldeinformationen)",
@@ -667,11 +667,11 @@
         "dividerOr": "ODER",
         "register": {
           "title": "Reservieren Sie Ihren Platz",
-          "description": "Wir bereiten den Start von World Monitor-Lizenzen vor. Melden Sie sich jetzt an und seien Sie der Erste — frühe Mitglieder erhalten bevorzugten Zugang und Gründermitglied-Preise.",
+          "description": "Wir bereiten den Start von WatchNet-Lizenzen vor. Melden Sie sich jetzt an und seien Sie der Erste — frühe Mitglieder erhalten bevorzugten Zugang und Gründermitglied-Preise.",
           "submitBtn": "Auf die Warteliste setzen"
         }
       },
-      "shellTitle": "World Monitor – Einstellungen",
+      "shellTitle": "WatchNet – Einstellungen",
       "shellSearchPlaceholder": "Einstellungen durchsuchen…",
       "shellCancel": "Abbrechen",
       "shellSaveClose": "Speichern & Schließen",
@@ -1843,7 +1843,7 @@
       "tripDays": "Flugtage"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analyst</strong> KI-Analyst mit Live-Kontext über geopolitische, Markt-, Militär- und Wirtschaftsbereiche. Betrieben durch Claude mit Echtzeitdaten aus aktiven WorldMonitor-Feeds."
+      "infoTooltip": "<strong>WM Analyst</strong> KI-Analyst mit Live-Kontext über geopolitische, Markt-, Militär- und Wirtschaftsbereiche. Betrieben durch Claude mit Echtzeitdaten aus aktiven WatchNet-Feeds."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Positionierung</strong> Commitments of Traders-Bericht: Nettopositionen von Commercials, großen Spekulanten und kleinen Händlern in Rohstoff- und Finanz-Futures. Wöchentlich veröffentlicht (Freitag). Quelle: CFTC."
@@ -1970,7 +1970,7 @@
       "infoTooltip": "<strong>Makro-Indikatoren</strong> Wichtige makroökonomische Indikatoren für die USA und den Euroraum: CPI, Arbeitslosigkeit, GDP und Zentralbankzinsen. Werte mit Delta zum Vorperiodenzeitraum. Quelle: FRED (Federal Reserve Economic Data)."
     },
     "monitors": {
-      "infoTooltip": "<strong>Stichwort-Monitore</strong> Fügen Sie einen beliebigen Begriff hinzu, um Live-Nachrichtenerwähnungen über alle WorldMonitor-Quellen zu verfolgen. Ergebnisse werden in Echtzeit aktualisiert, wenn passende Artikel aufgenommen werden."
+      "infoTooltip": "<strong>Stichwort-Monitore</strong> Fügen Sie einen beliebigen Begriff hinzu, um Live-Nachrichtenerwähnungen über alle WatchNet-Quellen zu verfolgen. Ergebnisse werden in Echtzeit aktualisiert, wenn passende Artikel aufgenommen werden."
     },
     "renewable": {
       "infoTooltip": "<strong>Erneuerbare Energie</strong> Anteil erneuerbarer Energien an der Stromerzeugung nach Region und Jahr sowie installierte Leistung in den USA für Solar, Wind und Kohle (MW). Quellen: Weltbank (EG.ELC.RNEW.ZS) und EIA."
@@ -3016,10 +3016,10 @@
     "copyCoordinates": "Koordinaten kopieren"
   },
   "shell": {
-    "documentTitle": "World Monitor — Dashboard für globale Echtzeitinformationen",
+    "documentTitle": "WatchNet — Dashboard für globale Echtzeitinformationen",
     "metaDescription": "Echtzeit-Plattform für globale Informationen. In WIRED vorgestellt. Von über 2 Millionen Menschen in 190 Ländern genutzt. Konflikte, Märkte, Militär, OSINT in einer Ansicht.",
     "offlineTitle": "Sie sind offline",
-    "offlineMessage": "World Monitor benötigt eine Internetverbindung für Echtzeit-Nachrichtendaten.",
+    "offlineMessage": "WatchNet benötigt eine Internetverbindung für Echtzeit-Nachrichtendaten.",
     "offlineRetry": "Erneut versuchen"
   },
   "widgets": {
@@ -3056,12 +3056,12 @@
     "phaseError": "Fehler",
     "previewCheckingHeading": "Widget-Generator verbinden",
     "previewReadyHeading": "Beschreiben Sie das gewünschte Widget",
-    "previewFetchingHeading": "WorldMonitor-Livedaten werden abgerufen",
+    "previewFetchingHeading": "WatchNet-Livedaten werden abgerufen",
     "previewComposingHeading": "Widget-Layout wird zusammengestellt",
     "previewErrorHeading": "Die Vorschau benötigt Aufmerksamkeit",
     "previewCheckingCopy": "Wir validieren Ihren Widget-Schlüssel und die Backend-Verfügbarkeit, bevor die Generierung aktiviert wird.",
     "previewReadyCopy": "Verwenden Sie ein Prompt-Beispiel oder beschreiben Sie die genaue Liveansicht, die Sie möchten. Die Vorschau wird hier aktualisiert, bevor Sie sie speichern.",
-    "previewFetchingCopy": "Der Agent ruft genehmigte WorldMonitor-Endpunkte auf und strukturiert den Datensatz für das Widget.",
+    "previewFetchingCopy": "Der Agent ruft genehmigte WatchNet-Endpunkte auf und strukturiert den Datensatz für das Widget.",
     "previewComposingCopy": "Die Vorschau wird mit den neuesten Live-Daten und dem Dashboard-Styling gerendert.",
     "previewErrorCopy": "Beheben Sie das Problem und versuchen Sie es erneut. Ihre vorhandenen Widgets sind nicht betroffen.",
     "createInteractive": "Interaktives Widget erstellen",
@@ -3090,7 +3090,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Erfordert einen World Monitor Lizenzschlüssel",
+    "lockedDesc": "Erfordert einen WatchNet Lizenzschlüssel",
     "signInToUnlock": "Melden Sie sich an, um Premium-Funktionen freizuschalten",
     "signIn": "Anmelden zum Freischalten",
     "upgradeDesc": "Upgrade auf Pro für vollständigen Zugriff auf Premium-Analysen",

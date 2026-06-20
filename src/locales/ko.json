@@ -536,7 +536,7 @@
         "needsKeys": "기능을 활성화하려면 API 키를 구성하세요",
         "some": "일부 기능에 API 키가 필요합니다"
       },
-      "skipSetup": "설정을 건너뛰세요 — 하나의 World Monitor 라이선스로 모든 것을 이용할 수 있습니다. 대기 목록에 등록하여 조기 액세스를 받으세요.",
+      "skipSetup": "설정을 건너뛰세요 — 하나의 WatchNet 라이선스로 모든 것을 이용할 수 있습니다. 대기 목록에 등록하여 조기 액세스를 받으세요.",
       "summary": {
         "desktop": "데스크톱 모드",
         "web": "웹 모드 (읽기 전용, 서버 관리 자격 증명)",
@@ -590,7 +590,7 @@
         "dividerOr": "또는",
         "register": {
           "title": "슬롯을 예약하세요",
-          "description": "World Monitor 라이선스 출시를 준비하고 있습니다. 지금 등록하고 가장 먼저 — 초기 회원은 우선 액세스 및 창립 멤버 가격을 받게 됩니다.",
+          "description": "WatchNet 라이선스 출시를 준비하고 있습니다. 지금 등록하고 가장 먼저 — 초기 회원은 우선 액세스 및 창립 멤버 가격을 받게 됩니다.",
           "submitBtn": "대기 목록 등록"
         }
       },
@@ -601,7 +601,7 @@
         "status": "상태",
         "duration": "소요 시간"
       },
-      "shellTitle": "World Monitor 설정",
+      "shellTitle": "WatchNet 설정",
       "shellSearchPlaceholder": "설정 검색...",
       "shellCancel": "취소",
       "shellSaveClose": "저장 및 닫기",
@@ -1843,7 +1843,7 @@
       "tripDays": "여행 기간"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM 애널리스트</strong> 지정학, 시장, 군사, 경제 분야의 실시간 컨텍스트를 갖춘 AI 애널리스트. WorldMonitor 활성 피드에서 실시간 데이터가 주입된 Claude로 구동."
+      "infoTooltip": "<strong>WM 애널리스트</strong> 지정학, 시장, 군사, 경제 분야의 실시간 컨텍스트를 갖춘 AI 애널리스트. WatchNet 활성 피드에서 실시간 데이터가 주입된 Claude로 구동."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT 포지셔닝</strong> 트레이더 약정 보고서: 상품 및 금융 선물에서 상업적 거래자, 대형 투기꾼, 소규모 거래자의 순포지션. 매주 금요일 발표. 출처: CFTC."
@@ -1970,7 +1970,7 @@
       "infoTooltip": "<strong>매크로 지표</strong> 미국 및 유로존의 주요 거시경제 지표: CPI, 실업률, GDP, 중앙은행 금리. 이전 기간 대비 델타와 함께 표시. 출처: FRED (연방준비제도 경제 데이터)."
     },
     "monitors": {
-      "infoTooltip": "<strong>키워드 모니터</strong> 모든 WorldMonitor 소스에서 실시간 뉴스 언급을 추적하기 위해 용어를 추가하세요. 일치하는 기사가 수집되면 결과가 실시간으로 업데이트."
+      "infoTooltip": "<strong>키워드 모니터</strong> 모든 WatchNet 소스에서 실시간 뉴스 언급을 추적하기 위해 용어를 추가하세요. 일치하는 기사가 수집되면 결과가 실시간으로 업데이트."
     },
     "renewable": {
       "infoTooltip": "<strong>재생 에너지</strong> 지역과 연도별 전력 생산에서 재생 에너지 비중, 그리고 미국 태양광, 풍력, 석탄의 설비 용량 (MW). 출처: 세계은행 (EG.ELC.RNEW.ZS) 및 EIA."
@@ -3016,10 +3016,10 @@
     "copyCoordinates": "좌표 복사"
   },
   "shell": {
-    "documentTitle": "World Monitor — 실시간 글로벌 인텔리전스 대시보드",
+    "documentTitle": "WatchNet — 실시간 글로벌 인텔리전스 대시보드",
     "metaDescription": "실시간 글로벌 인텔리전스 플랫폼. WIRED 소개. 190개 국가 200만+ 사용자 이용. 분쟁, 시장, 군사, OSINT을 한 화면에서 확인.",
     "offlineTitle": "오프라인입니다",
-    "offlineMessage": "World Monitor는 실시간 인텔리전스 데이터를 위해 인터넷 연결이 필요합니다.",
+    "offlineMessage": "WatchNet는 실시간 인텔리전스 데이터를 위해 인터넷 연결이 필요합니다.",
     "offlineRetry": "다시 시도"
   },
   "widgets": {
@@ -3056,12 +3056,12 @@
     "phaseError": "오류",
     "previewCheckingHeading": "위젯 빌더 연결 중",
     "previewReadyHeading": "원하는 위젯을 설명해주세요",
-    "previewFetchingHeading": "라이브 WorldMonitor 데이터 가져오는 중",
+    "previewFetchingHeading": "라이브 WatchNet 데이터 가져오는 중",
     "previewComposingHeading": "위젯 레이아웃 구성 중",
     "previewErrorHeading": "미리보기에 주의가 필요합니다",
     "previewCheckingCopy": "위젯 키와 백엔드 가용성을 검증한 후 생성을 활성화하고 있습니다.",
     "previewReadyCopy": "프롬프트 예제를 사용하거나 원하는 정확한 라이브 뷰를 설명해주세요. 저장하기 전에 미리보기가 여기서 업데이트됩니다.",
-    "previewFetchingCopy": "에이전트가 승인된 WorldMonitor 엔드포인트를 호출하고 위젯의 데이터셋을 구성하고 있습니다.",
+    "previewFetchingCopy": "에이전트가 승인된 WatchNet 엔드포인트를 호출하고 위젯의 데이터셋을 구성하고 있습니다.",
     "previewComposingCopy": "미리보기가 최신 라이브 데이터와 대시보드 스타일링으로 렌더링되고 있습니다.",
     "previewErrorCopy": "문제를 해결한 후 다시 시도하세요. 기존 위젯은 영향을 받지 않습니다.",
     "createInteractive": "인터랙티브 위젯 생성",
@@ -3090,7 +3090,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "World Monitor 라이선스 키가 필요합니다",
+    "lockedDesc": "WatchNet 라이선스 키가 필요합니다",
     "signInToUnlock": "프리미엄 기능을 잠금 해제하려면 로그인하세요",
     "signIn": "로그인하여 잠금 해제",
     "upgradeDesc": "Pro로 업그레이드하여 프리미엄 분석에 전체 접근권한을 얻으세요",

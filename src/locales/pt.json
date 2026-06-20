@@ -337,7 +337,7 @@
         "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
         "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
       },
-      "skipSetup": "Pule a configuração — uma única licença World Monitor desbloqueia tudo. Junte-se à lista de espera para acesso antecipado.",
+      "skipSetup": "Pule a configuração — uma única licença WatchNet desbloqueia tudo. Junte-se à lista de espera para acesso antecipado.",
       "reserveEarlyAccess": "Reserve seu Acesso Antecipado"
     },
     "countryIntel": {
@@ -454,11 +454,11 @@
         "dividerOr": "OU",
         "register": {
           "title": "Reserve seu lugar",
-          "description": "Estamos preparando o lançamento das licenças World Monitor. Inscreva-se agora e seja o primeiro da fila — membros iniciais obtêm acesso prioritário e preços de fundador.",
+          "description": "Estamos preparando o lançamento das licenças WatchNet. Inscreva-se agora e seja o primeiro da fila — membros iniciais obtêm acesso prioritário e preços de fundador.",
           "submitBtn": "Entrar na lista de espera"
         }
       },
-      "shellTitle": "Configurações do World Monitor",
+      "shellTitle": "Configurações do WatchNet",
       "shellSearchPlaceholder": "Pesquisar configurações...",
       "shellCancel": "Cancelar",
       "shellSaveClose": "Salvar e Fechar",
@@ -1631,7 +1631,7 @@
       "tripDays": "Dias de viagem"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Analista WM</strong> Analista de IA com contexto em tempo real nos domínios geopolítico, de mercado, militar e económico. Alimentado pelo Claude com dados em tempo real injetados dos feeds ativos do WorldMonitor."
+      "infoTooltip": "<strong>Analista WM</strong> Analista de IA com contexto em tempo real nos domínios geopolítico, de mercado, militar e económico. Alimentado pelo Claude com dados em tempo real injetados dos feeds ativos do WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Posicionamento CFTC COT</strong> Relatório de Compromissos dos Traders: posicionamento líquido de comerciais, grandes especuladores e pequenos traders em futuros de commodities e financeiros. Publicado semanalmente (sexta-feira). Fonte: CFTC."
@@ -1763,7 +1763,7 @@
       "infoTooltip": "<strong>Indicadores macro</strong> Indicadores macroeconómicos-chave para os EUA e zona euro: CPI, desemprego, GDP e taxas de bancos centrais. Valores mostrados com delta do período anterior. Fonte: FRED (Federal Reserve Economic Data)."
     },
     "monitors": {
-      "infoTooltip": "<strong>Monitores de palavras-chave</strong> Adicione qualquer termo para rastrear menções em notícias em tempo real em todas as fontes do WorldMonitor. Os resultados atualizam-se em tempo real à medida que artigos correspondentes são ingeridos."
+      "infoTooltip": "<strong>Monitores de palavras-chave</strong> Adicione qualquer termo para rastrear menções em notícias em tempo real em todas as fontes do WatchNet. Os resultados atualizam-se em tempo real à medida que artigos correspondentes são ingeridos."
     },
     "renewable": {
       "infoTooltip": "<strong>Energia renovável</strong> Participação das renováveis na geração de eletricidade por região e ano, mais capacidade instalada nos EUA para solar, eólica e carvão (MW). Fontes: Banco Mundial (EG.ELC.RNEW.ZS) e EIA."
@@ -3032,10 +3032,10 @@
     "copyCoordinates": "Copiar coordenadas"
   },
   "shell": {
-    "documentTitle": "World Monitor — Painel de Inteligência Global em Tempo Real",
+    "documentTitle": "WatchNet — Painel de Inteligência Global em Tempo Real",
     "metaDescription": "Plataforma de inteligência global em tempo real. Destaque na WIRED. Usado por 2M+ pessoas em 190 países. Conflitos, mercados, militar, OSINT em uma visualização.",
     "offlineTitle": "Você está offline",
-    "offlineMessage": "World Monitor requer uma conexão com a internet para dados de inteligência em tempo real.",
+    "offlineMessage": "WatchNet requer uma conexão com a internet para dados de inteligência em tempo real.",
     "offlineRetry": "Tentar novamente"
   },
   "widgets": {
@@ -3072,12 +3072,12 @@
     "phaseError": "Erro",
     "previewCheckingHeading": "Conectando o construtor de widget",
     "previewReadyHeading": "Descreva o widget que você deseja",
-    "previewFetchingHeading": "Buscando dados ao vivo do WorldMonitor",
+    "previewFetchingHeading": "Buscando dados ao vivo do WatchNet",
     "previewComposingHeading": "Compondo o layout do widget",
     "previewErrorHeading": "A visualização precisa de atenção",
     "previewCheckingCopy": "Estamos validando sua chave de widget e disponibilidade de backend antes de ativar a geração.",
     "previewReadyCopy": "Use um exemplo de prompt ou descreva a visualização ao vivo exata que você deseja. A visualização será atualizada aqui antes de você salvá-la.",
-    "previewFetchingCopy": "O agente está chamando endpoints aprovados do WorldMonitor e moldando o conjunto de dados para o widget.",
+    "previewFetchingCopy": "O agente está chamando endpoints aprovados do WatchNet e moldando o conjunto de dados para o widget.",
     "previewComposingCopy": "A visualização está sendo renderizada com os dados ao vivo mais recentes e estilo do painel.",
     "previewErrorCopy": "Corrija o problema e tente novamente. Seus widgets existentes não serão afetados.",
     "createInteractive": "Criar Widget Interativo",
@@ -3106,7 +3106,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Requer uma chave de licença World Monitor",
+    "lockedDesc": "Requer uma chave de licença WatchNet",
     "signInToUnlock": "Entre para desbloquear recursos premium",
     "signIn": "Entre para Desbloquear",
     "upgradeDesc": "Atualize para Pro para ter acesso completo à análise premium",

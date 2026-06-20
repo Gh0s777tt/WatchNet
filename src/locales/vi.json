@@ -536,7 +536,7 @@
         "needsKeys": "Cấu hình khóa API để mở khóa tính năng",
         "some": "Một số tính năng cần khóa API"
       },
-      "skipSetup": "Bỏ qua cài đặt — một giấy phép World Monitor mở khóa tất cả. Tham gia danh sách chờ để truy cập sớm.",
+      "skipSetup": "Bỏ qua cài đặt — một giấy phép WatchNet mở khóa tất cả. Tham gia danh sách chờ để truy cập sớm.",
       "summary": {
         "desktop": "Chế độ desktop",
         "web": "Chế độ web (chỉ đọc, thông tin xác thực do máy chủ quản lý)",
@@ -590,7 +590,7 @@
         "dividerOr": "HOẶC",
         "register": {
           "title": "Đặt chỗ của bạn",
-          "description": "Chúng tôi đang chuẩn bị ra mắt giấy phép World Monitor. Đăng ký ngay để được ưu tiên — thành viên sớm được quyền truy cập trước và giá ưu đãi.",
+          "description": "Chúng tôi đang chuẩn bị ra mắt giấy phép WatchNet. Đăng ký ngay để được ưu tiên — thành viên sớm được quyền truy cập trước và giá ưu đãi.",
           "submitBtn": "Tham gia Danh sách Chờ"
         }
       },
@@ -601,7 +601,7 @@
         "status": "Trạng thái",
         "duration": "Thời lượng"
       },
-      "shellTitle": "Cài đặt World Monitor",
+      "shellTitle": "Cài đặt WatchNet",
       "shellSearchPlaceholder": "Tìm kiếm cài đặt...",
       "shellCancel": "Hủy",
       "shellSaveClose": "Lưu & Đóng",
@@ -1843,7 +1843,7 @@
       "tripDays": "Ngày chuyến đi"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Nhà phân tích WM</strong> Nhà phân tích AI với bối cảnh trực tiếp trên các lĩnh vực địa chính trị, thị trường, quân sự và kinh tế. Được hỗ trợ bởi Claude với dữ liệu thời gian thực từ các nguồn cấp WorldMonitor đang hoạt động."
+      "infoTooltip": "<strong>Nhà phân tích WM</strong> Nhà phân tích AI với bối cảnh trực tiếp trên các lĩnh vực địa chính trị, thị trường, quân sự và kinh tế. Được hỗ trợ bởi Claude với dữ liệu thời gian thực từ các nguồn cấp WatchNet đang hoạt động."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Vị thế CFTC COT</strong> Báo cáo cam kết của các nhà giao dịch: vị thế ròng của các nhà giao dịch thương mại, nhà đầu cơ lớn và nhà giao dịch nhỏ trong hợp đồng tương lai hàng hóa và tài chính. Công bố hàng tuần (thứ Sáu). Nguồn: CFTC."
@@ -1970,7 +1970,7 @@
       "infoTooltip": "<strong>Chỉ số vĩ mô</strong> Các chỉ số kinh tế vĩ mô chính cho Hoa Kỳ và khu vực đồng Euro: CPI, thất nghiệp, GDP và lãi suất ngân hàng trung ương. Giá trị hiển thị với delta so với kỳ trước. Nguồn: FRED (Federal Reserve Economic Data)."
     },
     "monitors": {
-      "infoTooltip": "<strong>Giám sát từ khóa</strong> Thêm bất kỳ thuật ngữ nào để theo dõi đề cập tin tức thời gian thực từ tất cả nguồn WorldMonitor. Kết quả cập nhật theo thời gian thực khi các bài viết phù hợp được thu thập."
+      "infoTooltip": "<strong>Giám sát từ khóa</strong> Thêm bất kỳ thuật ngữ nào để theo dõi đề cập tin tức thời gian thực từ tất cả nguồn WatchNet. Kết quả cập nhật theo thời gian thực khi các bài viết phù hợp được thu thập."
     },
     "renewable": {
       "infoTooltip": "<strong>Năng lượng tái tạo</strong> Tỷ trọng năng lượng tái tạo trong sản xuất điện theo vùng và năm, cùng công suất lắp đặt tại Mỹ cho điện mặt trời, điện gió và than (MW). Nguồn: Ngân hàng Thế giới (EG.ELC.RNEW.ZS) và EIA."
@@ -3016,10 +3016,10 @@
     "copyCoordinates": "Sao chép tọa độ"
   },
   "shell": {
-    "documentTitle": "World Monitor — Bảng điều khiển tình báo toàn cầu theo thời gian thực",
+    "documentTitle": "WatchNet — Bảng điều khiển tình báo toàn cầu theo thời gian thực",
     "metaDescription": "Nền tảng tình báo toàn cầu theo thời gian thực. Được giới thiệu trên WIRED. Sử dụng bởi 2M+ người dùng trên 190 quốc gia. Xung đột, thị trường, quân sự, OSINT trong một giao diện.",
     "offlineTitle": "Bạn Đang Ngoài Kết Nối",
-    "offlineMessage": "World Monitor cần kết nối internet để cập nhật dữ liệu tình báo real-time.",
+    "offlineMessage": "WatchNet cần kết nối internet để cập nhật dữ liệu tình báo real-time.",
     "offlineRetry": "Thử Lại"
   },
   "widgets": {
@@ -3056,12 +3056,12 @@
     "phaseError": "Lỗi",
     "previewCheckingHeading": "Kết nối trình tạo tiện ích",
     "previewReadyHeading": "Mô tả tiện ích bạn muốn",
-    "previewFetchingHeading": "Đang tìm nạp dữ liệu WorldMonitor trực tiếp",
+    "previewFetchingHeading": "Đang tìm nạp dữ liệu WatchNet trực tiếp",
     "previewComposingHeading": "Đang soạn bố cục tiện ích",
     "previewErrorHeading": "Bản xem trước cần chú ý",
     "previewCheckingCopy": "Chúng tôi đang xác thực khóa tiện ích của bạn và tính khả dụng của backend trước khi kích hoạt tạo.",
     "previewReadyCopy": "Sử dụng ví dụ nhắc nhở hoặc mô tả chính xác giao diện trực tiếp mà bạn muốn. Bản xem trước sẽ cập nhật tại đây trước khi bạn lưu.",
-    "previewFetchingCopy": "Đại lý đang gọi các endpoint WorldMonitor được phê duyệt và định hình tập dữ liệu cho tiện ích.",
+    "previewFetchingCopy": "Đại lý đang gọi các endpoint WatchNet được phê duyệt và định hình tập dữ liệu cho tiện ích.",
     "previewComposingCopy": "Bản xem trước đang hiển thị với dữ liệu trực tiếp mới nhất và kiểu bảng điều khiển.",
     "previewErrorCopy": "Khắc phục sự cố, sau đó thử lại. Các tiện ích hiện tại của bạn không bị ảnh hưởng.",
     "createInteractive": "Tạo tiện ích tương tác",
@@ -3090,7 +3090,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Yêu cầu khóa giấy phép World Monitor",
+    "lockedDesc": "Yêu cầu khóa giấy phép WatchNet",
     "signInToUnlock": "Đăng nhập để mở khóa các tính năng cao cấp",
     "signIn": "Đăng nhập để mở khóa",
     "upgradeDesc": "Nâng cấp lên Pro để có quyền truy cập đầy đủ vào phân tích cao cấp",

@@ -536,7 +536,7 @@
         "needsKeys": "機能を有効にするためAPIキーを設定してください",
         "some": "一部の機能にAPIキーが必要"
       },
-      "skipSetup": "セットアップをスキップ — World Monitorライセンス1つですべてが利用可能になります。早期アクセスのウェイトリストにご参加ください。",
+      "skipSetup": "セットアップをスキップ — WatchNetライセンス1つですべてが利用可能になります。早期アクセスのウェイトリストにご参加ください。",
       "summary": {
         "desktop": "デスクトップモード",
         "web": "Webモード（読み取り専用、サーバー管理の認証情報）",
@@ -590,7 +590,7 @@
         "dividerOr": "または",
         "register": {
           "title": "あなたの席を確保",
-          "description": "World Monitorライセンスのローンチ準備中です。今すぐ登録して優先アクセスと創設メンバー価格を手に入れましょう。",
+          "description": "WatchNetライセンスのローンチ準備中です。今すぐ登録して優先アクセスと創設メンバー価格を手に入れましょう。",
           "submitBtn": "ウェイトリストに参加"
         }
       },
@@ -1843,7 +1843,7 @@
       "tripDays": "移動日数"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM アナリスト</strong> 地政学、市場、軍事、経済分野のライブコンテキストを持つAIアナリスト。WorldMonitorのアクティブフィードからリアルタイムデータを注入したClaudeで稼働。"
+      "infoTooltip": "<strong>WM アナリスト</strong> 地政学、市場、軍事、経済分野のライブコンテキストを持つAIアナリスト。WatchNetのアクティブフィードからリアルタイムデータを注入したClaudeで稼働。"
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT ポジショニング</strong> トレーダーのコミットメント報告：商品先物・金融先物における商業筋、大口投機筋、小口トレーダーのネットポジション。毎週金曜日に公開。ソース：CFTC。"
@@ -1970,7 +1970,7 @@
       "infoTooltip": "<strong>マクロ指標</strong> 米国とユーロ圏の主要マクロ経済指標：CPI、失業率、GDP、中央銀行金利。前期との差分を含む値表示。ソース：FRED（連邦準備制度経済データ）。"
     },
     "monitors": {
-      "infoTooltip": "<strong>キーワードモニター</strong> 任意の用語を追加してWorldMonitorの全ソースからリアルタイムのニュース言及を追跡。マッチする記事が取り込まれると結果がリアルタイムで更新。"
+      "infoTooltip": "<strong>キーワードモニター</strong> 任意の用語を追加してWatchNetの全ソースからリアルタイムのニュース言及を追跡。マッチする記事が取り込まれると結果がリアルタイムで更新。"
     },
     "renewable": {
       "infoTooltip": "<strong>再生可能エネルギー</strong> 地域・年別の発電量に占める再生可能エネルギー比率、ならびに米国の太陽光・風力・石炭の設備容量（MW）。出典：世界銀行（EG.ELC.RNEW.ZS）および EIA。"
@@ -3019,7 +3019,7 @@
     "documentTitle": "ワールドモニター — リアルタイム グローバルインテリジェンスダッシュボード",
     "metaDescription": "リアルタイムグローバルインテリジェンスプラットフォーム。WIREDで紹介。190カ国2M+ユーザーが利用。紛争、市場、軍事、OSINTを一画面で。",
     "offlineTitle": "オフラインです",
-    "offlineMessage": "World Monitorはリアルタイムインテリジェンスデータのためにインターネット接続が必要です。",
+    "offlineMessage": "WatchNetはリアルタイムインテリジェンスデータのためにインターネット接続が必要です。",
     "offlineRetry": "再試行"
   },
   "widgets": {
@@ -3056,12 +3056,12 @@
     "phaseError": "エラー",
     "previewCheckingHeading": "ウィジェットビルダーを接続中",
     "previewReadyHeading": "作成したいウィジェットを説明してください",
-    "previewFetchingHeading": "ライブWorldMonitorデータを取得中",
+    "previewFetchingHeading": "ライブWatchNetデータを取得中",
     "previewComposingHeading": "ウィジェットレイアウトを構成中",
     "previewErrorHeading": "プレビューに注意が必要です",
     "previewCheckingCopy": "生成を有効にする前に、ウィジェットキーとバックエンド可用性を検証しています。",
     "previewReadyCopy": "プロンプト例を使用するか、希望するライブビューを正確に説明してください。プレビューは保存前にここで更新されます。",
-    "previewFetchingCopy": "エージェントが承認されたWorldMonitorエンドポイントを呼び出し、ウィジェット用にデータセットを整形しています。",
+    "previewFetchingCopy": "エージェントが承認されたWatchNetエンドポイントを呼び出し、ウィジェット用にデータセットを整形しています。",
     "previewComposingCopy": "プレビューが最新のライブデータとダッシュボードスタイルでレンダリングされています。",
     "previewErrorCopy": "問題を修正して再試行してください。既存のウィジェットは影響を受けません。",
     "createInteractive": "インタラクティブウィジェットを作成",
@@ -3090,7 +3090,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "World Monitor ライセンスキーが必要です",
+    "lockedDesc": "WatchNet ライセンスキーが必要です",
     "signInToUnlock": "サインインしてプレミアム機能を利用",
     "signIn": "サインインして利用",
     "upgradeDesc": "Proにアップグレードしてプレミアム分析に完全アクセス",

@@ -536,7 +536,7 @@
         "needsKeys": "Ozellikleri etkinlestirmek icin API anahtarlarini yapilandiriniz",
         "some": "Bazi ozellikler API anahtari gerektiriyor"
       },
-      "skipSetup": "Kurulumu atlayın — tek bir World Monitor lisansı her şeyi açar. Erken erişim için bekleme listesine katılın.",
+      "skipSetup": "Kurulumu atlayın — tek bir WatchNet lisansı her şeyi açar. Erken erişim için bekleme listesine katılın.",
       "summary": {
         "desktop": "Masaustu modu",
         "web": "Web modu (salt okunur, sunucu tarafli kimlik bilgileri)",
@@ -590,7 +590,7 @@
         "dividerOr": "VEYA",
         "register": {
           "title": "Yerinizi Ayırtın",
-          "description": "World Monitor lisanslarını başlatmaya hazırlanıyoruz. Şimdi kaydolun ve ilk sıraya girin — erken üyeler öncelikli erişim ve kurucu üye fiyatlandırması alır.",
+          "description": "WatchNet lisanslarını başlatmaya hazırlanıyoruz. Şimdi kaydolun ve ilk sıraya girin — erken üyeler öncelikli erişim ve kurucu üye fiyatlandırması alır.",
           "submitBtn": "Bekleme Listesine Katıl"
         }
       },
@@ -601,7 +601,7 @@
         "status": "Durum",
         "duration": "Sure"
       },
-      "shellTitle": "World Monitor Ayarları",
+      "shellTitle": "WatchNet Ayarları",
       "shellSearchPlaceholder": "Ayarları ara...",
       "shellCancel": "İptal",
       "shellSaveClose": "Kaydet ve Kapat",
@@ -1843,7 +1843,7 @@
       "tripDays": "Gezi günleri"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analist</strong> Jeopolitik, piyasa, askeri ve ekonomik alanlarda canlı bağlama sahip AI analisti. Aktif WorldMonitor beslemelerinden gerçek zamanlı veri enjekte edilen Claude tarafından desteklenmektedir."
+      "infoTooltip": "<strong>WM Analist</strong> Jeopolitik, piyasa, askeri ve ekonomik alanlarda canlı bağlama sahip AI analisti. Aktif WatchNet beslemelerinden gerçek zamanlı veri enjekte edilen Claude tarafından desteklenmektedir."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Pozisyonlama</strong> Tüccar Taahhütleri raporu: emtia ve finansal vadeli işlemlerde ticari aktörler, büyük spekülatörler ve küçük tüccarların net pozisyonları. Haftalık yayımlanır (Cuma). Kaynak: CFTC."
@@ -1970,7 +1970,7 @@
       "infoTooltip": "<strong>Makro Göstergeler</strong> ABD ve Euro Bölgesi için temel makroekonomik göstergeler: CPI, işsizlik, GDP ve merkez bankası faizleri. Önceki dönem deltasıyla birlikte gösterilen değerler. Kaynak: FRED (Federal Reserve Economic Data)."
     },
     "monitors": {
-      "infoTooltip": "<strong>Anahtar Kelime Monitörleri</strong> Tüm WorldMonitor kaynaklarından gerçek zamanlı haber söz takibi için herhangi bir terim ekleyin. Eşleşen makaleler alındıkça sonuçlar gerçek zamanlı güncellenir."
+      "infoTooltip": "<strong>Anahtar Kelime Monitörleri</strong> Tüm WatchNet kaynaklarından gerçek zamanlı haber söz takibi için herhangi bir terim ekleyin. Eşleşen makaleler alındıkça sonuçlar gerçek zamanlı güncellenir."
     },
     "renewable": {
       "infoTooltip": "<strong>Yenilenebilir Enerji</strong> Bölge ve yıla göre elektrik üretiminde yenilenebilir kaynak payı, ayrıca ABD'de güneş, rüzgâr ve kömür için kurulu güç (MW). Kaynaklar: Dünya Bankası (EG.ELC.RNEW.ZS) ve EIA."
@@ -3016,10 +3016,10 @@
     "copyCoordinates": "Koordinatları kopyala"
   },
   "shell": {
-    "documentTitle": "World Monitor — Gerçek Zamanlı Küresel İstihbarat Paneli",
+    "documentTitle": "WatchNet — Gerçek Zamanlı Küresel İstihbarat Paneli",
     "metaDescription": "Gerçek zamanlı küresel istihbarat platformu. WIRED'de yer aldı. 190 ülkede 2M+ kişi tarafından kullanılıyor. Çatışmalar, piyasalar, askeri, OSINT tek görünümde.",
     "offlineTitle": "Çevrimdışısınız",
-    "offlineMessage": "World Monitor, gerçek zamanlı istihbarat verileri için internet bağlantısı gerektirir.",
+    "offlineMessage": "WatchNet, gerçek zamanlı istihbarat verileri için internet bağlantısı gerektirir.",
     "offlineRetry": "Yeniden Dene"
   },
   "widgets": {
@@ -3056,12 +3056,12 @@
     "phaseError": "Hata",
     "previewCheckingHeading": "Widget oluşturucu bağlanıyor",
     "previewReadyHeading": "İstediğiniz widget'ı açıklayın",
-    "previewFetchingHeading": "Canlı WorldMonitor verileri getiriliyor",
+    "previewFetchingHeading": "Canlı WatchNet verileri getiriliyor",
     "previewComposingHeading": "Widget düzeni oluşturuluyor",
     "previewErrorHeading": "Önizleme dikkat gerektiriyor",
     "previewCheckingCopy": "Oluşturmayı etkinleştirmeden önce widget anahtarınızı ve arka uç kullanılabilirliğini doğruluyoruz.",
     "previewReadyCopy": "Bir istem örneği kullanın veya istediğiniz tam canlı görünümü açıklayın. Önizleme, kaydetmeden önce burada güncellenecektir.",
-    "previewFetchingCopy": "Ajan onaylı WorldMonitor uç noktalarını çağırıyor ve veri setini widget için şekillendiriyor.",
+    "previewFetchingCopy": "Ajan onaylı WatchNet uç noktalarını çağırıyor ve veri setini widget için şekillendiriyor.",
     "previewComposingCopy": "Önizleme, en son canlı veriler ve pano stillemesiyle işleniyor.",
     "previewErrorCopy": "Sorunu düzeltin, ardından yeniden deneyin. Mevcut widget'larınız etkilenmez.",
     "createInteractive": "Etkileşimli Widget Oluştur",
@@ -3090,7 +3090,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "World Monitor lisans anahtarı gereklidir",
+    "lockedDesc": "WatchNet lisans anahtarı gereklidir",
     "signInToUnlock": "Premium özelliklerin kilidini açmak için oturum açın",
     "signIn": "Kilidini Açmak İçin Oturum Aç",
     "upgradeDesc": "Premium analitiğe tam erişim için Pro'ya yükseltin",

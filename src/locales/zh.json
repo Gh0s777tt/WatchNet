@@ -536,7 +536,7 @@
         "needsKeys": "配置API密钥以解锁功能",
         "some": "部分功能需要API密钥"
       },
-      "skipSetup": "跳过设置 — 一个World Monitor许可证即可解锁全部功能。加入候补名单抢先体验。",
+      "skipSetup": "跳过设置 — 一个WatchNet许可证即可解锁全部功能。加入候补名单抢先体验。",
       "summary": {
         "desktop": "桌面模式",
         "web": "网页模式（只读，服务器管理凭证）",
@@ -590,7 +590,7 @@
         "dividerOr": "或",
         "register": {
           "title": "预留您的名额",
-          "description": "World Monitor许可证即将上线。立即注册成为首批用户 — 早期会员享有优先访问和创始会员价格。",
+          "description": "WatchNet许可证即将上线。立即注册成为首批用户 — 早期会员享有优先访问和创始会员价格。",
           "submitBtn": "加入候补名单"
         }
       },
@@ -601,7 +601,7 @@
         "status": "状态",
         "duration": "耗时"
       },
-      "shellTitle": "World Monitor 设置",
+      "shellTitle": "WatchNet 设置",
       "shellSearchPlaceholder": "搜索设置...",
       "shellCancel": "取消",
       "shellSaveClose": "保存并关闭",
@@ -1843,7 +1843,7 @@
       "tripDays": "行程天数"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM 分析师</strong> 具有地缘政治、市场、军事和经济领域实时上下文的AI分析师。由Claude驱动，注入WorldMonitor活跃数据源的实时数据。"
+      "infoTooltip": "<strong>WM 分析师</strong> 具有地缘政治、市场、军事和经济领域实时上下文的AI分析师。由Claude驱动，注入WatchNet活跃数据源的实时数据。"
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT 持仓</strong> 交易者承诺报告：商品和金融期货中商业机构、大型投机者和小型交易者的净持仓。每周五发布。来源：CFTC。"
@@ -1970,7 +1970,7 @@
       "infoTooltip": "<strong>宏观指标</strong> 美国和欧元区关键宏观经济指标：CPI、失业率、GDP和央行利率。显示值含与前期的差值。来源：FRED（联邦储备经济数据）。"
     },
     "monitors": {
-      "infoTooltip": "<strong>关键词监控</strong> 添加任何词汇，实时追踪WorldMonitor所有来源中的新闻提及。匹配文章被收录时结果实时更新。"
+      "infoTooltip": "<strong>关键词监控</strong> 添加任何词汇，实时追踪WatchNet所有来源中的新闻提及。匹配文章被收录时结果实时更新。"
     },
     "renewable": {
       "infoTooltip": "<strong>可再生能源</strong> 按地区和年份显示可再生能源在发电量中的占比，以及美国太阳能、风能和煤炭的装机容量（兆瓦）。来源：世界银行（EG.ELC.RNEW.ZS）和 EIA。"
@@ -3016,10 +3016,10 @@
     "copyCoordinates": "复制坐标"
   },
   "shell": {
-    "documentTitle": "World Monitor — 实时全球情报仪表板",
+    "documentTitle": "WatchNet — 实时全球情报仪表板",
     "metaDescription": "实时全球情报平台。刊登于 WIRED。全球 190 个国家 200 万+ 用户使用。冲突、市场、军事、OSINT 信息一览无遗。",
     "offlineTitle": "您已离线",
-    "offlineMessage": "World Monitor 需要互联网连接来获取实时情报数据。",
+    "offlineMessage": "WatchNet 需要互联网连接来获取实时情报数据。",
     "offlineRetry": "重试"
   },
   "widgets": {
@@ -3056,12 +3056,12 @@
     "phaseError": "错误",
     "previewCheckingHeading": "连接小组件生成器中",
     "previewReadyHeading": "描述您想要的小组件",
-    "previewFetchingHeading": "正在获取实时 WorldMonitor 数据",
+    "previewFetchingHeading": "正在获取实时 WatchNet 数据",
     "previewComposingHeading": "正在构建小组件布局",
     "previewErrorHeading": "预览需要处理",
     "previewCheckingCopy": "我们正在验证您的小组件密钥和后端可用性，然后启用生成。",
     "previewReadyCopy": "使用提示示例或描述您想要的精确实时视图。预览将在此处更新，然后您可以保存。",
-    "previewFetchingCopy": "代理正在调用已批准的 WorldMonitor 端点并为小组件塑形数据集。",
+    "previewFetchingCopy": "代理正在调用已批准的 WatchNet 端点并为小组件塑形数据集。",
     "previewComposingCopy": "预览正在使用最新的实时数据和仪表板样式进行呈现。",
     "previewErrorCopy": "修复问题后重试。您现有的小组件不受影响。",
     "createInteractive": "创建交互式小组件",
@@ -3090,7 +3090,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "需要 World Monitor 许可证密钥",
+    "lockedDesc": "需要 WatchNet 许可证密钥",
     "signInToUnlock": "登录以解锁高级功能",
     "signIn": "登录以解锁",
     "upgradeDesc": "升级到 Pro 以获得完整的高级分析访问权限",

@@ -536,7 +536,7 @@
         "needsKeys": "Pro odemknutí funkcí nakonfigurujte klíče API",
         "some": "Některé funkce vyžadují klíče API"
       },
-      "skipSetup": "Přeskočit nastavení — jedna licence World Monitor odemkne vše. Zapište se na čekací listinu pro předběžný přístup.",
+      "skipSetup": "Přeskočit nastavení — jedna licence WatchNet odemkne vše. Zapište se na čekací listinu pro předběžný přístup.",
       "summary": {
         "desktop": "Desktopový režim",
         "web": "Webový režim (pouze pro čtení, přihlašovací údaje spravuje server)",
@@ -590,7 +590,7 @@
         "dividerOr": "NEBO",
         "register": {
           "title": "Rezervujte si své místo",
-          "description": "Připravujeme spuštění licencí World Monitor. Zaregistrujte se nyní a buďte první v řadě — první členové získají prioritní přístup a zakladatelské ceny.",
+          "description": "Připravujeme spuštění licencí WatchNet. Zaregistrujte se nyní a buďte první v řadě — první členové získají prioritní přístup a zakladatelské ceny.",
           "submitBtn": "Zapsat na čekací listinu"
         }
       },
@@ -601,7 +601,7 @@
         "status": "Stav",
         "duration": "Trvání"
       },
-      "shellTitle": "Nastavení World Monitor",
+      "shellTitle": "Nastavení WatchNet",
       "shellSearchPlaceholder": "Hledání v nastavení...",
       "shellCancel": "Zrušit",
       "shellSaveClose": "Uložit a zavřít",
@@ -1845,7 +1845,7 @@
       "tripDays": "Dny cesty"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analytik</strong> AI analytik s živým kontextem napříč geopolitickou, tržní, vojenskou a ekonomickou doménou. Poháněn systémem Claude s daty v reálném čase z aktivních kanálů WorldMonitor."
+      "infoTooltip": "<strong>WM Analytik</strong> AI analytik s živým kontextem napříč geopolitickou, tržní, vojenskou a ekonomickou doménou. Poháněn systémem Claude s daty v reálném čase z aktivních kanálů WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Pozice</strong> Zpráva o závazcích obchodníků: čisté pozice komerčních subjektů, velkých spekulantů a malých obchodníků v komoditních a finančních futures. Publikováno týdně (pátek). Zdroj: CFTC."
@@ -1982,7 +1982,7 @@
       "infoTooltip": "<strong>Makro ukazatele</strong> Klíčové makroekonomické ukazatele pro USA a eurozónu: CPI, nezaměstnanost, GDP a sazby centrálních bank. Hodnoty s rozdílem oproti předchozímu období. Zdroj: FRED (Ekonomická data Federálního rezervního systému)."
     },
     "monitors": {
-      "infoTooltip": "<strong>Monitory klíčových slov</strong> Přidejte libovolný výraz pro sledování zmínek ve zprávách v reálném čase ze všech zdrojů WorldMonitor. Výsledky se aktualizují při příjmu odpovídajících článků."
+      "infoTooltip": "<strong>Monitory klíčových slov</strong> Přidejte libovolný výraz pro sledování zmínek ve zprávách v reálném čase ze všech zdrojů WatchNet. Výsledky se aktualizují při příjmu odpovídajících článků."
     },
     "renewable": {
       "infoTooltip": "<strong>Obnovitelná energie</strong> Podíl obnovitelných zdrojů na výrobě elektřiny podle regionu a roku a instalovaný výkon v USA pro solární, větrnou a uhelnou energii (MW). Zdroje: Světová banka (EG.ELC.RNEW.ZS) a EIA."
@@ -3048,10 +3048,10 @@
     "copyCoordinates": "Kopírovat souřadnice"
   },
   "shell": {
-    "documentTitle": "World Monitor — Přehled reálných globálních informací",
+    "documentTitle": "WatchNet — Přehled reálných globálních informací",
     "metaDescription": "Platforma globálních informací v reálném čase. Vyznamenáno v WIRED. Používáno 2M+ lidí v 190 zemích. Konflikty, trhy, armáda, OSINT v jednom pohledu.",
     "offlineTitle": "Jste offline",
-    "offlineMessage": "World Monitor vyžaduje internetové připojení pro data zpravodajství v reálném čase.",
+    "offlineMessage": "WatchNet vyžaduje internetové připojení pro data zpravodajství v reálném čase.",
     "offlineRetry": "Zkusit znovu"
   },
   "widgets": {
@@ -3088,12 +3088,12 @@
     "phaseError": "Chyba",
     "previewCheckingHeading": "Připojování tvůrce widgetů",
     "previewReadyHeading": "Popište widget, který chcete",
-    "previewFetchingHeading": "Načítání živých dat WorldMonitor",
+    "previewFetchingHeading": "Načítání živých dat WatchNet",
     "previewComposingHeading": "Skládání rozvržení widgetu",
     "previewErrorHeading": "Náhled vyžaduje pozornost",
     "previewCheckingCopy": "Ověřujeme váš klíč widgetu a dostupnost backendu před povolením generování.",
     "previewReadyCopy": "Použijte příklad dotazu nebo popište přesný živý pohled, který chcete. Náhled se zde aktualizuje před uložením.",
-    "previewFetchingCopy": "Agent volá schválené koncové body WorldMonitor a upravuje datovou sadu pro widget.",
+    "previewFetchingCopy": "Agent volá schválené koncové body WatchNet a upravuje datovou sadu pro widget.",
     "previewComposingCopy": "Náhled se vykresluje s nejnovějšími živými daty a stylem nástěnky.",
     "previewErrorCopy": "Vyřešte problém a zkuste znovu. Vaše stávající widgety nejsou ovlivněny.",
     "createInteractive": "Vytvořit interaktivní widget",
@@ -3122,7 +3122,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Vyžaduje licenční klíč World Monitor",
+    "lockedDesc": "Vyžaduje licenční klíč WatchNet",
     "signInToUnlock": "Přihlaste se a odemkněte prémiové funkce",
     "signIn": "Přihlášení pro odemčení",
     "upgradeDesc": "Upgradujte na Pro a získejte plný přístup k prémiové analýze",

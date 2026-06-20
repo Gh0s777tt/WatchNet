@@ -536,7 +536,7 @@
         "needsKeys": "Configurați cheile API pentru a debloca funcțiile",
         "some": "Unele funcții necesită chei API"
       },
-      "skipSetup": "Omiteți configurarea — o singură licență World Monitor deblochează totul. Alăturați-vă listei de așteptare pentru acces anticipat.",
+      "skipSetup": "Omiteți configurarea — o singură licență WatchNet deblochează totul. Alăturați-vă listei de așteptare pentru acces anticipat.",
       "summary": {
         "desktop": "Modul desktop",
         "web": "Mod web (numai citire, acreditări gestionate de server)",
@@ -590,7 +590,7 @@
         "dividerOr": "SAU",
         "register": {
           "title": "Rezervă-ți Locul",
-          "description": "Ne pregătim să lansăm licențe World Monitor. Înscrieți-vă acum și fiți pe primul loc – membrii primii au acces prioritar și prețuri pentru membrii fondatori.",
+          "description": "Ne pregătim să lansăm licențe WatchNet. Înscrieți-vă acum și fiți pe primul loc – membrii primii au acces prioritar și prețuri pentru membrii fondatori.",
           "submitBtn": "Alăturați-vă listei de așteptare"
         }
       },
@@ -601,7 +601,7 @@
         "status": "Stare",
         "duration": "Durata"
       },
-      "shellTitle": "Setări World Monitor",
+      "shellTitle": "Setări WatchNet",
       "shellSearchPlaceholder": "Căutați setări...",
       "shellCancel": "Anulare",
       "shellSaveClose": "Salvare & Închidere",
@@ -1844,7 +1844,7 @@
       "tripDays": "Zile de călătorie"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Analist WM</strong> Analist AI cu context în timp real în domeniile geopolitic, piețe, militar și economic. Alimentat de Claude cu date în timp real injectate din fluxurile active WorldMonitor."
+      "infoTooltip": "<strong>Analist WM</strong> Analist AI cu context în timp real în domeniile geopolitic, piețe, militar și economic. Alimentat de Claude cu date în timp real injectate din fluxurile active WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Poziționare CFTC COT</strong> Raportul angajamentelor traderilor: poziționarea netă a comercialilor, speculanților mari și traderilor mici în contractele futures pe mărfuri și financiare. Publicat săptămânal (vineri). Sursă: CFTC."
@@ -1976,7 +1976,7 @@
       "infoTooltip": "<strong>Indicatori macro</strong> Indicatori macroeconomici cheie pentru SUA și zona euro: CPI, șomaj, GDP și ratele băncilor centrale. Valori afișate cu delta față de perioada anterioară. Sursă: FRED (Federal Reserve Economic Data)."
     },
     "monitors": {
-      "infoTooltip": "<strong>Monitoare de cuvinte cheie</strong> Adăugați orice termen pentru a urmări mențiunile în știri în timp real din toate sursele WorldMonitor. Rezultatele se actualizează în timp real pe măsură ce articolele corespunzătoare sunt ingerate."
+      "infoTooltip": "<strong>Monitoare de cuvinte cheie</strong> Adăugați orice termen pentru a urmări mențiunile în știri în timp real din toate sursele WatchNet. Rezultatele se actualizează în timp real pe măsură ce articolele corespunzătoare sunt ingerate."
     },
     "renewable": {
       "infoTooltip": "<strong>Energie regenerabilă</strong> Ponderea regenerabilelor în producția de electricitate pe regiune și an, plus capacitatea instalată în SUA pentru solar, eolian și cărbune (MW). Surse: Banca Mondială (EG.ELC.RNEW.ZS) și EIA."
@@ -3032,10 +3032,10 @@
     "copyCoordinates": "Copiază coordonatele"
   },
   "shell": {
-    "documentTitle": "World Monitor — Tabloul de Bord al Inteligenței Globale în Timp Real",
+    "documentTitle": "WatchNet — Tabloul de Bord al Inteligenței Globale în Timp Real",
     "metaDescription": "Platformă de inteligență globală în timp real. Prezentată în WIRED. Utilizată de 2M+ persoane din 190 de țări. Conflicte, piețe, militare, OSINT într-o singură vizualizare.",
     "offlineTitle": "Sunteți Offline",
-    "offlineMessage": "World Monitor necesită o conexiune la internet pentru date de informații în timp real.",
+    "offlineMessage": "WatchNet necesită o conexiune la internet pentru date de informații în timp real.",
     "offlineRetry": "Încercați din nou"
   },
   "widgets": {
@@ -3072,12 +3072,12 @@
     "phaseError": "Eroare",
     "previewCheckingHeading": "Se conectează constructorul de widget",
     "previewReadyHeading": "Descrie widgetul pe care îl dorești",
-    "previewFetchingHeading": "Se preiau datele live WorldMonitor",
+    "previewFetchingHeading": "Se preiau datele live WatchNet",
     "previewComposingHeading": "Se compune aspectul widgetului",
     "previewErrorHeading": "Previzualizarea necesită atenție",
     "previewCheckingCopy": "Validăm cheia widgetului și disponibilitatea backend-ului înainte de a activa generarea.",
     "previewReadyCopy": "Folosește un exemplu de prompt sau descrie exact vizualizarea live pe care o dorești. Previzualizarea se va actualiza aici înainte să o salvezi.",
-    "previewFetchingCopy": "Agentul apelează punctele finale WorldMonitor aprobate și modelează setul de date pentru widget.",
+    "previewFetchingCopy": "Agentul apelează punctele finale WatchNet aprobate și modelează setul de date pentru widget.",
     "previewComposingCopy": "Previzualizarea se redă cu cele mai recente date live și stilul tabloului de bord.",
     "previewErrorCopy": "Remediază problema, apoi reîncearcă. Widgeturile existente nu sunt afectate.",
     "createInteractive": "Creează Widget Interactiv",
@@ -3106,7 +3106,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Necesită o cheie de licență World Monitor",
+    "lockedDesc": "Necesită o cheie de licență WatchNet",
     "signInToUnlock": "Conectați-vă pentru a debloca funcțiile premium",
     "signIn": "Conectați-vă pentru a debloca",
     "upgradeDesc": "Upgrade la Pro pentru acces deplin la analitica premium",
