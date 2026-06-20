@@ -12,6 +12,9 @@ const PRODUCTION_PATTERNS: RegExp[] = [
   //   worldmonitor-<hash>-eliewm.vercel.app        (deployment URL)
   // Tight on purpose: never a bare *.vercel.app (this is a security allowlist).
   /^https:\/\/worldmonitor-[a-z0-9-]+-eliewm\.vercel\.app$/,
+  // WatchNet (this fork) — production alias + "kraina-duchow" team deployment/preview URLs.
+  /^https:\/\/watchnet\.vercel\.app$/,
+  /^https:\/\/watchnet-[a-z0-9-]+-kraina-duchow\.vercel\.app$/,
   /^https?:\/\/tauri\.localhost(:\d+)?$/,
   /^https?:\/\/[a-z0-9-]+\.tauri\.localhost(:\d+)?$/i,
   /^tauri:\/\/localhost$/,
