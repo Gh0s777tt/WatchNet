@@ -569,11 +569,6 @@ export class PanelLayoutManager implements AppModule {
         ${(() => {
         const variants = [
           { key: 'full', icon: '🌍', label: t('header.world') },
-          { key: 'tech', icon: '💻', label: t('header.tech') },
-          { key: 'finance', icon: '📈', label: t('header.finance') },
-          { key: 'commodity', icon: '⛏️', label: t('header.commodity') },
-          { key: 'energy', icon: '⚡', label: t('header.energy') },
-          { key: 'happy', icon: '☀️', label: 'Good News' },
         ];
         return variants.map(v =>
           `<button class="mobile-menu-item mobile-menu-variant ${v.key === SITE_VARIANT ? 'active' : ''}" data-variant="${v.key}">
