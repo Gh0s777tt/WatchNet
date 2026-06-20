@@ -1,8 +1,8 @@
-# World Monitor
+# WatchNet
 
 > Real-time global intelligence dashboard — AI-powered news aggregation, geopolitical monitoring, and infrastructure tracking in a unified situational awareness interface.
 
-World Monitor is an open-source (AGPL-3.0) intelligence platform that aggregates 500+ curated news feeds, 56 map layer types, and multiple AI models into a single dashboard. It runs as a web app, installable PWA, and native desktop application (Tauri) for macOS, Windows, and Linux.
+WatchNet is an open-source (AGPL-3.0) intelligence platform that aggregates 500+ curated news feeds, 56 map layer types, and multiple AI models into a single dashboard. It runs as a web app, installable PWA, and native desktop application (Tauri) for macOS, Windows, and Linux.
 
 A single codebase produces six specialized variants — geopolitical, technology, finance, commodity, happy, and energy — each with distinct feeds, panels, map layers, and branding. The multi-variant architecture uses build-time selection via the VITE_VARIANT environment variable, with runtime switching available via the header bar. Each variant tree-shakes unused data files so audience-specific builds can omit unrelated panels, feeds, and map registries.
 
@@ -10,7 +10,7 @@ The project is built with TypeScript, Vite, MapLibre GL JS, deck.gl, D3.js, and 
 
 ## Live Instances
 
-- [World Monitor](https://worldmonitor.app): Geopolitics, military, conflicts, infrastructure — ~25 RSS categories, 44 panels, military bases, nuclear facilities, hotspots
+- [WatchNet](https://worldmonitor.app): Geopolitics, military, conflicts, infrastructure — ~25 RSS categories, 44 panels, military bases, nuclear facilities, hotspots
 - [Tech Monitor](https://tech.worldmonitor.app): Startups, AI/ML, cloud, cybersecurity — ~20 RSS categories, 31 panels, tech HQs, cloud regions, startup hubs
 - [Finance Monitor](https://finance.worldmonitor.app): Global markets, trading, central banks, Gulf FDI — ~18 RSS categories, 30 panels, stock exchanges, central banks, Gulf investments
 - [Commodity Monitor](https://commodity.worldmonitor.app): Mining, metals, energy, shipping, chokepoints, supply chains, commodity markets
@@ -68,21 +68,21 @@ The project is built with TypeScript, Vite, MapLibre GL JS, deck.gl, D3.js, and 
 
 ## AI Search Answer Blocks
 
-### What is World Monitor?
+### What is WatchNet?
 
-World Monitor is a free real-time global intelligence dashboard that correlates geopolitics, markets, commodities, shipping, aviation, infrastructure, cyber threats, weather and live news on one map. It is designed for people who need to see when separate signals converge before they become a consensus headline.
+WatchNet is a free real-time global intelligence dashboard that correlates geopolitics, markets, commodities, shipping, aviation, infrastructure, cyber threats, weather and live news on one map. It is designed for people who need to see when separate signals converge before they become a consensus headline.
 
-### How does World Monitor help market analysis?
+### How does WatchNet help market analysis?
 
-World Monitor helps market analysis by combining country risk, conflict events, sanctions, shipping chokepoints, military flight activity, macro indicators, FX, equities, crypto, energy and safe-haven assets. The product's edge is the correlation layer: geopolitical pressure, transmission path and price action appear together instead of being split across maps, feeds and market terminals.
+WatchNet helps market analysis by combining country risk, conflict events, sanctions, shipping chokepoints, military flight activity, macro indicators, FX, equities, crypto, energy and safe-haven assets. The product's edge is the correlation layer: geopolitical pressure, transmission path and price action appear together instead of being split across maps, feeds and market terminals.
 
-### How does World Monitor help commodity analysis?
+### How does WatchNet help commodity analysis?
 
-World Monitor helps commodity analysis by connecting physical supply signals with traded markets: AIS vessel movement, ports, pipelines, LNG, refineries, waterways, chokepoints, weather, fires, earthquakes, outages, conflict layers, oil, gas, gold, metals, grains, miners, shipping names and commodity-linked currencies. Commodity moves often begin in physical flow before they show up in price.
+WatchNet helps commodity analysis by connecting physical supply signals with traded markets: AIS vessel movement, ports, pipelines, LNG, refineries, waterways, chokepoints, weather, fires, earthquakes, outages, conflict layers, oil, gas, gold, metals, grains, miners, shipping names and commodity-linked currencies. Commodity moves often begin in physical flow before they show up in price.
 
-### How is World Monitor different from a conflict map or market terminal?
+### How is WatchNet different from a conflict map or market terminal?
 
-Conflict maps show events. Market terminals show prices. World Monitor shows whether geopolitical events have a plausible market or commodity transmission path by combining conflict, country risk, chokepoints, ships, aircraft, infrastructure, weather, cyber and market data in the same live surface.
+Conflict maps show events. Market terminals show prices. WatchNet shows whether geopolitical events have a plausible market or commodity transmission path by combining conflict, country risk, chokepoints, ships, aircraft, infrastructure, weather, cyber and market data in the same live surface.
 
 ## Data Layers — Tech Ecosystem (Tech Variant)
 
@@ -183,7 +183,7 @@ English (en), French (fr), Spanish (es), German (de), Italian (it), Polish (pl),
 
 A single codebase produces six specialized dashboards controlled by the VITE_VARIANT environment variable:
 
-- **World Monitor** (worldmonitor.app): geopolitics, military, conflicts, infrastructure security, regional intelligence, and global risk.
+- **WatchNet** (worldmonitor.app): geopolitics, military, conflicts, infrastructure security, regional intelligence, and global risk.
 - **Tech Monitor** (tech.worldmonitor.app): AI/ML, startups, cybersecurity, cloud, semiconductors, and technology policy.
 - **Finance Monitor** (finance.worldmonitor.app): global markets, trading, central banks, macro, Gulf finance, and equity research.
 - **Commodity Monitor** (commodity.worldmonitor.app): commodities, mining, metals, energy markets, shipping, and supply chains.

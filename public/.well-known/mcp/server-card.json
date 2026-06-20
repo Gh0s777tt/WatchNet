@@ -2,8 +2,8 @@
   "serverInfo": {
     "name": "worldmonitor",
     "version": "1.10.0",
-    "description": "WorldMonitor's live global-intelligence stack as an MCP server: real-time markets, conflict events, aviation, maritime, energy, climate, health, displacement, supply chain, and AI-generated regional briefs.",
-    "vendor": "WorldMonitor",
+    "description": "WatchNet's live global-intelligence stack as an MCP server: real-time markets, conflict events, aviation, maritime, energy, climate, health, displacement, supply chain, and AI-generated regional briefs.",
+    "vendor": "WatchNet",
     "homepage": "https://www.worldmonitor.app"
   },
   "protocolVersion": "2025-06-18",
@@ -38,7 +38,7 @@
     "alternative_methods": [
       {
         "type": "api_key",
-        "header": "X-WorldMonitor-Key",
+        "header": "X-WatchNet-Key",
         "description": "API-tier subscribers may pass a wm_<40 lowercase hex> key directly instead of completing the OAuth flow."
       }
     ]

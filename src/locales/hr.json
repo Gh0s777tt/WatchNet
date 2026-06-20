@@ -1,13 +1,13 @@
 {
   "app": {
-    "title": "Svjetski Monitor",
+    "title": "WatchNet",
     "description": "Globalna Situacija s AI Uvidima"
   },
   "shell": {
-    "documentTitle": "Svjetski Monitor — Nadzorna Ploča Globalne Obavještajne Informacije u Realnom Vremenu",
+    "documentTitle": "WatchNet — Nadzorna Ploča Globalne Obavještajne Informacije u Realnom Vremenu",
     "metaDescription": "Platforma globalne obavještajne informacije u realnom vremenu. Prikazana u WIRED-u. Koristi je 2M+ osoba u 190 zemalja. Konflikti, tržišta, vojska, OSINT na jednom mjestu.",
     "offlineTitle": "Niste Mrežom Povezani",
-    "offlineMessage": "Svjetski Monitor zahtijeva internetsku vezu za podatke obavještajne informacije u realnom vremenu.",
+    "offlineMessage": "WatchNet zahtijeva internetsku vezu za podatke obavještajne informacije u realnom vremenu.",
     "offlineRetry": "Pokušaj Ponovno"
   },
   "widgets": {

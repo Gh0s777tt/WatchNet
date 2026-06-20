@@ -1,9 +1,9 @@
 {
   "shell": {
-    "documentTitle": "Világfigyelő — Valós idejű globális intelligencia irányítópult",
+    "documentTitle": "WatchNet — Valós idejű globális intelligencia irányítópult",
     "metaDescription": "Valós idejű globális intelligencia platform. A WIRED által ajánlott. 2M+ felhasználó által használt 190 országban. Konfliktusok, piacok, katonai, OSINT egy nézetben.",
     "offlineTitle": "Kapcsolat nélküli mód",
-    "offlineMessage": "A Világfigyelő valós idejű intelligencia adatokhoz internetkapcsolatra van szüksége.",
+    "offlineMessage": "A WatchNet valós idejű intelligencia adatokhoz internetkapcsolatra van szüksége.",
     "offlineRetry": "Újra"
   },
   "widgets": {
