@@ -1630,7 +1630,7 @@
       "tripDays": "Resedagar"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analytiker</strong> AI-analytiker med livekontext inom geopolitiska, marknads-, militära och ekonomiska domäner. Drivs av Claude med realtidsdata injicerade från aktiva WatchNet-flöden."
+      "infoTooltip": "<strong>WatchNet Analytiker</strong> AI-analytiker med livekontext inom geopolitiska, marknads-, militära och ekonomiska domäner. Drivs av Claude med realtidsdata injicerade från aktiva WatchNet-flöden."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Positionering</strong> Commitments of Traders-rapport: nettopositionering av kommersiella aktörer, stora spekulanter och små handlare i råvaru- och finansiella terminer. Publiceras veckovis (fredag). Källa: CFTC."

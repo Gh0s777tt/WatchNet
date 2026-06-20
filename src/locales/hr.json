@@ -2175,7 +2175,7 @@
       "loadError": "Climate News privremeno nije dostupan"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analyst</strong> AI analitičar sa živim kontekstom kroz geopolitičke, tržišne, vojne i ekonomske domene. Pogonjen s Claude-om sa podacima u realnom vremenu ubrizganim iz aktivnih WatchNet feedova."
+      "infoTooltip": "<strong>WatchNet Analyst</strong> AI analitičar sa živim kontekstom kroz geopolitičke, tržišne, vojne i ekonomske domene. Pogonjen s Claude-om sa podacima u realnom vremenu ubrizganim iz aktivnih WatchNet feedova."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Positioning</strong> Izvještaj Commitments of Traders: neto pozicioniranje komercijalaca, velikih špekulanata i malih trgovaca na robama i financijskim futures. Objavljeno tjedno (petak). Izvor: CFTC."

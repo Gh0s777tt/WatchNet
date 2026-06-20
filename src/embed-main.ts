@@ -60,7 +60,7 @@ async function bootEmbed(): Promise<void> {
     attribution.href = buildWorldMonitorAttributionUrl(new URL('/dashboard', window.location.origin).toString(), getReferrerHost());
     attribution.target = '_blank';
     attribution.rel = 'noopener noreferrer';
-    attribution.textContent = 'Live map by World Monitor';
+    attribution.textContent = 'Live map by WatchNet';
     root.appendChild(attribution);
 
     const loader = new EmbedDataLoader(map, params.layerIds);
@@ -72,7 +72,7 @@ async function bootEmbed(): Promise<void> {
     }, { once: true });
   } catch (error) {
     console.error('[embed] Failed to boot map:', error);
-    mountError(root, 'World Monitor map embed could not load.');
+    mountError(root, 'WatchNet map embed could not load.');
     document.body.dataset.embedReady = 'error';
   }
 }

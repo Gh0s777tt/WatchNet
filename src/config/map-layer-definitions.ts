@@ -142,7 +142,7 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     coverage: 'curated',
     category: 'Conflict',
     purpose: 'Shows curated conflict zones and geopolitical boundary overlays so analysts can orient live signals against known theaters.',
-    source: 'WorldMonitor conflict-zone registry, UCDP/ACLED conflict context, and documented boundary metadata such as the Korean DMZ.',
+    source: 'WatchNet conflict-zone registry, UCDP/ACLED conflict context, and documented boundary metadata such as the Korean DMZ.',
     freshness: 'Base zones are curated/static. Dynamic conflict-event inputs are tracked separately through ACLED/UCDP feeds and health signals.',
     confidence: 'Good for geographic orientation; not a real-time incident confirmation by itself.',
     limitations: [
@@ -172,7 +172,7 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     coverage: 'curated',
     category: 'Country Risk',
     purpose: 'Colors countries by the current Country Instability Index score for broad strategic-risk triage.',
-    source: 'WorldMonitor CII scoring service using conflict, unrest, advisories, cyber, AIS, aviation, natural-event, and news signals.',
+    source: 'WatchNet CII scoring service using conflict, unrest, advisories, cyber, AIS, aviation, natural-event, and news signals.',
     freshness: 'Risk-score cache is warm-pinged every 8 minutes; seed-meta and health.riskScores expose live, stale, partial, or degraded state against a 30-minute freshness budget.',
     confidence: 'Composite model signal, not an official country rating or probability forecast.',
     limitations: [
@@ -217,7 +217,7 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     coverage: 'curated',
     category: 'Maritime',
     purpose: 'Shows vessel density and AIS disruption signals around strategic waters and chokepoints.',
-    source: 'AISStream relay snapshots, WorldMonitor maritime service, and chokepoint disruption classifiers.',
+    source: 'AISStream relay snapshots, WatchNet maritime service, and chokepoint disruption classifiers.',
     freshness: 'AIS relay snapshots are rebuilt every 5 seconds by default; the server may cache the base density snapshot for 5 minutes, and the layer is disabled or stale when relay credentials/connectivity are unavailable.',
     confidence: 'Useful for maritime anomaly screening, but AIS is self-reported and vessels can go dark.',
     limitations: [
@@ -232,7 +232,7 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     coverage: 'curated',
     category: 'Maritime',
     purpose: 'Marks strategic waterways and chokepoints so disruption signals can be interpreted against fixed maritime geography.',
-    source: 'WorldMonitor strategic-waterways registry with supply-chain chokepoint status overlays from AIS, NGA warnings, and PortWatch-derived feeds.',
+    source: 'WatchNet strategic-waterways registry with supply-chain chokepoint status overlays from AIS, NGA warnings, and PortWatch-derived feeds.',
     freshness: 'Waterway locations are static; live chokepoint status is warm-pinged every 30 minutes and transit summaries refresh every 10 minutes when the relay/PortWatch path is healthy.',
     confidence: 'High for fixed geography; live disruption confidence depends on the companion AIS, NGA, and PortWatch feeds.',
     limitations: [
@@ -247,7 +247,7 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     coverage: 'curated',
     category: 'Maritime',
     purpose: 'Draws major container, energy, and bulk routes through strategic chokepoints for disruption-path reasoning.',
-    source: 'WorldMonitor trade-route registry plus supply-chain chokepoint status and transit summaries.',
+    source: 'WatchNet trade-route registry plus supply-chain chokepoint status and transit summaries.',
     freshness: 'Route geometry is static. Chokepoint status is warm-pinged every 30 minutes and transit summaries refresh every 10 minutes through supply-chain caches and relay paths.',
     confidence: 'Good for route-level exposure context; not a ship-level routing feed.',
     limitations: [
@@ -277,7 +277,7 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     coverage: 'curated',
     category: 'News / Hotspots',
     purpose: 'Highlights monitored geopolitical hotspots and raises their level when related news and escalation signals converge.',
-    source: 'WorldMonitor hotspot registry, RSS/GDELT news intelligence, hotspot escalation scoring, military activity, and CII context.',
+    source: 'WatchNet hotspot registry, RSS/GDELT news intelligence, hotspot escalation scoring, military activity, and CII context.',
     freshness: 'Hotspot locations are curated/static. News feeds are freshness-tracked separately; live-news RSS cache expectations are around 5 minutes, while GDELT intelligence has longer seeded/cache budgets.',
     confidence: 'Useful as a triage cue, not a citation-grade claim without opening the underlying news and country context.',
     limitations: [

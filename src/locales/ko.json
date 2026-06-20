@@ -1843,7 +1843,7 @@
       "tripDays": "여행 기간"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM 애널리스트</strong> 지정학, 시장, 군사, 경제 분야의 실시간 컨텍스트를 갖춘 AI 애널리스트. WatchNet 활성 피드에서 실시간 데이터가 주입된 Claude로 구동."
+      "infoTooltip": "<strong>WatchNet 애널리스트</strong> 지정학, 시장, 군사, 경제 분야의 실시간 컨텍스트를 갖춘 AI 애널리스트. WatchNet 활성 피드에서 실시간 데이터가 주입된 Claude로 구동."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT 포지셔닝</strong> 트레이더 약정 보고서: 상품 및 금융 선물에서 상업적 거래자, 대형 투기꾼, 소규모 거래자의 순포지션. 매주 금요일 발표. 출처: CFTC."

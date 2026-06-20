@@ -1843,7 +1843,7 @@
       "tripDays": "行程天数"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM 分析师</strong> 具有地缘政治、市场、军事和经济领域实时上下文的AI分析师。由Claude驱动，注入WatchNet活跃数据源的实时数据。"
+      "infoTooltip": "<strong>WatchNet 分析师</strong> 具有地缘政治、市场、军事和经济领域实时上下文的AI分析师。由Claude驱动，注入WatchNet活跃数据源的实时数据。"
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT 持仓</strong> 交易者承诺报告：商品和金融期货中商业机构、大型投机者和小型交易者的净持仓。每周五发布。来源：CFTC。"

@@ -1843,7 +1843,7 @@
       "tripDays": "移動日数"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM アナリスト</strong> 地政学、市場、軍事、経済分野のライブコンテキストを持つAIアナリスト。WatchNetのアクティブフィードからリアルタイムデータを注入したClaudeで稼働。"
+      "infoTooltip": "<strong>WatchNet アナリスト</strong> 地政学、市場、軍事、経済分野のライブコンテキストを持つAIアナリスト。WatchNetのアクティブフィードからリアルタイムデータを注入したClaudeで稼働。"
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT ポジショニング</strong> トレーダーのコミットメント報告：商品先物・金融先物における商業筋、大口投機筋、小口トレーダーのネットポジション。毎週金曜日に公開。ソース：CFTC。"

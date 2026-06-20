@@ -1844,7 +1844,7 @@
       "tripDays": "Zile de călătorie"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Analist WM</strong> Analist AI cu context în timp real în domeniile geopolitic, piețe, militar și economic. Alimentat de Claude cu date în timp real injectate din fluxurile active WatchNet."
+      "infoTooltip": "<strong>Analist WatchNet</strong> Analist AI cu context în timp real în domeniile geopolitic, piețe, militar și economic. Alimentat de Claude cu date în timp real injectate din fluxurile active WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Poziționare CFTC COT</strong> Raportul angajamentelor traderilor: poziționarea netă a comercialilor, speculanților mari și traderilor mici în contractele futures pe mărfuri și financiare. Publicat săptămânal (vineri). Sursă: CFTC."

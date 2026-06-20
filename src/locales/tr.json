@@ -1843,7 +1843,7 @@
       "tripDays": "Gezi günleri"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analist</strong> Jeopolitik, piyasa, askeri ve ekonomik alanlarda canlı bağlama sahip AI analisti. Aktif WatchNet beslemelerinden gerçek zamanlı veri enjekte edilen Claude tarafından desteklenmektedir."
+      "infoTooltip": "<strong>WatchNet Analist</strong> Jeopolitik, piyasa, askeri ve ekonomik alanlarda canlı bağlama sahip AI analisti. Aktif WatchNet beslemelerinden gerçek zamanlı veri enjekte edilen Claude tarafından desteklenmektedir."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Pozisyonlama</strong> Tüccar Taahhütleri raporu: emtia ve finansal vadeli işlemlerde ticari aktörler, büyük spekülatörler ve küçük tüccarların net pozisyonları. Haftalık yayımlanır (Cuma). Kaynak: CFTC."

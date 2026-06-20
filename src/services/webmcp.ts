@@ -115,7 +115,7 @@ export function buildWebMcpTools(app: WebMcpAppBindings): WebMcpTool[] {
     {
       name: 'openSearch',
       description:
-        'Open the global search command palette so the user can find countries, signals, alerts, and other entities tracked by World Monitor.',
+        'Open the global search command palette so the user can find countries, signals, alerts, and other entities tracked by WatchNet.',
       inputSchema: {
         type: 'object',
         properties: {},

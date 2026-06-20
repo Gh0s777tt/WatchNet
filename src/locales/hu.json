@@ -2009,7 +2009,7 @@
       "loadError": "Éghajlat hírek átmenetileg nem érhetőek el"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>WM Analyst</strong> AI-elemző élő kontextussal a geopolitikai, piaci, katonai és gazdasági területeken. A Claude által működtetett, valós idejű adatok az aktív WatchNet feedekből."
+      "infoTooltip": "<strong>WatchNet Analyst</strong> AI-elemző élő kontextussal a geopolitikai, piaci, katonai és gazdasági területeken. A Claude által működtetett, valós idejű adatok az aktív WatchNet feedekből."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>CFTC COT Positioning</strong> Traders Commitments report: kereskedelmi vállalkozások, nagy spekulánsok és kis kereskedők nettó pozíciói a товар- és pénzügyi futures piacokon. Hetente közzétéve (péntek). Forrás: CFTC."

@@ -3,7 +3,7 @@
  *
  * Clerk-protected consent screen for the cross-subdomain Pro MCP flow.
  * The user lands here from the api-subdomain consent page (U4 will add
- * a "Sign in with WorldMonitor Pro" CTA on `api/oauth/authorize.js`).
+ * a "Sign in with WatchNet Pro" CTA on `api/oauth/authorize.js`).
  *
  * Flow on this page:
  *   1. Boot Clerk; if signed-out, openSignIn(). On sign-in, the modal
@@ -126,7 +126,7 @@ function errorCodeToMessage(code: string | undefined): string {
     case 'INVALID_REDIRECT_URI':
       return 'The redirect destination is not allowed. Start over from your MCP client.';
     case 'INSUFFICIENT_TIER':
-      return 'A WorldMonitor Pro subscription is required to authorize MCP clients.';
+      return 'A WatchNet Pro subscription is required to authorize MCP clients.';
     case 'CONFIGURATION_ERROR':
       return 'MCP authorization is temporarily unavailable. Please try again later.';
     case 'SERVICE_UNAVAILABLE':

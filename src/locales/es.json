@@ -1844,7 +1844,7 @@
       "tripDays": "Días de viaje"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Analista WM</strong> Analista de IA con contexto en vivo en los ámbitos geopolítico, de mercados, militar y económico. Impulsado por Claude con datos en tiempo real inyectados desde los feeds activos de WatchNet."
+      "infoTooltip": "<strong>Analista WatchNet</strong> Analista de IA con contexto en vivo en los ámbitos geopolítico, de mercados, militar y económico. Impulsado por Claude con datos en tiempo real inyectados desde los feeds activos de WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Posicionamiento CFTC COT</strong> Informe de Compromisos de los Operadores: posicionamiento neto de comerciales, grandes especuladores y pequeños operadores en futuros de materias primas y financieros. Publicado semanalmente (viernes). Fuente: CFTC."

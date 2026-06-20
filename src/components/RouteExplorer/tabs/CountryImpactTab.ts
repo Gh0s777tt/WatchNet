@@ -82,7 +82,7 @@ export class CountryImpactTab {
   private renderMissing(): void {
     setTrustedHtml(this.element, trustedHtml('<div class="re-tab__empty">' +
       '<h3>No trade data available</h3>' +
-      '<p>WorldMonitor does not have bilateral trade data for this destination country yet.</p>' +
+      '<p>WatchNet does not have bilateral trade data for this destination country yet.</p>' +
       '</div>', "legacy direct innerHTML migration"));
   }
 
@@ -96,14 +96,14 @@ export class CountryImpactTab {
   private renderLazy(): void {
     setTrustedHtml(this.element, trustedHtml('<div class="re-tab__empty">' +
       '<h3>Loading trade data</h3>' +
-      '<p>WorldMonitor is fetching trade data for this destination for the first time. ' +
+      '<p>WatchNet is fetching trade data for this destination for the first time. ' +
       'Try again in a few seconds.</p>' +
       '</div>', "legacy direct innerHTML migration"));
   }
 
   private renderData(data: GetRouteImpactResponse): void {
     const bannerHtml = !data.hs2InSeededUniverse
-      ? '<div class="re-impact__banner">Lane value for this HS code is not in WorldMonitor\'s strategic-products dataset. Top strategic products shown below.</div>'
+      ? '<div class="re-impact__banner">Lane value for this HS code is not in WatchNet\'s strategic-products dataset. Top strategic products shown below.</div>'
       : '';
 
     const laneHtml = data.hs2InSeededUniverse

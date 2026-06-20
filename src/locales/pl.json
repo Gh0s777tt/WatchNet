@@ -1845,7 +1845,7 @@
       "tripDays": "Dni podróży"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Analityk WM</strong> Analityk AI z kontekstem na żywo w domenach geopolitycznej, rynkowej, wojskowej i ekonomicznej. Zasilany przez Claude z danymi w czasie rzeczywistym z aktywnych kanałów WatchNet."
+      "infoTooltip": "<strong>Analityk WatchNet</strong> Analityk AI z kontekstem na żywo w domenach geopolitycznej, rynkowej, wojskowej i ekonomicznej. Zasilany przez Claude z danymi w czasie rzeczywistym z aktywnych kanałów WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Pozycjonowanie CFTC COT</strong> Raport zobowiązań traderów: pozycja netto podmiotów komercyjnych, dużych spekulantów i małych traderów w towarowych i finansowych kontraktach terminowych. Publikowany cotygodniowo (piątek). Źródło: CFTC."

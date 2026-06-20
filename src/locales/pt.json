@@ -1631,7 +1631,7 @@
       "tripDays": "Dias de viagem"
     },
     "chatAnalyst": {
-      "infoTooltip": "<strong>Analista WM</strong> Analista de IA com contexto em tempo real nos domínios geopolítico, de mercado, militar e económico. Alimentado pelo Claude com dados em tempo real injetados dos feeds ativos do WatchNet."
+      "infoTooltip": "<strong>Analista WatchNet</strong> Analista de IA com contexto em tempo real nos domínios geopolítico, de mercado, militar e económico. Alimentado pelo Claude com dados em tempo real injetados dos feeds ativos do WatchNet."
     },
     "cotPositioning": {
       "infoTooltip": "<strong>Posicionamento CFTC COT</strong> Relatório de Compromissos dos Traders: posicionamento líquido de comerciais, grandes especuladores e pequenos traders em futuros de commodities e financeiros. Publicado semanalmente (sexta-feira). Fonte: CFTC."
