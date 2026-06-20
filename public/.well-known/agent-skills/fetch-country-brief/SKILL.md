@@ -6,7 +6,7 @@ description: Retrieve the current AI-generated strategic intelligence brief for 
 
 # fetch-country-brief
 
-Use this skill when the user asks for a summary of the current geopolitical, economic, or security situation in a specific country. The endpoint returns a fresh AI-generated brief composed from the latest news, market, conflict, and infrastructure signals World Monitor tracks for that country.
+Use this skill when the user asks for a summary of the current geopolitical, economic, or security situation in a specific country. The endpoint returns a fresh AI-generated brief composed from the latest news, market, conflict, and infrastructure signals WatchNet tracks for that country.
 
 ## Authentication
 

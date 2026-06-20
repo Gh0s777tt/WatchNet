@@ -1,8 +1,8 @@
-# Pricing - World Monitor
+# Pricing - WatchNet
 
 Last updated: June 13, 2026
 
-World Monitor has a free public dashboard and paid tiers for analyst workflows, API access and organization deployments.
+WatchNet has a free public dashboard and paid tiers for analyst workflows, API access and organization deployments.
 
 ## Free
 
@@ -25,7 +25,7 @@ World Monitor has a free public dashboard and paid tiers for analyst workflows, 
 ## API
 
 - Price: $99.99/month
-- Best for: Developers and teams that want programmatic access to World Monitor intelligence data
+- Best for: Developers and teams that want programmatic access to WatchNet intelligence data
 - Includes: REST API access, structured JSON, cache headers, OpenAPI docs, real-time data streams, webhook notifications and custom data exports
 - Starter limit: 1,000 requests/day
 - Starter webhooks: 5 webhook rules
@@ -43,7 +43,7 @@ World Monitor has a free public dashboard and paid tiers for analyst workflows, 
 
 ```json
 {
-  "product": "World Monitor",
+  "product": "WatchNet",
   "url": "https://www.worldmonitor.app/",
   "pricing_url": "https://www.worldmonitor.app/pro#pricing",
   "plans": [
