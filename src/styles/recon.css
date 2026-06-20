@@ -25,7 +25,7 @@
   user-select: none;
 }
 .recon-tab:hover { color: #d4d4d4; }
-.recon-tab.active { color: #16a34a; border-bottom-color: #16a34a; }
+.recon-tab.active { color: #e50914; border-bottom-color: #e50914; }
 
 .recon-form { display: flex; gap: 6px; margin-bottom: 8px; }
 .recon-input {
@@ -39,10 +39,10 @@
   font-size: 12px;
   border-radius: 3px;
 }
-.recon-input:focus { outline: none; border-color: #16a34a; }
+.recon-input:focus { outline: none; border-color: #e50914; }
 .recon-btn {
-  background: #16a34a;
-  color: #001a0e;
+  background: #e50914;
+  color: #1a0003;
   border: none;
   padding: 6px 14px;
   cursor: pointer;
@@ -60,7 +60,7 @@
 .recon-v { color: #d4d4d4; word-break: break-word; }
 
 .recon-subhead {
-  color: #16a34a;
+  color: #e50914;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
